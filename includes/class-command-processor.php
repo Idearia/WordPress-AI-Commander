@@ -1,0 +1,98 @@
+<?php
+/**
+ * Command Processor Class
+ *
+ * @package WP_Natural_Language_Commands
+ */
+
+if ( ! defined( 'WPINC' ) ) {
+    die;
+}
+
+/**
+ * Command Processor class.
+ *
+ * This class processes natural language commands and executes the appropriate tools.
+ */
+class WP_NLC_Command_Processor {
+
+    /**
+     * The OpenAI client.
+     *
+     * @var WP_NLC_OpenAI_Client
+     */
+    private $openai_client;
+
+    /**
+     * The tool registry.
+     *
+     * @var WP_NLC_Tool_Registry
+     */
+    private $tool_registry;
+
+    /**
+     * Constructor.
+     */
+    public function __construct() {
+        $this->openai_client = new WP_NLC_OpenAI_Client();
+        $this->tool_registry = WP_NLC_Tool_Registry::get_instance();
+    }
+
+    /**
+     * Process a command.
+     *
+     * @param string $command The command to process.
+     * @return array The result of processing the command.
+     */
+    public function process( $command ) {
+        // Get the tool definitions for OpenAI function calling
+        $tool_definitions = $this->tool_registry->get_tool_definitions();
+        
+        // Process the command using the OpenAI API
+        $response = $this->openai_client->process_command( $command, $tool_definitions );
+        
+        if ( is_wp_error( $response ) ) {
+            return array(
+                'success' => false,
+                'message' => $response->get_error_message(),
+            );
+        }
+        
+        // If there are no tool calls, just return the content
+        if ( empty( $response['tool_calls'] ) ) {
+            return array(
+                'success' => true,
+                'message' => $response['content'],
+                'actions' => array(),
+            );
+        }
+        
+        // Execute the tool calls
+        $actions = array();
+        foreach ( $response['tool_calls'] as $tool_call ) {
+            $result = $this->execute_tool( $tool_call['name'], $tool_call['arguments'] );
+            $actions[] = array(
+                'tool' => $tool_call['name'],
+                'arguments' => $tool_call['arguments'],
+                'result' => $result,
+            );
+        }
+        
+        return array(
+            'success' => true,
+            'message' => $response['content'],
+            'actions' => $actions,
+        );
+    }
+
+    /**
+     * Execute a tool.
+     *
+     * @param string $name The name of the tool to execute.
+     * @param array $params The parameters to use when executing the tool.
+     * @return array|WP_Error The result of executing the tool.
+     */
+    private function execute_tool( $name, $params ) {
+        return $this->tool_registry->execute_tool( $name, $params );
+    }
+}
