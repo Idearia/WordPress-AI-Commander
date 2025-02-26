@@ -298,6 +298,3 @@ class WP_NLC_Content_Retrieval_Tool extends WP_NLC_Base_Tool {
         return $response;
     }
 }
-
-// Initialize the tool
-new WP_NLC_Content_Retrieval_Tool();

@@ -174,6 +174,3 @@ class WP_NLC_Post_Creation_Tool extends WP_NLC_Base_Tool {
         );
     }
 }
-
-// Initialize the tool
-new WP_NLC_Post_Creation_Tool();

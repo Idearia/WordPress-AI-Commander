@@ -438,6 +438,3 @@ class WP_NLC_Content_Organization_Tool extends WP_NLC_Base_Tool {
         return $attachment_id;
     }
 }
-
-// Initialize the tool
-new WP_NLC_Content_Organization_Tool();

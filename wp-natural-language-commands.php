@@ -92,6 +92,20 @@ function wp_natural_language_commands_init() {
 add_action( 'plugins_loaded', 'wp_natural_language_commands_init' );
 
 /**
+ * Register all available tools.
+ */
+function wp_natural_language_commands_register_tools() {
+    // Initialize all tool classes
+    new WP_NLC_Post_Creation_Tool();
+    new WP_NLC_Post_Editing_Tool();
+    new WP_NLC_Content_Organization_Tool();
+    new WP_NLC_Content_Retrieval_Tool();
+    
+    // You can add more tools here as they are developed
+}
+add_action( 'init', 'wp_natural_language_commands_register_tools' );
+
+/**
  * Enqueue scripts and styles for admin pages.
  */
 function wp_natural_language_commands_enqueue_admin_scripts( $hook ) {

@@ -236,6 +236,3 @@ class WP_NLC_Post_Editing_Tool extends WP_NLC_Base_Tool {
         return $query->posts[0];
     }
 }
-
-// Initialize the tool
-new WP_NLC_Post_Editing_Tool();
