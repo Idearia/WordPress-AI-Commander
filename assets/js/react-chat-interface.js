@@ -210,11 +210,110 @@ const ActionResults = ({ actions }) => {
          * The main chat interface component.
          */
         const ChatInterface = ({ config }) => {
-            const [messages, setMessages] = useState([
-                { role: 'assistant', content: 'Hello! I\'m your WordPress assistant. How can I help you today?' }
-            ]);
+            const [messages, setMessages] = useState([]);
             const [actions, setActions] = useState([]);
             const [isProcessing, setIsProcessing] = useState(false);
+            const [conversationId, setConversationId] = useState(null);
+            
+            // Function to create a new conversation
+            const startNewConversation = () => {
+                setIsProcessing(true);
+                
+                $.ajax({
+                    url: config.ajaxUrl,
+                    method: 'POST',
+                    data: {
+                        action: 'wp_nlc_create_conversation',
+                        nonce: config.nonce
+                    },
+                    success: function(response) {
+                        setIsProcessing(false);
+                        
+                        if (response.success) {
+                            // Set the new conversation ID
+                            const newConversationId = response.data.conversation_uuid;
+                            setConversationId(newConversationId);
+                            
+                            // Save the conversation ID to localStorage
+                            localStorage.setItem('wp_nlc_conversation_id', newConversationId);
+                            
+                            // Set the initial messages
+                            setMessages(response.data.messages || []);
+                            
+                            // Clear any actions
+                            setActions([]);
+                        } else {
+                            // Handle error
+                            setMessages([
+                                { role: 'assistant', content: `Error: ${response.data.message || 'Failed to create conversation'}` }
+                            ]);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        setIsProcessing(false);
+                        
+                        // Handle error
+                        setMessages([
+                            { role: 'assistant', content: `Error: ${error || 'Failed to create conversation'}` }
+                        ]);
+                    }
+                });
+            };
+            
+            // Function to load an existing conversation
+            const loadConversation = (conversationUuid) => {
+                setIsProcessing(true);
+                
+                $.ajax({
+                    url: config.ajaxUrl,
+                    method: 'POST',
+                    data: {
+                        action: 'wp_nlc_get_conversation',
+                        nonce: config.nonce,
+                        conversation_uuid: conversationUuid
+                    },
+                    success: function(response) {
+                        setIsProcessing(false);
+                        
+                        if (response.success) {
+                            // Set the conversation ID
+                            setConversationId(response.data.conversation_uuid);
+                            
+                            // Set the messages
+                            setMessages(response.data.messages || []);
+                            
+                            // Clear any actions
+                            setActions([]);
+                        } else {
+                            // If there's an error loading the conversation, create a new one
+                            console.error('Failed to load conversation:', response.data.message);
+                            localStorage.removeItem('wp_nlc_conversation_id');
+                            startNewConversation();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        setIsProcessing(false);
+                        console.error('Error loading conversation:', error);
+                        
+                        // If there's an error, create a new conversation
+                        localStorage.removeItem('wp_nlc_conversation_id');
+                        startNewConversation();
+                    }
+                });
+            };
+            
+            // When component mounts, check for existing conversation ID
+            useEffect(() => {
+                const savedConversationId = localStorage.getItem('wp_nlc_conversation_id');
+                
+                if (savedConversationId) {
+                    // Load the existing conversation
+                    loadConversation(savedConversationId);
+                } else {
+                    // Create a new conversation
+                    startNewConversation();
+                }
+            }, []);
             
             const handleSendMessage = (message) => {
                 // Add user message to the chat
@@ -236,12 +335,18 @@ const ActionResults = ({ actions }) => {
                     data: {
                         action: 'wp_nlc_process_command',
                         nonce: config.nonce,
-                        command: message
+                        command: message,
+                        conversation_uuid: conversationId
                     },
                     success: function(response) {
                         setIsProcessing(false);
                         
                         if (response.success) {
+                            // Update conversation ID if it changed
+                            if (response.data.conversation_uuid) {
+                                setConversationId(response.data.conversation_uuid);
+                            }
+                            
                             // Process the response message and actions
                             const messageContent = response.data.message;
                             const hasActions = response.data.actions && response.data.actions.length > 0;
@@ -293,6 +398,20 @@ const ActionResults = ({ actions }) => {
             return e(
                 'div',
                 { className: 'wp-nlc-chat-container' },
+                e(
+                    'div',
+                    { className: 'wp-nlc-chat-header' },
+                    e('h3', null, 'WordPress Assistant'),
+                    e(
+                        'button',
+                        {
+                            className: 'wp-nlc-new-conversation-button',
+                            onClick: startNewConversation,
+                            disabled: isProcessing
+                        },
+                        'New Conversation'
+                    )
+                ),
                 e(MessageList, { messages: messages }),
                 e(ActionResults, { actions: actions }),
                 e(InputArea, { 

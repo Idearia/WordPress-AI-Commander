@@ -89,6 +89,38 @@ class OpenaiClient {
 
         return $this->process_response( $response );
     }
+    
+    /**
+     * Process a command with conversation history using the OpenAI API.
+     *
+     * @param array $messages The conversation history messages.
+     * @param array $tools The tools to make available to the API.
+     * @return array|\WP_Error The result of processing the command.
+     */
+    public function process_command_with_history( $messages, $tools ) {
+        if ( empty( $this->api_key ) ) {
+            return new \WP_Error(
+                'missing_api_key',
+                'OpenAI API key is not configured. Please set it in the plugin settings.'
+            );
+        }
+        
+        // Ensure the system prompt is included as the first message
+        if ( empty( $messages ) || $messages[0]['role'] !== 'system' ) {
+            array_unshift( $messages, array(
+                'role' => 'system',
+                'content' => $this->get_system_prompt(),
+            ) );
+        }
+
+        $response = $this->send_request( $messages, $tools );
+
+        if ( $response instanceof \WP_Error ) {
+            return $response;
+        }
+
+        return $this->process_response( $response );
+    }
 
     /**
      * Get the system prompt for the OpenAI API.

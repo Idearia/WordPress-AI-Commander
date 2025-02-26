@@ -15,6 +15,41 @@
     overflow: hidden;
 }
 
+/* Chat header */
+.wp-nlc-chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: #f7f7f7;
+}
+
+.wp-nlc-chat-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+}
+
+.wp-nlc-new-conversation-button {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background-color 0.2s;
+}
+
+.wp-nlc-new-conversation-button:hover {
+    background-color: #e0e0e0;
+}
+
+.wp-nlc-new-conversation-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 /* Message list */
 .wp-nlc-message-list {
     flex: 1;

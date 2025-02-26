@@ -39,9 +39,48 @@ define( 'WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
  * The code that runs during plugin activation.
  */
 function activate_wp_natural_language_commands() {
-    // Activation tasks
-    // Create necessary database tables if needed
-    // Set default options
+    global $wpdb;
+    
+    // Include WordPress database upgrade functions
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    
+    $charset_collate = $wpdb->get_charset_collate();
+    
+    // Define table names with proper prefixing
+    $conversations_table = $wpdb->prefix . 'nlc_conversations';
+    $messages_table = $wpdb->prefix . 'nlc_messages';
+    
+    // SQL for conversations table
+    $conversations_sql = "CREATE TABLE $conversations_table (
+        id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+        conversation_uuid VARCHAR(36) NOT NULL,
+        user_id BIGINT(20) UNSIGNED NOT NULL,
+        created_at DATETIME NOT NULL,
+        updated_at DATETIME NOT NULL,
+        PRIMARY KEY (id),
+        UNIQUE KEY conversation_uuid (conversation_uuid),
+        KEY user_id (user_id)
+    ) $charset_collate;";
+    
+    // SQL for messages table
+    $messages_sql = "CREATE TABLE $messages_table (
+        id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+        conversation_id BIGINT(20) UNSIGNED NOT NULL,
+        role VARCHAR(20) NOT NULL,
+        content LONGTEXT,
+        tool_calls LONGTEXT,
+        tool_call_id VARCHAR(255),
+        created_at DATETIME NOT NULL,
+        PRIMARY KEY (id),
+        KEY conversation_id (conversation_id)
+    ) $charset_collate;";
+    
+    // Use dbDelta to create/update tables
+    dbDelta( $conversations_sql );
+    dbDelta( $messages_sql );
+    
+    // Add version to options for future updates
+    add_option( 'wp_nlc_db_version', WP_NATURAL_LANGUAGE_COMMANDS_VERSION );
 }
 
 /**
@@ -63,6 +102,7 @@ function wp_natural_language_commands_load_dependencies() {
     require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'includes/ToolRegistry.php';
     require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'includes/OpenaiClient.php';
     require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'includes/CommandProcessor.php';
+    require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'includes/ConversationManager.php';
     
     // Include admin classes
     require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'admin/AdminPage.php';
@@ -79,6 +119,22 @@ function wp_natural_language_commands_load_dependencies() {
     require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'tools/ContentRetrievalTool.php';
     require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'tools/SiteInformationTool.php';
 }
+
+/**
+ * Check if database needs updating.
+ */
+function wp_natural_language_commands_check_db_updates() {
+    $current_version = get_option( 'wp_nlc_db_version', '0' );
+    
+    if ( version_compare( $current_version, WP_NATURAL_LANGUAGE_COMMANDS_VERSION, '<' ) ) {
+        // Run activation function to update tables
+        activate_wp_natural_language_commands();
+        
+        // Update version in options
+        update_option( 'wp_nlc_db_version', WP_NATURAL_LANGUAGE_COMMANDS_VERSION );
+    }
+}
+add_action( 'plugins_loaded', 'wp_natural_language_commands_check_db_updates', 5 ); // Run before main init
 
 /**
  * Initialize the plugin.
@@ -139,6 +195,79 @@ function wp_natural_language_commands_enqueue_admin_scripts( $hook ) {
 add_action( 'admin_enqueue_scripts', 'wp_natural_language_commands_enqueue_admin_scripts' );
 
 /**
+ * AJAX handler for creating a new conversation.
+ */
+function wp_natural_language_commands_create_conversation() {
+    // Check nonce for security
+    check_ajax_referer( 'wp_nlc_nonce', 'nonce' );
+    
+    // Check user capabilities
+    if ( ! current_user_can( 'edit_posts' ) ) {
+        wp_send_json_error( array( 'message' => 'Insufficient permissions' ) );
+    }
+    
+    // Get current user ID
+    $user_id = get_current_user_id();
+    
+    // Create a new conversation
+    $conversation_manager = new WPNaturalLanguageCommands\Includes\ConversationManager();
+    $conversation_uuid = $conversation_manager->create_conversation( $user_id );
+    
+    // Get initial messages (should include the greeting)
+    $messages = $conversation_manager->format_for_frontend( $conversation_uuid );
+    
+    // Return the conversation UUID and initial messages
+    wp_send_json_success( array(
+        'conversation_uuid' => $conversation_uuid,
+        'messages' => $messages
+    ) );
+}
+add_action( 'wp_ajax_wp_nlc_create_conversation', 'wp_natural_language_commands_create_conversation' );
+
+/**
+ * AJAX handler for getting an existing conversation.
+ */
+function wp_natural_language_commands_get_conversation() {
+    // Check nonce for security
+    check_ajax_referer( 'wp_nlc_nonce', 'nonce' );
+    
+    // Check user capabilities
+    if ( ! current_user_can( 'edit_posts' ) ) {
+        wp_send_json_error( array( 'message' => 'Insufficient permissions' ) );
+    }
+    
+    // Get the conversation UUID from the request
+    $conversation_uuid = isset( $_POST['conversation_uuid'] ) ? sanitize_text_field( $_POST['conversation_uuid'] ) : '';
+    
+    if ( empty( $conversation_uuid ) ) {
+        wp_send_json_error( array( 'message' => 'No conversation UUID provided' ) );
+    }
+    
+    // Get the conversation
+    $conversation_manager = new WPNaturalLanguageCommands\Includes\ConversationManager();
+    $conversation = $conversation_manager->get_conversation( $conversation_uuid );
+    
+    if ( ! $conversation ) {
+        wp_send_json_error( array( 'message' => 'Conversation not found' ) );
+    }
+    
+    // Check if the conversation belongs to the current user
+    if ( $conversation->user_id != get_current_user_id() ) {
+        wp_send_json_error( array( 'message' => 'You do not have permission to access this conversation' ) );
+    }
+    
+    // Get the messages
+    $messages = $conversation_manager->format_for_frontend( $conversation_uuid );
+    
+    // Return the conversation UUID and messages
+    wp_send_json_success( array(
+        'conversation_uuid' => $conversation_uuid,
+        'messages' => $messages
+    ) );
+}
+add_action( 'wp_ajax_wp_nlc_get_conversation', 'wp_natural_language_commands_get_conversation' );
+
+/**
  * AJAX handler for processing chatbot commands.
  */
 function wp_natural_language_commands_process_command() {
@@ -152,6 +281,7 @@ function wp_natural_language_commands_process_command() {
     
     // Get the command from the request
     $command = isset( $_POST['command'] ) ? sanitize_text_field( $_POST['command'] ) : '';
+    $conversation_uuid = isset( $_POST['conversation_uuid'] ) ? sanitize_text_field( $_POST['conversation_uuid'] ) : null;
     
     if ( empty( $command ) ) {
         wp_send_json_error( array( 'message' => 'No command provided' ) );
@@ -159,7 +289,7 @@ function wp_natural_language_commands_process_command() {
     
     // Process the command
     $command_processor = new CommandProcessor();
-    $result = $command_processor->process( $command );
+    $result = $command_processor->process( $command, $conversation_uuid );
     
     // Return the result
     wp_send_json_success( $result );
