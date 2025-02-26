@@ -113,7 +113,7 @@ abstract class BaseTool {
     /**
      * Apply default values to parameters.
      *
-     * @param array $params The parameters to apply defaults to.
+     * @param array $params The parameters passed to the tool at execution time.
      * @return array The parameters with defaults applied.
      */
     protected function apply_parameter_defaults( $params ) {

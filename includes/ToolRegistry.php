@@ -112,6 +112,9 @@ class ToolRegistry {
     /**
      * Get all tool definitions for OpenAI function calling.
      *
+     * This array will be converted to JSON and included in all calls
+     * to the OpenAI API.
+     *
      * @return array The tool definitions.
      */
     public function get_tool_definitions() {
@@ -127,14 +130,17 @@ class ToolRegistry {
                     'parameters' => array(
                         'type' => 'object',
                         // In strict mode, all parameters must be listed in the 'required' property.
-                        // It is still possible to define optional parameters, by including 'null'
-                        // in the 'type' property.
                         'required' => array_keys( $tool->get_parameters() ),
                         'properties' => array_map( function( $param ) {
+                            // Even in strict mode, it is still possible to define optional parameters,
+                            // by including 'null' in the 'type' property.
                             $param['type'] = is_array( $param['type'] ) ? $param['type'] : array( $param['type'] );
                             if ( $param['required'] === false && ! in_array( 'null', $param['type'] ) ) {
                                 $param['type'][] = 'null';
                             }
+                            // We need to get rid of the 'required' and 'default' properties, as they are not
+                            // part of the OpenAI function calling schema.
+                            unset( $param['required'], $param['default'] );
                             return $param;
                         }, $tool->get_parameters() ),
                     ),
