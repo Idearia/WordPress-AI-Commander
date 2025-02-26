@@ -51,6 +51,20 @@
     border: 1px solid #ddd;
 }
 
+/* Message line */
+.wp-nlc-message-line {
+    min-height: 1.2em;
+    line-height: 1.4;
+}
+
+.wp-nlc-message-line:empty {
+    display: none;
+}
+
+.wp-nlc-message-line:empty + .wp-nlc-message-line:empty {
+    display: none;
+}
+
 /* Input area */
 .wp-nlc-input-container {
     display: flex;

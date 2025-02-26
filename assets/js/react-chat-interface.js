@@ -24,13 +24,22 @@
         const MessageItem = ({ message }) => {
             const { role, content } = message;
             
+            // Simple function to preserve line breaks in text
+            const formatContent = (text) => {
+                if (!text) return '';
+                
+                // Split by newlines and create an array of text elements
+                return text.split('\n').map((line, i) => 
+                    e('div', { key: i, className: 'wp-nlc-message-line' }, line)
+                );
+            };
+            
             return e(
                 'div',
                 { className: `wp-nlc-message ${role}` },
-                e(
-                    'div',
+                e('div', 
                     { className: 'wp-nlc-message-content' },
-                    content
+                    formatContent(content)
                 )
             );
         };
@@ -191,16 +200,39 @@
                         setIsProcessing(false);
                         
                         if (response.success) {
-                            // Add assistant message to the chat
-                            setMessages(prevMessages => [
-                                ...prevMessages,
-                                { role: 'assistant', content: response.data.message }
-                            ]);
+                            // Process the response message and actions
+                            let messageContent = response.data.message;
                             
                             // Set actions if any
                             if (response.data.actions && response.data.actions.length > 0) {
                                 setActions(response.data.actions);
+                                
+                                // Always append a summary of actions to the message
+                                if (response.data.actions.length > 0) {
+                                    const actionSummaries = response.data.actions
+                                        .filter(action => action.summary) // Only include actions with summaries
+                                        .map(action => action.summary);
+                                    
+                                    if (actionSummaries.length > 0) {
+                                        // Add a header for the actions section
+                                        messageContent = messageContent.trim();
+                                        
+                                        // Add the actions header
+                                        messageContent += '\n\nActions performed:';
+                                        
+                                        // Add each action summary on a new line
+                                        actionSummaries.forEach(summary => {
+                                            messageContent += '\n- ' + summary;
+                                        });
+                                    }
+                                }
                             }
+                            
+                            // Add assistant message to the chat
+                            setMessages(prevMessages => [
+                                ...prevMessages,
+                                { role: 'assistant', content: messageContent }
+                            ]);
                         } else {
                             // Add error message to the chat
                             setMessages(prevMessages => [

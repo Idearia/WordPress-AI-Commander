@@ -43,7 +43,7 @@ class PostCreationTool extends BaseTool {
             'content' => array(
                 'type' => 'string',
                 'description' => 'The content of the post',
-                'required' => true,
+                'required' => false,
             ),
             'excerpt' => array(
                 'type' => 'string',
@@ -174,5 +174,27 @@ class PostCreationTool extends BaseTool {
                 $post_id
             ),
         );
+    }
+    
+    /**
+     * Get a human-readable summary of the tool execution result.
+     *
+     * @param array|\WP_Error $result The result of executing the tool.
+     * @param array $params The parameters used when executing the tool.
+     * @return string A human-readable summary of the result.
+     */
+    public function get_result_summary( $result, $params ) {
+        if ( is_wp_error( $result ) ) {
+            return $result->get_error_message();
+        }
+        
+        if ( isset( $result['message'] ) ) {
+            return $result['message'];
+        }
+        
+        $post_id = isset( $result['post_id'] ) ? $result['post_id'] : 'unknown';
+        $title = isset( $params['title'] ) ? $params['title'] : 'unknown';
+        
+        return sprintf( 'Post "%s" created successfully with ID %d.', $title, $post_id );
     }
 }

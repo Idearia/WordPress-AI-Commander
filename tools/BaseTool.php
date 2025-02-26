@@ -128,4 +128,27 @@ abstract class BaseTool {
         
         return $params;
     }
+    
+    /**
+     * Get a human-readable summary of the tool execution result.
+     * 
+     * This method can be overridden by child classes to provide custom summaries.
+     * By default, it tries to extract a message from the result or returns a generic message.
+     *
+     * @param array|\WP_Error $result The result of executing the tool.
+     * @param array $params The parameters used when executing the tool.
+     * @return string A human-readable summary of the result.
+     */
+    public function get_result_summary( $result, $params ) {
+        if ( is_wp_error( $result ) ) {
+            return $result->get_error_message();
+        }
+        
+        if ( isset( $result['message'] ) ) {
+            return $result['message'];
+        }
+        
+        // Default generic summary
+        return sprintf( 'Executed %s successfully.', $this->get_name() );
+    }
 }

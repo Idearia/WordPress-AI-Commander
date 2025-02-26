@@ -162,12 +162,68 @@ class ContentOrganizationTool extends BaseTool {
             'post_url' => $post_url,
             'edit_url' => $edit_url,
             'changes' => $changes,
-            'message' => sprintf(
-                'Post "%s" (ID: %d) organized successfully.',
-                get_the_title( $post_id ),
-                $post_id
-            ),
         );
+    }
+    
+    /**
+     * Get a human-readable summary of the tool execution result.
+     *
+     * @param array|\WP_Error $result The result of executing the tool.
+     * @param array $params The parameters used when executing the tool.
+     * @return string A human-readable summary of the result.
+     */
+    public function get_result_summary( $result, $params ) {
+        if ( is_wp_error( $result ) ) {
+            return $result->get_error_message();
+        }
+        
+        if ( isset( $result['message'] ) ) {
+            return $result['message'];
+        }
+        
+        // Create a detailed summary based on the changes made
+        $summary_parts = array();
+        
+        if ( isset( $result['post_id'] ) ) {
+            $post_title = get_the_title( $result['post_id'] );
+            $post_id = $result['post_id'];
+            
+            $summary_parts[] = sprintf( 'Post "%s" (ID: %d) organized', $post_title, $post_id );
+            
+            if ( isset( $result['changes'] ) && is_array( $result['changes'] ) ) {
+                foreach ( $result['changes'] as $change ) {
+                    if ( isset( $change['type'] ) ) {
+                        switch ( $change['type'] ) {
+                            case 'categories':
+                                if ( isset( $change['action'], $change['after'] ) ) {
+                                    $categories = implode( ', ', $change['after'] );
+                                    if ( ! empty( $categories ) ) {
+                                        $summary_parts[] = sprintf( 'Categories set to: %s', $categories );
+                                    }
+                                }
+                                break;
+                                
+                            case 'tags':
+                                if ( isset( $change['action'], $change['after'] ) ) {
+                                    $tags = implode( ', ', $change['after'] );
+                                    if ( ! empty( $tags ) ) {
+                                        $summary_parts[] = sprintf( 'Tags set to: %s', $tags );
+                                    }
+                                }
+                                break;
+                                
+                            case 'featured_image':
+                                if ( isset( $change['after'] ) && ! empty( $change['after'] ) ) {
+                                    $summary_parts[] = 'Featured image updated';
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+        
+        return implode( '. ', $summary_parts ) . '.';
     }
 
     /**
