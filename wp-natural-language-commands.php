@@ -26,6 +26,7 @@ use WPNaturalLanguageCommands\Tools\PostCreationTool;
 use WPNaturalLanguageCommands\Tools\PostEditingTool;
 use WPNaturalLanguageCommands\Tools\ContentOrganizationTool;
 use WPNaturalLanguageCommands\Tools\ContentRetrievalTool;
+use WPNaturalLanguageCommands\Tools\SiteInformationTool;
 
 /**
  * Currently plugin version.
@@ -76,6 +77,7 @@ function wp_natural_language_commands_load_dependencies() {
     require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'tools/PostEditingTool.php';
     require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'tools/ContentOrganizationTool.php';
     require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'tools/ContentRetrievalTool.php';
+    require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'tools/SiteInformationTool.php';
 }
 
 /**
@@ -110,6 +112,7 @@ function wp_natural_language_commands_register_tools() {
     new PostEditingTool();
     new ContentOrganizationTool();
     new ContentRetrievalTool();
+    new SiteInformationTool();
     
     // You can add more tools here as they are developed
 }
