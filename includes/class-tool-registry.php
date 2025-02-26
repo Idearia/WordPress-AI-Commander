@@ -111,12 +111,15 @@ class WP_NLC_Tool_Registry {
         
         foreach ( $this->tools as $name => $tool ) {
             $definitions[] = array(
-                'name' => $name,
-                'description' => $tool->get_description(),
-                'parameters' => array(
-                    'type' => 'object',
-                    'properties' => $tool->get_parameters(),
-                    'required' => $this->get_required_parameters( $tool ),
+                'type' => 'function',
+                'function' => array(
+                    'name' => $name,
+                    'description' => $tool->get_description(),
+                    'parameters' => array(
+                        'type' => 'object',
+                        'properties' => $tool->get_parameters(),
+                        'required' => $this->get_required_parameters( $tool ),
+                    ),
                 ),
             );
         }

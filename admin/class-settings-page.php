@@ -62,7 +62,17 @@ class WP_NLC_Settings_Page extends WP_NLC_Admin_Page {
             array(
                 'type' => 'string',
                 'sanitize_callback' => 'sanitize_text_field',
-                'default' => 'gpt-4-turbo',
+                'default' => 'gpt-4o',
+            )
+        );
+        
+        register_setting(
+            'wp_nlc_settings',
+            'wp_nlc_debug_mode',
+            array(
+                'type' => 'boolean',
+                'sanitize_callback' => 'rest_sanitize_boolean',
+                'default' => false,
             )
         );
         
@@ -87,6 +97,14 @@ class WP_NLC_Settings_Page extends WP_NLC_Admin_Page {
             'wp_nlc_openai_model',
             __( 'Model', 'wp-natural-language-commands' ),
             array( $this, 'render_model_field' ),
+            'wp_nlc_settings',
+            'wp_nlc_openai_settings'
+        );
+        
+        add_settings_field(
+            'wp_nlc_debug_mode',
+            __( 'Debug Mode', 'wp-natural-language-commands' ),
+            array( $this, 'render_debug_mode_field' ),
             'wp_nlc_settings',
             'wp_nlc_openai_settings'
         );
@@ -176,21 +194,26 @@ class WP_NLC_Settings_Page extends WP_NLC_Admin_Page {
      */
     public function render_model_field() {
         $model = get_option( 'wp_nlc_openai_model', 'gpt-4-turbo' );
-        $models = array(
-            'gpt-4-turbo' => __( 'GPT-4 Turbo (Recommended)', 'wp-natural-language-commands' ),
-            'gpt-4' => __( 'GPT-4', 'wp-natural-language-commands' ),
-            'gpt-3.5-turbo' => __( 'GPT-3.5 Turbo', 'wp-natural-language-commands' ),
-        );
         ?>
-        <select id="wp_nlc_openai_model" name="wp_nlc_openai_model">
-            <?php foreach ( $models as $model_id => $model_name ) : ?>
-                <option value="<?php echo esc_attr( $model_id ); ?>" <?php selected( $model, $model_id ); ?>>
-                    <?php echo esc_html( $model_name ); ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
+        <input type="text" id="wp_nlc_openai_model" name="wp_nlc_openai_model" value="<?php echo esc_attr( $model ); ?>" class="regular-text" />
         <p class="description">
-            <?php esc_html_e( 'Select the OpenAI model to use. GPT-4 models provide better results but may be more expensive.', 'wp-natural-language-commands' ); ?>
+            <?php esc_html_e( 'Enter the OpenAI model to use (e.g., gpt-4-turbo, gpt-4, gpt-3.5-turbo). GPT-4 models provide better results but may be more expensive.', 'wp-natural-language-commands' ); ?>
+        </p>
+        <?php
+    }
+
+    /**
+     * Render the debug mode field.
+     */
+    public function render_debug_mode_field() {
+        $debug_mode = get_option( 'wp_nlc_debug_mode', false );
+        ?>
+        <label for="wp_nlc_debug_mode">
+            <input type="checkbox" id="wp_nlc_debug_mode" name="wp_nlc_debug_mode" value="1" <?php checked( $debug_mode, true ); ?> />
+            <?php esc_html_e( 'Enable debug logging', 'wp-natural-language-commands' ); ?>
+        </label>
+        <p class="description">
+            <?php esc_html_e( 'When enabled, detailed API request and response information will be logged to the WordPress debug log. This is useful for troubleshooting but should be disabled in production.', 'wp-natural-language-commands' ); ?>
         </p>
         <?php
     }

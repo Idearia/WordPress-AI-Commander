@@ -4,17 +4,20 @@
  * Implements a simple conversational interface using React.
  */
 
+console.log("DENTRO JS");
+
+
 (function($) {
     'use strict';
 
-    // Wait for React and ReactDOM to be loaded
+    // Access React and ReactDOM through wp.element
     function initChatInterface() {
-        if (typeof React === 'undefined' || typeof ReactDOM === 'undefined') {
-            console.error('React or ReactDOM not loaded');
+        if (typeof wp === 'undefined' || typeof wp.element === 'undefined') {
+            console.error('wp.element not loaded');
             return;
         }
 
-        const { useState, useEffect, useRef, createElement: e } = React;
+        const { useState, useEffect, useRef, createElement: e } = wp.element;
 
         /**
          * MessageItem Component
@@ -258,7 +261,7 @@
             };
             
             // Render the chat interface
-            ReactDOM.render(
+            wp.element.render(
                 e(ChatInterface, { config: config }),
                 container
             );
@@ -268,19 +271,13 @@
         $(document).ready(init);
     }
 
-    // Check if React is already loaded, otherwise load it
-    if (typeof React === 'undefined' || typeof ReactDOM === 'undefined') {
-        // Load React and ReactDOM from WordPress
-        wp.element.render(
-            wp.element.createElement('div', {}, ''),
-            document.createElement('div')
-        );
-        
-        // Try to initialize after a short delay to ensure React is loaded
-        setTimeout(initChatInterface, 100);
-    } else {
-        // React is already loaded, initialize immediately
-        initChatInterface();
+    // Check if wp.element is loaded
+    if (typeof wp === 'undefined' || typeof wp.element === 'undefined') {
+        console.error('wp.element not loaded. Make sure wp-element is enqueued properly.');
+        return;
     }
+    
+    // Initialize the chat interface
+    initChatInterface();
     
 })(jQuery);

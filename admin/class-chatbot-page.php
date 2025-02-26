@@ -43,14 +43,8 @@ class WP_NLC_Chatbot_Page extends WP_NLC_Admin_Page {
 
     /**
      * Enqueue chat interface scripts and styles.
-     *
-     * @param string $hook The current admin page.
      */
-    public function enqueue_chat_interface_scripts( $hook ) {
-        if ( 'wp-natural-language-commands-chatbot' !== $hook ) {
-            return;
-        }
-
+    public function enqueue_chat_interface_scripts() {
         // Enqueue React and ReactDOM from WordPress
         wp_enqueue_script( 'wp-element' );
         
