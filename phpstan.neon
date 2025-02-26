@@ -1,0 +1,29 @@
+includes:
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+    # Start with a lower level and increase gradually as needed
+    level: 3
+    
+    # Paths to analyze
+    paths:
+        - wp-natural-language-commands.php
+        - admin/
+        - includes/
+        - tools/
+    
+    # Exclude vendor directory
+    excludePaths:
+        - vendor/
+    
+    # Ignore some common WordPress patterns and project-specific issues
+    ignoreErrors:
+        # Project-specific constants
+        - '#Constant WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_URL not found\.#'
+        - '#Constant WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR not found\.#'
+        
+        # WordPress admin includes
+        - '#Path in require_once\(\) ".\/wp-admin\/includes\/.*" is not a file or it does not exist\.#'
+        
+        # Undefined variable in ContentOrganizationTool.php
+        - '#Variable \$result might not be defined\.#'
