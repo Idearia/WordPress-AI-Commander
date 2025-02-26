@@ -14,6 +14,10 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * This class manages all the tools in the plugin. It provides methods for
  * registering, retrieving, and executing tools.
+ *
+ * All tools will be registered in strict mode.
+ *
+ * Docs: https://platform.openai.com/docs/guides/function-calling
  */
 class WP_NLC_Tool_Registry {
 
@@ -111,39 +115,30 @@ class WP_NLC_Tool_Registry {
         
         foreach ( $this->tools as $name => $tool ) {
             $definitions[] = array(
+                'strict' => true,
                 'type' => 'function',
                 'function' => array(
                     'name' => $name,
                     'description' => $tool->get_description(),
                     'parameters' => array(
                         'type' => 'object',
-                        'properties' => $tool->get_parameters(),
-                        'required' => $this->get_required_parameters( $tool ),
+                        // In strict mode, all parameters must be listed in the 'required' property.
+                        // It is still possible to define optional parameters, by including 'null'
+                        // in the 'type' property.
+                        'required' => array_keys( $tool->get_parameters() ),
+                        'properties' => array_map( function( $param ) {
+                            $param['type'] = is_array( $param['type'] ) ? $param['type'] : array( $param['type'] );
+                            if ( $param['required'] === false && ! in_array( 'null', $param['type'] ) ) {
+                                $param['type'][] = 'null';
+                            }
+                            return $param;
+                        }, $tool->get_parameters() ),
                     ),
                 ),
             );
         }
         
         return $definitions;
-    }
-
-    /**
-     * Get the required parameters for a tool.
-     *
-     * @param WP_NLC_Base_Tool $tool The tool.
-     * @return array The required parameters.
-     */
-    private function get_required_parameters( $tool ) {
-        $required = array();
-        $parameters = $tool->get_parameters();
-        
-        foreach ( $parameters as $name => $param ) {
-            if ( isset( $param['required'] ) && $param['required'] === true ) {
-                $required[] = $name;
-            }
-        }
-        
-        return $required;
     }
 
     /**

@@ -116,7 +116,8 @@ abstract class WP_NLC_Base_Tool {
         $parameters = $this->get_parameters();
         
         foreach ( $parameters as $name => $param ) {
-            if ( ! isset( $params[ $name ] ) && isset( $param['default'] ) ) {
+            $param_not_given = ! isset( $params[ $name ] ) || $params[ $name ] === null;
+            if ( $param_not_given && isset( $param['default'] ) ) {
                 $params[ $name ] = $param['default'];
             }
         }

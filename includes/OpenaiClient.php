@@ -109,16 +109,6 @@ class WP_NLC_OpenAI_Client {
      * @return array|WP_Error The API response, or WP_Error on failure.
      */
     private function send_request( $messages, $tools ) {
-        // Ensure tools is properly formatted
-        if (!empty($tools)) {
-            // Make sure each tool has the required 'type' field
-            foreach ($tools as &$tool) {
-                if (!isset($tool['type'])) {
-                    $tool['type'] = 'function';
-                }
-            }
-        }
-        
         // Debug: Log the request payload if debug mode is enabled
         if ($this->debug_mode) {
             error_log('OpenAI API Request: ' . wp_json_encode(array(
@@ -126,7 +116,7 @@ class WP_NLC_OpenAI_Client {
                 'messages' => $messages,
                 'tools' => $tools,
                 'tool_choice' => 'auto',
-            )));
+            ), JSON_PRETTY_PRINT));
         }
         
         $args = array(
@@ -174,7 +164,7 @@ class WP_NLC_OpenAI_Client {
     private function process_response( $response ) {
         // Debug: Log the API response if debug mode is enabled
         if ($this->debug_mode) {
-            error_log('OpenAI API Response: ' . wp_json_encode($response));
+            error_log('OpenAI API Response: ' . wp_json_encode($response, JSON_PRETTY_PRINT));
         }
         
         $message = $response['choices'][0]['message'];

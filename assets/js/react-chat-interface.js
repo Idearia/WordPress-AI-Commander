@@ -4,9 +4,6 @@
  * Implements a simple conversational interface using React.
  */
 
-console.log("DENTRO JS");
-
-
 (function($) {
     'use strict';
 
