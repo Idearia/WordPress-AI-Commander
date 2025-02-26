@@ -5,6 +5,8 @@
  * @package WP_Natural_Language_Commands
  */
 
+namespace WPNaturalLanguageCommands\Tools;
+
 if ( ! defined( 'WPINC' ) ) {
     die;
 }
@@ -14,7 +16,7 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * This class handles the retrieval of content via natural language commands.
  */
-class WP_NLC_Content_Retrieval_Tool extends WP_NLC_Base_Tool {
+class ContentRetrievalTool extends BaseTool {
 
     /**
      * Constructor.
@@ -97,7 +99,7 @@ class WP_NLC_Content_Retrieval_Tool extends WP_NLC_Base_Tool {
      * Execute the tool with the given parameters.
      *
      * @param array $params The parameters to use when executing the tool.
-     * @return array|WP_Error The result of executing the tool.
+     * @return array|\WP_Error The result of executing the tool.
      */
     public function execute( $params ) {
         // Apply default values
@@ -134,7 +136,7 @@ class WP_NLC_Content_Retrieval_Tool extends WP_NLC_Base_Tool {
                 if ( $author ) {
                     $query_args['author'] = $author->ID;
                 } else {
-                    return new WP_Error(
+                    return new \WP_Error(
                         'author_not_found',
                         sprintf( 'Author "%s" not found.', $params['author'] )
                     );
@@ -156,7 +158,7 @@ class WP_NLC_Content_Retrieval_Tool extends WP_NLC_Base_Tool {
                 if ( $category ) {
                     $query_args['cat'] = $category->term_id;
                 } else {
-                    return new WP_Error(
+                    return new \WP_Error(
                         'category_not_found',
                         sprintf( 'Category "%s" not found.', $params['category'] )
                     );
@@ -178,7 +180,7 @@ class WP_NLC_Content_Retrieval_Tool extends WP_NLC_Base_Tool {
                 if ( $tag ) {
                     $query_args['tag_id'] = $tag->term_id;
                 } else {
-                    return new WP_Error(
+                    return new \WP_Error(
                         'tag_not_found',
                         sprintf( 'Tag "%s" not found.', $params['tag'] )
                     );
@@ -187,7 +189,7 @@ class WP_NLC_Content_Retrieval_Tool extends WP_NLC_Base_Tool {
         }
         
         // Execute the query
-        $query = new WP_Query( $query_args );
+        $query = new \WP_Query( $query_args );
         
         // Prepare the results
         $posts = array();

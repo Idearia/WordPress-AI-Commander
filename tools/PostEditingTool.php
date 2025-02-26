@@ -5,6 +5,8 @@
  * @package WP_Natural_Language_Commands
  */
 
+namespace WPNaturalLanguageCommands\Tools;
+
 if ( ! defined( 'WPINC' ) ) {
     die;
 }
@@ -14,7 +16,7 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * This class handles the editing of posts via natural language commands.
  */
-class WP_NLC_Post_Editing_Tool extends WP_NLC_Base_Tool {
+class PostEditingTool extends BaseTool {
 
     /**
      * Constructor.
@@ -92,12 +94,12 @@ class WP_NLC_Post_Editing_Tool extends WP_NLC_Base_Tool {
      * Execute the tool with the given parameters.
      *
      * @param array $params The parameters to use when executing the tool.
-     * @return array|WP_Error The result of executing the tool.
+     * @return array|\WP_Error The result of executing the tool.
      */
     public function execute( $params ) {
         // We need either post_id or post_title to find the post
         if ( empty( $params['post_id'] ) && empty( $params['post_title'] ) ) {
-            return new WP_Error(
+            return new \WP_Error(
                 'missing_post_identifier',
                 'Either post_id or post_title is required to identify the post to edit.'
             );
@@ -106,7 +108,7 @@ class WP_NLC_Post_Editing_Tool extends WP_NLC_Base_Tool {
         // Find the post
         $post_id = $this->find_post( $params );
         
-        if ( is_wp_error( $post_id ) ) {
+        if ( $post_id instanceof \WP_Error ) {
             return $post_id;
         }
 
@@ -114,7 +116,7 @@ class WP_NLC_Post_Editing_Tool extends WP_NLC_Base_Tool {
         $post = get_post( $post_id );
         
         if ( ! $post ) {
-            return new WP_Error(
+            return new \WP_Error(
                 'post_not_found',
                 sprintf( 'Post with ID %d not found.', $post_id )
             );
@@ -150,7 +152,7 @@ class WP_NLC_Post_Editing_Tool extends WP_NLC_Base_Tool {
         // Update the post
         $result = wp_update_post( $post_data, true );
 
-        if ( is_wp_error( $result ) ) {
+        if ( $result instanceof \WP_Error ) {
             return $result;
         }
 
@@ -166,7 +168,7 @@ class WP_NLC_Post_Editing_Tool extends WP_NLC_Base_Tool {
                 } else {
                     // Create the category if it doesn't exist
                     $new_category = wp_insert_term( $category_name, 'category' );
-                    if ( ! is_wp_error( $new_category ) ) {
+                    if ( ! $new_category instanceof \WP_Error ) {
                         $category_ids[] = $new_category['term_id'];
                     }
                 }
@@ -206,7 +208,7 @@ class WP_NLC_Post_Editing_Tool extends WP_NLC_Base_Tool {
      * Find a post by ID or title.
      *
      * @param array $params The parameters to use when finding the post.
-     * @return int|WP_Error The post ID, or WP_Error on failure.
+     * @return int|\WP_Error The post ID, or \WP_Error on failure.
      */
     private function find_post( $params ) {
         // If post_id is provided, use it
@@ -224,10 +226,10 @@ class WP_NLC_Post_Editing_Tool extends WP_NLC_Base_Tool {
             'fields'         => 'ids',
         );
 
-        $query = new WP_Query( $query_args );
+        $query = new \WP_Query( $query_args );
 
         if ( ! $query->have_posts() ) {
-            return new WP_Error(
+            return new \WP_Error(
                 'post_not_found',
                 sprintf( 'No post found with title "%s".', $params['post_title'] )
             );

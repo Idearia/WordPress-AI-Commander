@@ -5,6 +5,8 @@
  * @package WP_Natural_Language_Commands
  */
 
+namespace WPNaturalLanguageCommands\Includes;
+
 if ( ! defined( 'WPINC' ) ) {
     die;
 }
@@ -14,19 +16,19 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * This class processes natural language commands and executes the appropriate tools.
  */
-class WP_NLC_Command_Processor {
+class CommandProcessor {
 
     /**
      * The OpenAI client.
      *
-     * @var WP_NLC_OpenAI_Client
+     * @var OpenaiClient
      */
     private $openai_client;
 
     /**
      * The tool registry.
      *
-     * @var WP_NLC_Tool_Registry
+     * @var ToolRegistry
      */
     private $tool_registry;
 
@@ -34,8 +36,8 @@ class WP_NLC_Command_Processor {
      * Constructor.
      */
     public function __construct() {
-        $this->openai_client = new WP_NLC_OpenAI_Client();
-        $this->tool_registry = WP_NLC_Tool_Registry::get_instance();
+        $this->openai_client = new OpenaiClient();
+        $this->tool_registry = ToolRegistry::get_instance();
     }
 
     /**
@@ -51,7 +53,7 @@ class WP_NLC_Command_Processor {
         // Process the command using the OpenAI API
         $response = $this->openai_client->process_command( $command, $tool_definitions );
         
-        if ( is_wp_error( $response ) ) {
+        if ( $response instanceof \WP_Error ) {
             return array(
                 'success' => false,
                 'message' => $response->get_error_message(),
@@ -90,7 +92,7 @@ class WP_NLC_Command_Processor {
      *
      * @param string $name The name of the tool to execute.
      * @param array $params The parameters to use when executing the tool.
-     * @return array|WP_Error The result of executing the tool.
+     * @return array|\WP_Error The result of executing the tool.
      */
     private function execute_tool( $name, $params ) {
         return $this->tool_registry->execute_tool( $name, $params );

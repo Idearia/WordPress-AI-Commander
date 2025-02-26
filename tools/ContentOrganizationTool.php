@@ -5,6 +5,8 @@
  * @package WP_Natural_Language_Commands
  */
 
+namespace WPNaturalLanguageCommands\Tools;
+
 if ( ! defined( 'WPINC' ) ) {
     die;
 }
@@ -14,7 +16,7 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * This class handles the organization of content via natural language commands.
  */
-class WP_NLC_Content_Organization_Tool extends WP_NLC_Base_Tool {
+class ContentOrganizationTool extends BaseTool {
 
     /**
      * Constructor.
@@ -78,12 +80,12 @@ class WP_NLC_Content_Organization_Tool extends WP_NLC_Base_Tool {
      * Execute the tool with the given parameters.
      *
      * @param array $params The parameters to use when executing the tool.
-     * @return array|WP_Error The result of executing the tool.
+     * @return array|\WP_Error The result of executing the tool.
      */
     public function execute( $params ) {
         // We need either post_id or post_title to find the post
         if ( empty( $params['post_id'] ) && empty( $params['post_title'] ) ) {
-            return new WP_Error(
+            return new \WP_Error(
                 'missing_post_identifier',
                 'Either post_id or post_title is required to identify the post to organize.'
             );
@@ -91,7 +93,7 @@ class WP_NLC_Content_Organization_Tool extends WP_NLC_Base_Tool {
 
         // We need at least one organization parameter
         if ( empty( $params['categories'] ) && empty( $params['tags'] ) && empty( $params['featured_image'] ) ) {
-            return new WP_Error(
+            return new \WP_Error(
                 'missing_organization_parameters',
                 'At least one of categories, tags, or featured_image is required.'
             );
@@ -100,7 +102,7 @@ class WP_NLC_Content_Organization_Tool extends WP_NLC_Base_Tool {
         // Find the post
         $post_id = $this->find_post( $params );
         
-        if ( is_wp_error( $post_id ) ) {
+        if ( $post_id instanceof \WP_Error ) {
             return $post_id;
         }
 
@@ -108,7 +110,7 @@ class WP_NLC_Content_Organization_Tool extends WP_NLC_Base_Tool {
         $post = get_post( $post_id );
         
         if ( ! $post ) {
-            return new WP_Error(
+            return new \WP_Error(
                 'post_not_found',
                 sprintf( 'Post with ID %d not found.', $post_id )
             );
@@ -123,7 +125,7 @@ class WP_NLC_Content_Organization_Tool extends WP_NLC_Base_Tool {
         // Handle categories
         if ( isset( $params['categories'] ) && is_array( $params['categories'] ) ) {
             $result = $this->handle_categories( $post_id, $params['categories'], $params['action'] );
-            if ( is_wp_error( $result ) ) {
+            if ( $result instanceof \WP_Error ) {
                 return $result;
             }
             $changes[] = $result;
@@ -132,7 +134,7 @@ class WP_NLC_Content_Organization_Tool extends WP_NLC_Base_Tool {
         // Handle tags
         if ( isset( $params['tags'] ) && is_array( $params['tags'] ) ) {
             $result = $this->handle_tags( $post_id, $params['tags'], $params['action'] );
-            if ( is_wp_error( $result ) ) {
+            if ( $result instanceof \WP_Error ) {
                 return $result;
             }
             $changes[] = $result;
@@ -141,7 +143,7 @@ class WP_NLC_Content_Organization_Tool extends WP_NLC_Base_Tool {
         // Handle featured image
         if ( isset( $params['featured_image'] ) ) {
             $result = $this->handle_featured_image( $post_id, $params['featured_image'] );
-            if ( is_wp_error( $result ) ) {
+            if ( $result instanceof \WP_Error ) {
                 return $result;
             }
             $changes[] = $result;
@@ -172,7 +174,7 @@ class WP_NLC_Content_Organization_Tool extends WP_NLC_Base_Tool {
      * Find a post by ID or title.
      *
      * @param array $params The parameters to use when finding the post.
-     * @return int|WP_Error The post ID, or WP_Error on failure.
+     * @return int|\WP_Error The post ID, or \WP_Error on failure.
      */
     private function find_post( $params ) {
         // If post_id is provided, use it
@@ -190,10 +192,10 @@ class WP_NLC_Content_Organization_Tool extends WP_NLC_Base_Tool {
             'fields'         => 'ids',
         );
 
-        $query = new WP_Query( $query_args );
+        $query = new \WP_Query( $query_args );
 
         if ( ! $query->have_posts() ) {
-            return new WP_Error(
+            return new \WP_Error(
                 'post_not_found',
                 sprintf( 'No post found with title "%s".', $params['post_title'] )
             );
@@ -208,7 +210,7 @@ class WP_NLC_Content_Organization_Tool extends WP_NLC_Base_Tool {
      * @param int    $post_id    The post ID.
      * @param array  $categories The categories to handle.
      * @param string $action     The action to perform.
-     * @return array|WP_Error The result of handling categories.
+     * @return array|\WP_Error The result of handling categories.
      */
     private function handle_categories( $post_id, $categories, $action ) {
         // Get current categories
@@ -226,7 +228,7 @@ class WP_NLC_Content_Organization_Tool extends WP_NLC_Base_Tool {
             } else {
                 // Create the category if it doesn't exist
                 $new_category = wp_insert_term( $category_name, 'category' );
-                if ( ! is_wp_error( $new_category ) ) {
+                if ( ! $new_category instanceof \WP_Error ) {
                     $category_ids[] = $new_category['term_id'];
                 }
             }
@@ -260,7 +262,7 @@ class WP_NLC_Content_Organization_Tool extends WP_NLC_Base_Tool {
         $result = wp_set_post_categories( $post_id, $category_ids );
         
         if ( false === $result ) {
-            return new WP_Error(
+            return new \WP_Error(
                 'category_update_failed',
                 'Failed to update post categories.'
             );
@@ -283,7 +285,7 @@ class WP_NLC_Content_Organization_Tool extends WP_NLC_Base_Tool {
      * @param int    $post_id The post ID.
      * @param array  $tags    The tags to handle.
      * @param string $action  The action to perform.
-     * @return array|WP_Error The result of handling tags.
+     * @return array|\WP_Error The result of handling tags.
      */
     private function handle_tags( $post_id, $tags, $action ) {
         // Get current tags
@@ -309,7 +311,7 @@ class WP_NLC_Content_Organization_Tool extends WP_NLC_Base_Tool {
         }
         
         if ( false === $result ) {
-            return new WP_Error(
+            return new \WP_Error(
                 'tag_update_failed',
                 'Failed to update post tags.'
             );
@@ -331,7 +333,7 @@ class WP_NLC_Content_Organization_Tool extends WP_NLC_Base_Tool {
      *
      * @param int    $post_id        The post ID.
      * @param string $featured_image The featured image URL or ID.
-     * @return array|WP_Error The result of handling the featured image.
+     * @return array|\WP_Error The result of handling the featured image.
      */
     private function handle_featured_image( $post_id, $featured_image ) {
         // Get current featured image
@@ -350,7 +352,7 @@ class WP_NLC_Content_Organization_Tool extends WP_NLC_Base_Tool {
                 // Image doesn't exist in the media library, try to upload it
                 $attachment_id = $this->upload_image_from_url( $featured_image );
                 
-                if ( is_wp_error( $attachment_id ) ) {
+                if ( $attachment_id instanceof \WP_Error ) {
                     return $attachment_id;
                 }
             }
@@ -360,7 +362,7 @@ class WP_NLC_Content_Organization_Tool extends WP_NLC_Base_Tool {
         $result = set_post_thumbnail( $post_id, $attachment_id );
         
         if ( false === $result ) {
-            return new WP_Error(
+            return new \WP_Error(
                 'featured_image_update_failed',
                 'Failed to update featured image.'
             );
@@ -406,7 +408,7 @@ class WP_NLC_Content_Organization_Tool extends WP_NLC_Base_Tool {
      * Upload image from URL.
      *
      * @param string $url The image URL.
-     * @return int|WP_Error The attachment ID, or WP_Error on failure.
+     * @return int|\WP_Error The attachment ID, or \WP_Error on failure.
      */
     private function upload_image_from_url( $url ) {
         // Require necessary files
@@ -417,7 +419,7 @@ class WP_NLC_Content_Organization_Tool extends WP_NLC_Base_Tool {
         // Download the image
         $temp_file = download_url( $url );
         
-        if ( is_wp_error( $temp_file ) ) {
+        if ( $temp_file instanceof \WP_Error ) {
             return $temp_file;
         }
         

@@ -5,6 +5,8 @@
  * @package WP_Natural_Language_Commands
  */
 
+namespace WPNaturalLanguageCommands\Includes;
+
 if ( ! defined( 'WPINC' ) ) {
     die;
 }
@@ -14,7 +16,7 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * This class handles communication with the OpenAI API for function calling.
  */
-class WP_NLC_OpenAI_Client {
+class OpenaiClient {
 
     /**
      * The OpenAI API key.
@@ -58,11 +60,11 @@ class WP_NLC_OpenAI_Client {
      *
      * @param string $command The command to process.
      * @param array $tools The tools to make available to the API.
-     * @return array|WP_Error The result of processing the command.
+     * @return array|\WP_Error The result of processing the command.
      */
     public function process_command( $command, $tools ) {
         if ( empty( $this->api_key ) ) {
-            return new WP_Error(
+            return new \WP_Error(
                 'missing_api_key',
                 'OpenAI API key is not configured. Please set it in the plugin settings.'
             );
@@ -81,7 +83,7 @@ class WP_NLC_OpenAI_Client {
 
         $response = $this->send_request( $messages, $tools );
 
-        if ( is_wp_error( $response ) ) {
+        if ( $response instanceof \WP_Error ) {
             return $response;
         }
 
@@ -106,7 +108,7 @@ class WP_NLC_OpenAI_Client {
      *
      * @param array $messages The messages to send.
      * @param array $tools The tools to make available to the API.
-     * @return array|WP_Error The API response, or WP_Error on failure.
+     * @return array|\WP_Error The API response, or \WP_Error on failure.
      */
     private function send_request( $messages, $tools ) {
         // Debug: Log the request payload if debug mode is enabled
@@ -145,7 +147,7 @@ class WP_NLC_OpenAI_Client {
             $error = json_decode( $body, true );
             $error_message = isset( $error['error']['message'] ) ? $error['error']['message'] : 'Unknown error';
             
-            return new WP_Error(
+            return new \WP_Error(
                 'openai_api_error',
                 sprintf( 'OpenAI API error (%d): %s', $response_code, $error_message )
             );

@@ -5,6 +5,10 @@
  * @package WP_Natural_Language_Commands
  */
 
+namespace WPNaturalLanguageCommands\Tools;
+
+use WPNaturalLanguageCommands\Includes\ToolRegistry;
+
 if ( ! defined( 'WPINC' ) ) {
     die;
 }
@@ -16,7 +20,7 @@ if ( ! defined( 'WPINC' ) ) {
  * It provides common functionality and ensures consistent behavior
  * across all tool implementations.
  */
-abstract class WP_NLC_Base_Tool {
+abstract class BaseTool {
 
     /**
      * Tool name.
@@ -44,7 +48,7 @@ abstract class WP_NLC_Base_Tool {
      */
     public function register() {
         // Get the tool registry instance
-        $registry = WP_NLC_Tool_Registry::get_instance();
+        $registry = ToolRegistry::get_instance();
         
         // Register this tool
         $registry->register_tool( $this );
@@ -79,7 +83,7 @@ abstract class WP_NLC_Base_Tool {
      * Execute the tool with the given parameters.
      *
      * @param array $params The parameters to use when executing the tool.
-     * @return array The result of executing the tool.
+     * @return array|\WP_Error The result of executing the tool.
      */
     abstract public function execute( $params );
 
@@ -87,7 +91,7 @@ abstract class WP_NLC_Base_Tool {
      * Validate the parameters before executing the tool.
      *
      * @param array $params The parameters to validate.
-     * @return bool|WP_Error True if valid, WP_Error otherwise.
+     * @return bool|\WP_Error True if valid, \WP_Error otherwise.
      */
     protected function validate_parameters( $params ) {
         $required_params = array_filter( $this->get_parameters(), function( $param ) {
@@ -96,7 +100,7 @@ abstract class WP_NLC_Base_Tool {
 
         foreach ( $required_params as $name => $param ) {
             if ( ! isset( $params[ $name ] ) || empty( $params[ $name ] ) ) {
-                return new WP_Error(
+                return new \WP_Error(
                     'missing_required_parameter',
                     sprintf( 'Missing required parameter: %s', $name )
                 );

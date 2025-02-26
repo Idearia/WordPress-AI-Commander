@@ -5,6 +5,8 @@
  * @package WP_Natural_Language_Commands
  */
 
+namespace WPNaturalLanguageCommands\Tools;
+
 if ( ! defined( 'WPINC' ) ) {
     die;
 }
@@ -14,7 +16,7 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * This class handles the creation of posts via natural language commands.
  */
-class WP_NLC_Post_Creation_Tool extends WP_NLC_Base_Tool {
+class PostCreationTool extends BaseTool {
 
     /**
      * Constructor.
@@ -89,12 +91,12 @@ class WP_NLC_Post_Creation_Tool extends WP_NLC_Base_Tool {
      * Execute the tool with the given parameters.
      *
      * @param array $params The parameters to use when executing the tool.
-     * @return array|WP_Error The result of executing the tool.
+     * @return array|\WP_Error The result of executing the tool.
      */
     public function execute( $params ) {
         // Validate parameters
         $validation = $this->validate_parameters( $params );
-        if ( is_wp_error( $validation ) ) {
+        if ( $validation instanceof \WP_Error ) {
             return $validation;
         }
 
@@ -122,7 +124,7 @@ class WP_NLC_Post_Creation_Tool extends WP_NLC_Base_Tool {
         // Insert the post
         $post_id = wp_insert_post( $post_data, true );
 
-        if ( is_wp_error( $post_id ) ) {
+        if ( $post_id instanceof \WP_Error ) {
             return $post_id;
         }
 
@@ -138,7 +140,7 @@ class WP_NLC_Post_Creation_Tool extends WP_NLC_Base_Tool {
                 } else {
                     // Create the category if it doesn't exist
                     $new_category = wp_insert_term( $category_name, 'category' );
-                    if ( ! is_wp_error( $new_category ) ) {
+                    if ( ! $new_category instanceof \WP_Error ) {
                         $category_ids[] = $new_category['term_id'];
                     }
                 }

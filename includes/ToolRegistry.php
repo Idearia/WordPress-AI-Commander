@@ -5,6 +5,10 @@
  * @package WP_Natural_Language_Commands
  */
 
+namespace WPNaturalLanguageCommands\Includes;
+
+use WPNaturalLanguageCommands\Tools\BaseTool;
+
 if ( ! defined( 'WPINC' ) ) {
     die;
 }
@@ -19,12 +23,12 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * Docs: https://platform.openai.com/docs/guides/function-calling
  */
-class WP_NLC_Tool_Registry {
+class ToolRegistry {
 
     /**
      * The single instance of the class.
      *
-     * @var WP_NLC_Tool_Registry
+     * @var ToolRegistry
      */
     private static $instance = null;
 
@@ -45,7 +49,7 @@ class WP_NLC_Tool_Registry {
     /**
      * Get the single instance of the class.
      *
-     * @return WP_NLC_Tool_Registry The instance.
+     * @return ToolRegistry The instance.
      */
     public static function get_instance() {
         if ( is_null( self::$instance ) ) {
@@ -57,11 +61,11 @@ class WP_NLC_Tool_Registry {
     /**
      * Register a tool.
      *
-     * @param WP_NLC_Base_Tool $tool The tool to register.
+     * @param BaseTool $tool The tool to register.
      * @return bool True if the tool was registered, false otherwise.
      */
     public function register_tool( $tool ) {
-        if ( ! $tool instanceof WP_NLC_Base_Tool ) {
+        if ( ! $tool instanceof BaseTool ) {
             return false;
         }
 
@@ -80,7 +84,7 @@ class WP_NLC_Tool_Registry {
      * Get a registered tool by name.
      *
      * @param string $name The name of the tool to get.
-     * @return WP_NLC_Base_Tool|null The tool, or null if not found.
+     * @return BaseTool|null The tool, or null if not found.
      */
     public function get_tool( $name ) {
         return isset( $this->tools[ $name ] ) ? $this->tools[ $name ] : null;
@@ -146,13 +150,13 @@ class WP_NLC_Tool_Registry {
      *
      * @param string $name The name of the tool to execute.
      * @param array $params The parameters to use when executing the tool.
-     * @return array|WP_Error The result of executing the tool, or WP_Error on failure.
+     * @return array|\WP_Error The result of executing the tool, or \WP_Error on failure.
      */
     public function execute_tool( $name, $params ) {
         $tool = $this->get_tool( $name );
         
         if ( ! $tool ) {
-            return new WP_Error(
+            return new \WP_Error(
                 'tool_not_found',
                 sprintf( 'Tool not found: %s', $name )
             );

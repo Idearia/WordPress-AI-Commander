@@ -17,6 +17,16 @@ if ( ! defined( 'WPINC' ) ) {
     die;
 }
 
+use WPNaturalLanguageCommands\Admin\AdminPage;
+use WPNaturalLanguageCommands\Admin\ChatbotPage;
+use WPNaturalLanguageCommands\Admin\SettingsPage;
+use WPNaturalLanguageCommands\Includes\CommandProcessor;
+use WPNaturalLanguageCommands\Includes\ToolRegistry;
+use WPNaturalLanguageCommands\Tools\PostCreationTool;
+use WPNaturalLanguageCommands\Tools\PostEditingTool;
+use WPNaturalLanguageCommands\Tools\ContentOrganizationTool;
+use WPNaturalLanguageCommands\Tools\ContentRetrievalTool;
+
 /**
  * Currently plugin version.
  */
@@ -76,17 +86,17 @@ function wp_natural_language_commands_init() {
     wp_natural_language_commands_load_dependencies();
     
     // Initialize the tool registry
-    $tool_registry = WP_NLC_Tool_Registry::get_instance();
+    $tool_registry = ToolRegistry::get_instance();
     
     // Register admin pages
     if ( is_admin() ) {
         // Only create one instance of the admin page class
         // The child classes will add their own submenu items
-        $admin_page = new WP_NLC_Admin_Page();
+        $admin_page = new AdminPage();
         
         // Create instances of the child classes
-        $chatbot_page = new WP_NLC_Chatbot_Page();
-        $settings_page = new WP_NLC_Settings_Page();
+        $chatbot_page = new ChatbotPage();
+        $settings_page = new SettingsPage();
     }
 }
 add_action( 'plugins_loaded', 'wp_natural_language_commands_init' );
@@ -96,10 +106,10 @@ add_action( 'plugins_loaded', 'wp_natural_language_commands_init' );
  */
 function wp_natural_language_commands_register_tools() {
     // Initialize all tool classes
-    new WP_NLC_Post_Creation_Tool();
-    new WP_NLC_Post_Editing_Tool();
-    new WP_NLC_Content_Organization_Tool();
-    new WP_NLC_Content_Retrieval_Tool();
+    new PostCreationTool();
+    new PostEditingTool();
+    new ContentOrganizationTool();
+    new ContentRetrievalTool();
     
     // You can add more tools here as they are developed
 }
@@ -114,7 +124,7 @@ function wp_natural_language_commands_enqueue_admin_scripts( $hook ) {
         return;
     }
     
-    // Note: The chat interface scripts and styles are now loaded in WP_NLC_Chatbot_Page class
+    // Note: The chat interface scripts and styles are now loaded in ChatbotPage class
     // This function is kept for backward compatibility and for loading common scripts
     
     // Localize script with necessary data
@@ -145,7 +155,7 @@ function wp_natural_language_commands_process_command() {
     }
     
     // Process the command
-    $command_processor = new WP_NLC_Command_Processor();
+    $command_processor = new CommandProcessor();
     $result = $command_processor->process( $command );
     
     // Return the result
@@ -174,7 +184,7 @@ function wp_natural_language_commands_execute_tool() {
     }
     
     // Get the tool registry
-    $tool_registry = WP_NLC_Tool_Registry::get_instance();
+    $tool_registry = ToolRegistry::get_instance();
     
     // Check if the tool exists
     if ( ! $tool_registry->has_tool( $tool ) ) {

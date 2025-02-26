@@ -5,6 +5,8 @@
  * @package WP_Natural_Language_Commands
  */
 
+namespace WPNaturalLanguageCommands\Admin;
+
 if ( ! defined( 'WPINC' ) ) {
     die;
 }
@@ -14,7 +16,7 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * This class handles the chatbot interface in the admin using a React-based chat interface.
  */
-class WP_NLC_Chatbot_Page extends WP_NLC_Admin_Page {
+class ChatbotPage extends AdminPage {
 
     /**
      * Constructor.
