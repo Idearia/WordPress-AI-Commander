@@ -149,7 +149,7 @@ class ConversationManager {
         foreach ( $messages as $message ) {
             $formatted_message = array(
                 'role' => $message->role,
-                'content' => $message->content
+                'content' => $message->content ? stripslashes($message->content) : ''
             );
             
             // Add tool_calls if present
@@ -181,11 +181,11 @@ class ConversationManager {
         foreach ( $messages as $message ) {
             $formatted_message = array(
                 'role' => $message->role,
-                'content' => $message->content
+                'content' => $message->content ? stripslashes($message->content) : ''
             );
             
             // Add tool call information if present
-            if ( ! empty( $message->tool_calls ) ) {
+            if ( $message->role === 'tool' ) {
                 $formatted_message['isToolCall'] = true;
                 $formatted_message['action'] = json_decode( $message->tool_calls, true );
             }

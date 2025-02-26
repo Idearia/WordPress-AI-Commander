@@ -100,19 +100,10 @@ class CommandProcessor {
             );
         }
         
-        // Execute the tool calls
+        // Execute the tool calls suggested by the assistant
         $actions = array();
         foreach ( $response['tool_calls'] as $tool_call ) {
             $result = $this->execute_tool( $tool_call['name'], $tool_call['arguments'] );
-            
-            // Add the tool response to the conversation
-            $this->conversation_manager->add_message(
-                $conversation_uuid,
-                'tool',
-                is_wp_error( $result ) ? $result->get_error_message() : wp_json_encode( $result ),
-                null,
-                isset( $tool_call['id'] ) ? $tool_call['id'] : null
-            );
             
             // Get the tool instance to access its properties
             $tool = $this->tool_registry->get_tool( $tool_call['name'] );
@@ -137,13 +128,25 @@ class CommandProcessor {
                 $summary = $tool->get_result_summary( $result, $tool_call['arguments'] );
             }
             
-            $actions[] = array(
+            // Create the complete action object with all necessary information
+            $action = array(
                 'tool' => $tool_call['name'],
                 'arguments' => $tool_call['arguments'],
                 'result' => $result,
                 'title' => $title,
                 'summary' => $summary,
             );
+            
+            // Add the tool response to the conversation with the complete action data
+            $this->conversation_manager->add_message(
+                $conversation_uuid,
+                'tool',
+                is_wp_error( $result ) ? $result->get_error_message() : wp_json_encode( $result ),
+                $action, // Store the complete action object including title and summary
+                isset( $tool_call['id'] ) ? $tool_call['id'] : null
+            );
+            
+            $actions[] = $action;
         }
         
         return array(
