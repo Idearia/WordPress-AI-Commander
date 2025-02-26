@@ -49,23 +49,23 @@ register_deactivation_hook( __FILE__, 'deactivate_wp_natural_language_commands' 
  */
 function wp_natural_language_commands_load_dependencies() {
     // Include core plugin classes
-    require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'includes/class-tool-registry.php';
-    require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'includes/class-openai-client.php';
-    require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'includes/class-command-processor.php';
+    require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'includes/ToolRegistry.php';
+    require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'includes/OpenaiClient.php';
+    require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'includes/CommandProcessor.php';
     
     // Include admin classes
-    require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'admin/class-admin-page.php';
-    require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'admin/class-chatbot-page.php';
-    require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'admin/class-settings-page.php';
+    require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'admin/AdminPage.php';
+    require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'admin/ChatbotPage.php';
+    require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'admin/SettingsPage.php';
     
     // Include base tool class
-    require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'tools/class-base-tool.php';
+    require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'tools/BaseTool.php';
     
     // Include specific tool implementations
-    require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'tools/class-post-creation-tool.php';
-    require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'tools/class-post-editing-tool.php';
-    require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'tools/class-content-organization-tool.php';
-    require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'tools/class-content-retrieval-tool.php';
+    require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'tools/PostCreationTool.php';
+    require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'tools/PostEditingTool.php';
+    require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'tools/ContentOrganizationTool.php';
+    require_once WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'tools/ContentRetrievalTool.php';
 }
 
 /**
