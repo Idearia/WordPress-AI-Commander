@@ -104,42 +104,113 @@
     cursor: not-allowed;
 }
 
-/* Action results */
-.wp-nlc-actions-container {
-    padding: 10px 15px;
+/* Tool Call Message */
+.wp-nlc-tool-call .wp-nlc-message-content {
+    padding: 15px;
+    border-left: 3px solid #0073aa;
+}
+
+.wp-nlc-tool-title {
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #0073aa;
+}
+
+.wp-nlc-tool-summary {
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+.wp-nlc-tool-details-button {
     background-color: #f0f0f0;
-    border-top: 1px solid #ddd;
-    display: none;
-}
-
-.wp-nlc-actions-container.visible {
-    display: block;
-}
-
-.wp-nlc-action-item {
-    margin-bottom: 10px;
-    padding: 10px;
-    background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.2s;
 }
 
-.wp-nlc-action-title {
-    font-weight: bold;
-    margin-bottom: 5px;
+.wp-nlc-tool-details-button:hover {
+    background-color: #e0e0e0;
 }
 
-.wp-nlc-action-result {
-    margin-top: 5px;
-    padding: 5px;
-    background-color: #f9f9f9;
-    border-radius: 4px;
-    overflow-x: auto;
+/* Tool Call Popup */
+.wp-nlc-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.wp-nlc-action-result pre {
+.wp-nlc-popup-content {
+    background-color: white;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    width: 80%;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.wp-nlc-popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.wp-nlc-popup-header h3 {
     margin: 0;
+    font-size: 18px;
+    color: #0073aa;
+}
+
+.wp-nlc-popup-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+}
+
+.wp-nlc-popup-close:hover {
+    color: #0073aa;
+}
+
+.wp-nlc-popup-body {
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.wp-nlc-popup-body h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: #333;
+}
+
+.wp-nlc-popup-body pre {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    margin: 0 0 20px 0;
+    overflow-x: auto;
     white-space: pre-wrap;
+}
+
+/* Action results - keeping for backward compatibility but hidden */
+.wp-nlc-actions-container {
+    display: none;
 }
 
 /* Loading indicator */

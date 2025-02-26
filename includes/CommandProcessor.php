@@ -77,6 +77,14 @@ class CommandProcessor {
             // Get the tool instance to access its properties
             $tool = $this->tool_registry->get_tool( $tool_call['name'] );
             
+            // Outcome of the tool call
+            $title = '';
+            if ( is_wp_error( $result ) ) {
+                $title = sprintf( 'Error executing %s', $tool->get_name() );
+            } else {
+                $title = sprintf( 'Executed %s successfully.', $tool->get_name() );
+            }
+
             // Generate a summary message for the action
             $summary = '';
             if ( is_wp_error( $result ) ) {
@@ -93,6 +101,7 @@ class CommandProcessor {
                 'tool' => $tool_call['name'],
                 'arguments' => $tool_call['arguments'],
                 'result' => $result,
+                'title' => $title,
                 'summary' => $summary,
             );
         }
