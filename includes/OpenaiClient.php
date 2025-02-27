@@ -143,12 +143,11 @@ class OpenaiClient {
      * @return array|\WP_Error The API response, or \WP_Error on failure.
      */
     private function send_request( $messages, $tools ) {
-        // Debug: Log the request payload if debug mode is enabled
         if ($this->debug_mode) {
             error_log('OpenAI API Request: ' . wp_json_encode(array(
                 'model' => $this->model,
                 'messages' => $messages,
-                'tools' => $tools,
+                // 'tools' => $tools,
                 'tool_choice' => 'auto',
             ), JSON_PRETTY_PRINT));
         }
@@ -190,38 +189,26 @@ class OpenaiClient {
     }
 
     /**
-     * Process the response from the OpenAI API.
+     * Extract the content of the response from the OpenAI API, while
+     * keeping the tool calls unchanged.
      *
+     * It is important to keep the tool calls unchanged, as they will be
+     * needed to later reference the actual tool calls made.
+     * 
      * @param array $response The API response.
      * @return array The processed response.
      */
     private function process_response( $response ) {
-        // Debug: Log the API response if debug mode is enabled
         if ($this->debug_mode) {
             error_log('OpenAI API Response: ' . wp_json_encode($response, JSON_PRETTY_PRINT));
         }
         
         $message = $response['choices'][0]['message'];
         $content = $message['content'] ?? '';
-        $tool_calls = $message['tool_calls'] ?? array();
 
-        $result = array(
+        return array(
             'content' => $content,
-            'tool_calls' => array(),
+            'tool_calls' => $message['tool_calls'] ?? array(),
         );
-
-        foreach ( $tool_calls as $tool_call ) {
-            $function = $tool_call['function'];
-            $name = $function['name'];
-            $arguments = json_decode( $function['arguments'], true );
-
-            $result['tool_calls'][] = array(
-                'name' => $name,
-                'arguments' => $arguments,
-                'id' => $tool_call['id']
-            );
-        }
-
-        return $result;
     }
 }

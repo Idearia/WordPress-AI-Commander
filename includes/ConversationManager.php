@@ -72,6 +72,11 @@ class ConversationManager {
     /**
      * Add a message to a conversation.
      *
+     * The tool_calls column is used in two different ways:
+     * - for assistant messages, it contains the tool calls suggested by the assistant
+     * - for tool messages, it contains the $action array with the result of the actual
+     *   tool call, as defined in the CommandProcessor class.
+     *
      * @param string $conversation_uuid The conversation UUID.
      * @param string $role The message role (user, assistant, tool).
      * @param string $content The message content.
@@ -171,15 +176,15 @@ class ConversationManager {
                 'content' => $message->content ? stripslashes($message->content) : ''
             );
             
-            // Add tool_calls if present
+            // Add tool_calls suggested by assistant, if present
             if ( $message->role === 'assistant' && ! empty( $message->tool_calls ) ) {
                 $formatted_message['tool_calls'] = $message->tool_calls;
             }
             
-            // Add tool_call_id if this is a tool response
+            // Add tool_call_id, if this is a tool response
             if ( $message->role === 'tool' && ! empty( $message->tool_call_id ) ) {
                 $formatted_message['tool_call_id'] = $message->tool_call_id;
-                $formatted_message['type'] = 'function';
+                
             }
             
             $formatted[] = $formatted_message;

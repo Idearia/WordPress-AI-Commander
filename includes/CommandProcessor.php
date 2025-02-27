@@ -103,10 +103,13 @@ class CommandProcessor {
         // Execute the tool calls suggested by the assistant
         $actions = array();
         foreach ( $response['tool_calls'] as $tool_call ) {
-            $result = $this->execute_tool( $tool_call['name'], $tool_call['arguments'] );
+            // Execute tool
+            $name = $tool_call['function']['name'];
+            $arguments = json_decode( $tool_call['function']['arguments'], true );
+            $result = $this->execute_tool( $name, $arguments );
             
             // Get the tool instance to access its properties
-            $tool = $this->tool_registry->get_tool( $tool_call['name'] );
+            $tool = $this->tool_registry->get_tool( $name );
             
             // Outcome of the tool call
             $title = '';
@@ -125,14 +128,14 @@ class CommandProcessor {
                 $summary = $result['message'];
             } elseif ( $tool ) {
                 // Let the tool generate a summary based on the result and arguments
-                $summary = $tool->get_result_summary( $result, $tool_call['arguments'] );
+                $summary = $tool->get_result_summary( $result, $arguments );
             }
             
             // Create the complete action object with all necessary information
             $action = array(
                 'tool' => $tool_call['name'],
                 'tool_call_id' => isset( $tool_call['id'] ) ? $tool_call['id'] : null,
-                'arguments' => $tool_call['arguments'],
+                'arguments' => $arguments,
                 'result' => $result,
                 'title' => $title,
                 'summary' => $summary,
