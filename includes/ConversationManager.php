@@ -115,10 +115,11 @@ class ConversationManager {
     }
     
     /**
-     * Get all messages for a conversation.
+     * Get all messages for a conversation with JSON fields decoded.
      *
      * @param string $conversation_uuid The conversation UUID.
-     * @return array The messages.
+     * @return array The messages with JSON fields decoded.
+     * @throws \Exception If JSON fields contain invalid JSON.
      */
     public function get_messages( $conversation_uuid ) {
         global $wpdb;
@@ -128,12 +129,30 @@ class ConversationManager {
             return array();
         }
         
-        return $wpdb->get_results(
+        $messages = $wpdb->get_results(
             $wpdb->prepare(
                 "SELECT * FROM {$wpdb->prefix}nlc_messages WHERE conversation_id = %d ORDER BY id ASC",
                 $conversation->id
             )
         );
+        
+        $json_fields = array( 'tool_calls' );
+        
+        // Process each message to decode JSON fields
+        foreach ( $messages as $message ) {
+            foreach ( $json_fields as $field ) {
+                if ( $message->$field !== null ) {
+                    $decoded = json_decode( $message->$field, true );
+                    if ( json_last_error() === JSON_ERROR_NONE ) {
+                        $message->$field = $decoded;
+                    } else {
+                        throw new \Exception( 'Invalid JSON in ' . $field . ' field: ' . json_last_error_msg() );
+                    }
+                }
+            }
+        }
+        
+        return $messages;
     }
     
     /**
@@ -154,7 +173,7 @@ class ConversationManager {
             
             // Add tool_calls if present
             if ( $message->role === 'assistant' && ! empty( $message->tool_calls ) ) {
-                $formatted_message['tool_calls'] = json_decode( $message->tool_calls, true );
+                $formatted_message['tool_calls'] = $message->tool_calls;
             }
             
             // Add tool_call_id if this is a tool response
@@ -171,6 +190,9 @@ class ConversationManager {
     
     /**
      * Format messages for frontend display.
+     * 
+     * This is used to popolate an existing conversation at page load
+     * or when a new conversation is created from the frontend.
      *
      * @param string $conversation_uuid The conversation UUID.
      * @return array The formatted messages.
@@ -188,9 +210,15 @@ class ConversationManager {
             // Add tool call information if present
             if ( $message->role === 'tool' ) {
                 $formatted_message['isToolCall'] = true;
-                $formatted_message['action'] = json_decode( $message->tool_calls, true );
+                $formatted_message['action'] = $message->tool_calls;
             }
             
+            // Do not show empty assistant responses (e.g. when assistant
+            // just suggests a tool call with no message added)
+            if ( $message->role === 'assistant' && empty( $message->content ) ) {
+                continue;
+            }
+
             $formatted[] = $formatted_message;
         }
         

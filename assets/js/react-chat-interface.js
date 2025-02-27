@@ -38,6 +38,8 @@ const ToolCallDetailsPopup = ({ action, onClose }) => {
                 }, '×')
             ),
             e('div', { className: 'wp-nlc-popup-body' },
+                e('h4', null, 'Tool call ID:'),
+                e('pre', null, action.tool_call_id),
                 e('h4', null, 'Arguments:'),
                 e('pre', null, JSON.stringify(action.arguments, null, 2)),
                 e('h4', null, 'Result:'),
