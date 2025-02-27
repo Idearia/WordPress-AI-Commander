@@ -202,11 +202,174 @@ add_action('init', 'register_custom_nlc_tools', 20); // Priority 20 to ensure it
 - **Appropriate Capabilities**: Set the `required_capability` property to ensure users can only execute tools they have permission to use; [here's a nice table of WordPress roles and capabilities](https://wordpress.org/documentation/article/roles-and-capabilities/#capability-vs-role-table)
 
 
+## REST API
+
+The plugin provides a REST API that allows you to interact with the chatbot remotely. This is useful for integrating the chatbot with external applications or creating custom interfaces.
+
+### Authentication
+
+The REST API uses WordPress application passwords for authentication. To use the API, you need to create an application password for your WordPress user:
+
+1. Go to your WordPress profile page
+2. Scroll down to "Application Passwords"
+3. Enter a name for the application (e.g., "Chatbot API Client")
+4. Click "Add New Application Password"
+5. Copy the generated password (you won't be able to see it again)
+
+Then use Basic Authentication with your requests:
+
+```
+Authorization: Basic base64encode(username:application_password)
+```
+
+### Endpoints
+
+#### Get all conversations
+
+```
+GET /wp-json/wp-nlc/v1/conversations
+```
+
+Response:
+
+```json
+[
+  {
+    "conversation_uuid": "12345678-1234-1234-1234-123456789012",
+    "created_at": "2025-02-27 21:00:00",
+    "updated_at": "2025-02-27 21:05:00",
+    "preview": "Create a new post titled 'Hello World'"
+  },
+  {
+    "conversation_uuid": "87654321-4321-4321-4321-210987654321",
+    "created_at": "2025-02-26 15:30:00",
+    "updated_at": "2025-02-26 15:35:00",
+    "preview": "List all posts in the 'News' category"
+  }
+]
+```
+
+#### Create a new conversation
+
+```
+POST /wp-json/wp-nlc/v1/conversations
+```
+
+Request body:
+
+```json
+{
+  "command": "Create a new post titled 'Hello World'"
+}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "I've created a new post titled 'Hello World'.",
+  "actions": [
+    {
+      "tool": "create_post",
+      "arguments": {
+        "title": "Hello World"
+      },
+      "result": {
+        "post_id": 123,
+        "post_url": "https://example.com/hello-world"
+      },
+      "title": "Executed create_post successfully.",
+      "summary": "Created post 'Hello World' with ID 123."
+    }
+  ],
+  "conversation_uuid": "12345678-1234-1234-1234-123456789012"
+}
+```
+
+#### Get an existing conversation
+
+```
+GET /wp-json/wp-nlc/v1/conversations/{uuid}
+```
+
+Response:
+
+```json
+{
+  "conversation_uuid": "12345678-1234-1234-1234-123456789012",
+  "messages": [
+    {
+      "role": "assistant",
+      "content": "Hello! I'm your WordPress assistant. How can I help you today?"
+    },
+    {
+      "role": "user",
+      "content": "Create a new post titled 'Hello World'"
+    },
+    {
+      "role": "assistant",
+      "content": "I've created a new post titled 'Hello World'."
+    }
+  ]
+}
+```
+
+#### Add a command to an existing conversation
+
+```
+POST /wp-json/wp-nlc/v1/conversations/{uuid}/commands
+```
+
+Request body:
+
+```json
+{
+  "command": "Create a new post titled 'Hello World'"
+}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "I've created a new post titled 'Hello World'.",
+  "actions": [
+    {
+      "tool": "create_post",
+      "arguments": {
+        "title": "Hello World"
+      },
+      "result": {
+        "post_id": 123,
+        "post_url": "https://example.com/hello-world"
+      },
+      "title": "Executed create_post successfully.",
+      "summary": "Created post 'Hello World' with ID 123."
+    }
+  ],
+  "conversation_uuid": "12345678-1234-1234-1234-123456789012"
+}
+```
+
+### Postman Collection
+
+A Postman collection is included in the plugin to help you test and interact with the REST API. You can find it in the `postman_collection.json` file in the plugin directory.
+
+To use the collection:
+
+1. Import the `postman_collection.json` file into Postman
+2. Set up the collection variables:
+   - `baseUrl`: Your WordPress site URL (e.g., `http://localhost/wordpress`)
+   - `username`: Your WordPress username
+   - `password`: Your WordPress application password
+3. You can now use the collection to test the REST API endpoints
+
 ## To do
 
 Important features to add:
 - add voice control
-- add REST endpoint
 - add WP CLI command
 - tool to manage users
 

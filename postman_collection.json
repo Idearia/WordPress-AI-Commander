@@ -1,0 +1,281 @@
+{
+  "info": {
+    "_postman_id": "b5e7b5e7-b5e7-b5e7-b5e7-b5e7b5e7b5e7",
+    "name": "WP Natural Language Commands API",
+    "description": "REST API endpoints for the WP Natural Language Commands plugin. This collection allows you to interact with the chatbot programmatically.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost/wordpress",
+      "type": "string",
+      "description": "Your WordPress site URL"
+    },
+    {
+      "key": "username",
+      "value": "your_username",
+      "type": "string",
+      "description": "Your WordPress username"
+    },
+    {
+      "key": "password",
+      "value": "your_application_password",
+      "type": "string",
+      "description": "Your WordPress application password"
+    }
+  ],
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "{{username}}",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "{{password}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Get all conversations",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/wp-json/wp-nlc/v1/conversations",
+          "host": ["{{baseUrl}}"],
+          "path": ["wp-json", "wp-nlc", "v1", "conversations"]
+        },
+        "description": "Retrieves all conversations for the current user."
+      },
+      "response": [
+        {
+          "name": "Successful Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/wp-json/wp-nlc/v1/conversations",
+              "host": ["{{baseUrl}}"],
+              "path": ["wp-json", "wp-nlc", "v1", "conversations"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "[\n  {\n    \"conversation_uuid\": \"12345678-1234-1234-1234-123456789012\",\n    \"created_at\": \"2025-02-27 21:00:00\",\n    \"updated_at\": \"2025-02-27 21:05:00\",\n    \"preview\": \"Create a new post titled 'Hello World'\"\n  },\n  {\n    \"conversation_uuid\": \"87654321-4321-4321-4321-210987654321\",\n    \"created_at\": \"2025-02-26 15:30:00\",\n    \"updated_at\": \"2025-02-26 15:35:00\",\n    \"preview\": \"List all posts in the 'News' category\"\n  }\n]"
+        }
+      ]
+    },
+    {
+      "name": "Create a new conversation",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"command\": \"Create a new post titled 'Hello World'\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/wp-json/wp-nlc/v1/conversations",
+          "host": ["{{baseUrl}}"],
+          "path": ["wp-json", "wp-nlc", "v1", "conversations"]
+        },
+        "description": "Creates a new conversation with the specified command."
+      },
+      "response": [
+        {
+          "name": "Successful Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wp-json/wp-nlc/v1/conversations",
+              "host": ["{{baseUrl}}"],
+              "path": ["wp-json", "wp-nlc", "v1", "conversations"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"success\": true,\n  \"message\": \"I've created a new post titled 'Hello World'.\",\n  \"actions\": [\n    {\n      \"tool\": \"create_post\",\n      \"arguments\": {\n        \"title\": \"Hello World\"\n      },\n      \"result\": {\n        \"post_id\": 123,\n        \"post_url\": \"https://example.com/hello-world\"\n      },\n      \"title\": \"Executed create_post successfully.\",\n      \"summary\": \"Created post 'Hello World' with ID 123.\"\n    }\n  ],\n  \"conversation_uuid\": \"12345678-1234-1234-1234-123456789012\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Get an existing conversation",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/wp-json/wp-nlc/v1/conversations/:uuid",
+          "host": ["{{baseUrl}}"],
+          "path": ["wp-json", "wp-nlc", "v1", "conversations", ":uuid"],
+          "variable": [
+            {
+              "key": "uuid",
+              "value": "12345678-1234-1234-1234-123456789012",
+              "description": "The conversation UUID"
+            }
+          ]
+        },
+        "description": "Retrieves an existing conversation by its UUID."
+      },
+      "response": [
+        {
+          "name": "Successful Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/wp-json/wp-nlc/v1/conversations/:uuid",
+              "host": ["{{baseUrl}}"],
+              "path": ["wp-json", "wp-nlc", "v1", "conversations", ":uuid"],
+              "variable": [
+                {
+                  "key": "uuid",
+                  "value": "12345678-1234-1234-1234-123456789012"
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"conversation_uuid\": \"12345678-1234-1234-1234-123456789012\",\n  \"messages\": [\n    {\n      \"role\": \"assistant\",\n      \"content\": \"Hello! I'm your WordPress assistant. How can I help you today?\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Create a new post titled 'Hello World'\"\n    },\n    {\n      \"role\": \"assistant\",\n      \"content\": \"I've created a new post titled 'Hello World'.\"\n    }\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "name": "Add a command to an existing conversation",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"command\": \"Create a new post titled 'Hello World'\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/wp-json/wp-nlc/v1/conversations/:uuid/commands",
+          "host": ["{{baseUrl}}"],
+          "path": ["wp-json", "wp-nlc", "v1", "conversations", ":uuid", "commands"],
+          "variable": [
+            {
+              "key": "uuid",
+              "value": "12345678-1234-1234-1234-123456789012",
+              "description": "The conversation UUID"
+            }
+          ]
+        },
+        "description": "Adds a command to an existing conversation."
+      },
+      "response": [
+        {
+          "name": "Successful Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"command\": \"Create a new post titled 'Hello World'\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/wp-json/wp-nlc/v1/conversations/:uuid/commands",
+              "host": ["{{baseUrl}}"],
+              "path": ["wp-json", "wp-nlc", "v1", "conversations", ":uuid", "commands"],
+              "variable": [
+                {
+                  "key": "uuid",
+                  "value": "12345678-1234-1234-1234-123456789012"
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"success\": true,\n  \"message\": \"I've created a new post titled 'Hello World'.\",\n  \"actions\": [\n    {\n      \"tool\": \"create_post\",\n      \"arguments\": {\n        \"title\": \"Hello World\"\n      },\n      \"result\": {\n        \"post_id\": 123,\n        \"post_url\": \"https://example.com/hello-world\"\n      },\n      \"title\": \"Executed create_post successfully.\",\n      \"summary\": \"Created post 'Hello World' with ID 123.\"\n    }\n  ],\n  \"conversation_uuid\": \"12345678-1234-1234-1234-123456789012\"\n}"
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test(\"Status code is 200\", function () {",
+          "    pm.response.to.have.status(200);",
+          "});",
+          "",
+          "pm.test(\"Response is valid JSON\", function () {",
+          "    pm.response.to.be.json;",
+          "});"
+        ]
+      }
+    }
+  ]
+}

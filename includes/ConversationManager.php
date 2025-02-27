@@ -70,6 +70,23 @@ class ConversationManager {
     }
     
     /**
+     * Get all conversations for a user.
+     *
+     * @param int $user_id The WordPress user ID.
+     * @return array The array of conversation objects.
+     */
+    public function get_user_conversations( $user_id ) {
+        global $wpdb;
+        
+        return $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT * FROM {$wpdb->prefix}nlc_conversations WHERE user_id = %d ORDER BY updated_at DESC",
+                $user_id
+            )
+        );
+    }
+    
+    /**
      * Add a message to a conversation.
      *
      * The tool_calls column is used in two different ways:

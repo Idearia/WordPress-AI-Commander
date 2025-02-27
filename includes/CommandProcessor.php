@@ -130,7 +130,7 @@ class CommandProcessor {
             
             // Create the complete action object with all necessary information
             $action = array(
-                'tool' => $tool_call['name'],
+                'tool' => $name,
                 'tool_call_id' => isset( $tool_call['id'] ) ? $tool_call['id'] : null,
                 'arguments' => $arguments,
                 'result' => $result,
