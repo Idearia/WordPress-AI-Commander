@@ -1,0 +1,217 @@
+# WP Natural Language Commands
+
+Issue commands in natural language to WordPress via a chatbot interface. Integrates with OpenAI's API to process natural language commands and execute the appropriate WordPress actions.
+
+## Features
+
+- **Natural Language Interface**: Interact with WordPress using conversational language
+- **Chatbot Interface**: User-friendly chat interface in the WordPress admin area
+- **Conversation History**: Maintains context across multiple commands in a conversation
+- **Extensible Tool System**: Add new tools and capabilities to control plugins and themes
+
+## Installation
+
+1. Upload the `wp-natural-language-commands` directory to the `/wp-content/plugins/` directory
+2. Activate the plugin through the 'Plugins' menu in WordPress
+3. Go to 'NL Commands > Settings' and insert your OpenAI API key
+4. Go to the 'NL Commands > Chatbot' and try a test command, e.g. create a "Hello world" post with tag "Testing".
+
+## Example conversation
+
+Run the following commands in the chatbot, one after the other:
+
+```
+> Create a new 'Hello world' post as a draft with tag 'Testing'
+> Show all drafts with tag 'Testing'
+> Edit the post with title 'Hello world' and set the status to 'Published'
+> Create a new category 'Testing category' and assign it to all posts with title 'Hello world'
+> Delete all posts with title "Hello World" (NOT IMPLEMENTED YET)
+```
+
+
+## Available Tools
+
+The plugin comes with several built-in tools:
+
+### Post Creation Tool
+- **Name**: `create_post`
+- **Description**: Creates a new WordPress post
+- **Functionality**: Creates posts with title, content, excerpt, categories, tags, and more
+- **Example prompt**: "Create a new 'Hello world' post as a draft with tag 'Testing'"
+
+### Content Retrieval Tool
+- **Name**: `retrieve_content`
+- **Description**: Retrieves WordPress content based on various criteria
+- **Functionality**: Searches and filters posts, pages, and custom post types by author, category, tag, status, etc.
+- **Example prompt**: "Show all drafts with tag 'Testing'"
+
+### Post Editing Tool
+- **Name**: `edit_post`
+- **Description**: Edits an existing WordPress post
+- **Functionality**: Updates post title, content, excerpt, status, categories, tags, etc.
+- **Example prompt**: "Edit the post with title 'Hello world' and set the status to 'Published'"
+
+### Content Organization Tool
+- **Name**: `organize_content`
+- **Description**: Organizes WordPress content
+- **Functionality**: Manages categories, tags, and other taxonomies
+- **Example prompt**: "Create a new category 'Testing category' and assign it to all posts with title 'Hello world'"
+
+### Site Information Tool
+- **Name**: `get_site_info`
+- **Description**: Retrieves basic WordPress site information
+- **Functionality**: Gets site title, URL, tagline, and multisite information
+- **Example prompt**: "Show site information"
+
+## How to Add New Tools from Another Theme or Plugin
+
+You can extend the plugin's functionality by adding new tools from your own theme or plugin. Here's how:
+
+### 1. Create a New Tool Class
+
+Create a new PHP file in your theme or plugin, for example `SimplePageCreationTool.php`. Your tool class should extend the `BaseTool` class from the WP Natural Language Commands plugin:
+
+```php
+<?php
+use WPNaturalLanguageCommands\Tools\BaseTool;
+
+/**
+ * Tool to create an empty WordPress page with just a title.
+ */
+class SimplePageCreationTool extends BaseTool {
+
+    public function __construct() {
+        $this->name = 'create_empty_page';
+        $this->description = 'Creates an empty WordPress page with the specified title';
+        
+        parent::__construct();
+    }
+
+    /**
+     * Get the tool parameters for OpenAI function calling.
+     */
+    public function get_parameters() {
+        return array(
+            'title' => array(
+                'type' => 'string',
+                'description' => 'The title of the page to create',
+                'required' => false,
+                'default' => 'New Page',
+            ),
+        );
+    }
+
+    /**
+     * Execute the tool with the given parameters.
+     */
+    public function execute($params) {
+        // Validate parameters
+        $validation = $this->validate_parameters($params);
+        if ($validation instanceof \WP_Error) {
+            return $validation;
+        }
+
+        // Apply default values
+        $params = $this->apply_parameter_defaults( $params );
+
+        // Create the page
+        $page_data = array(
+            'post_title'    => sanitize_text_field($params['title']),
+            'post_content'  => '',
+            'post_status'   => 'draft',
+            'post_type'     => 'page',
+        );
+
+        // Insert the page
+        $page_id = wp_insert_post($page_data, true);
+
+        if ($page_id instanceof \WP_Error) {
+            return $page_id;
+        }
+
+        // Get the page URL and edit URL
+        $page_url = get_permalink($page_id);
+        $edit_url = get_edit_post_link($page_id, 'raw');
+
+        // Return the result
+        return array(
+            'success' => true,
+            'page_id' => $page_id,
+            'page_url' => $page_url,
+            'edit_url' => $edit_url,
+        );
+    }
+    
+    /**
+     * Get a human-readable summary of the tool execution result.
+     *
+     * @param array|\WP_Error $result The result of executing the tool.
+     * @param array $params The parameters used when executing the tool.
+     * @return string A human-readable summary of the result.
+     */
+    public function get_result_summary($result, $params) {
+        if (is_wp_error($result)) {
+            return $result->get_error_message();
+        }
+        
+        if (isset($result['message'])) {
+            return $result['message'];
+        }
+        
+        return sprintf('Empty page "%s" created successfully with ID %d.', $params['title'], $result['page_id']);
+    }
+}
+```
+
+### 2. Register Your Tool
+
+In your theme's `functions.php` file or your plugin file, add code to register your tool when WordPress initializes:
+
+```php
+/**
+ * Register custom tools with WP Natural Language Commands
+ */
+function register_custom_nlc_tools() {
+    // Make sure WP Natural Language Commands plugin is active
+    if (!class_exists('WPNaturalLanguageCommands\\Includes\\ToolRegistry')) {
+        return;
+    }
+    
+    // Include your custom tool class
+    require_once 'path/to/your/SimplePageCreationTool.php';
+    
+    // Instantiate your tool (this will automatically register it)
+    new SimplePageCreationTool();
+}
+add_action('init', 'register_custom_nlc_tools', 20); // Priority 20 to ensure it runs after the plugin's tools are registered
+```
+
+### 3. Best Practices
+
+- **Descriptive Names**: Use clear, descriptive names for your tools and parameters
+- **Thorough Validation**: Always validate input parameters before executing your tool
+- **Helpful Error Messages**: Return informative error messages when something goes wrong
+- **Detailed Descriptions**: Provide detailed descriptions for your tool and its parameters
+- **Meaningful Results**: Return structured results that include a success status and message
+- **Human-Readable Summaries**: Implement the `get_result_summary` method to provide user-friendly summaries of your tool's actions
+
+For a detailed documentation, please refer to the OpenAI guide for Function Calling:
+
+- https://platform.openai.com/docs/guides/function-calling
+
+
+## To do
+
+Important features to add:
+- add voice control
+- add REST endpoint
+- add WP CLI command
+- tool to manage users
+
+Nice to have features:
+- add system prompt to option pages
+- allow to filter system prompt
+
+Bug fixes:
+- test user roles permissions
+- is `result['message']` needed?
