@@ -218,6 +218,7 @@ class OpenaiClient {
             $result['tool_calls'][] = array(
                 'name' => $name,
                 'arguments' => $arguments,
+                'id' => $tool_call['id']
             );
         }
 

@@ -153,13 +153,14 @@ class ConversationManager {
             );
             
             // Add tool_calls if present
-            if ( ! empty( $message->tool_calls ) ) {
+            if ( $message->role === 'assistant' && ! empty( $message->tool_calls ) ) {
                 $formatted_message['tool_calls'] = json_decode( $message->tool_calls, true );
             }
             
             // Add tool_call_id if this is a tool response
             if ( $message->role === 'tool' && ! empty( $message->tool_call_id ) ) {
                 $formatted_message['tool_call_id'] = $message->tool_call_id;
+                $formatted_message['type'] = 'function';
             }
             
             $formatted[] = $formatted_message;
