@@ -16,16 +16,19 @@ Issue commands in natural language to WordPress via a chatbot interface. Integra
 3. Go to 'NL Commands > Settings' and insert your OpenAI API key
 4. Go to the 'NL Commands > Chatbot' and try a test command, e.g. create a "Hello world" post with tag "Testing".
 
+## Demo video
+
+https://github.com/user-attachments/assets/fe01dd48-9fea-44b2-9023-85291cc70ec2
+
 ## Example conversation
 
 Run the following commands in the chatbot, one after the other:
 
 ```
-> Create a new 'Hello world' post as a draft with tag 'Testing'
-> Show all drafts with tag 'Testing'
-> Edit the post with title 'Hello world' and set the status to 'Published'
-> Create a new category 'Testing category' and assign it to all posts with title 'Hello world'
-> Delete all posts with title "Hello World" (NOT IMPLEMENTED YET)
+> Create a draft on how GPUs are used to train AI models; keep it short
+> Add the "AI generated" tag to the post
+> Add a paragraph to the post discussing the role of NVIDIA in GPU manifacturing
+> Publish the post
 ```
 
 
