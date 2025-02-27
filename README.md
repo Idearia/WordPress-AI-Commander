@@ -1,6 +1,6 @@
 # WP Natural Language Commands
 
-Issue commands in natural language to WordPress via a chatbot interface. Integrates with OpenAI's API to process natural language commands and execute the appropriate WordPress actions.
+Issue commands in natural language to WordPress via a chatbot interface.  Supports voice input.  Integrates with OpenAI's API to process natural language commands and execute the appropriate WordPress actions.
 
 ## Features
 
@@ -280,7 +280,7 @@ To use the collection:
 ## To do
 
 Important features to add:
-- add voice control
+- add voice input support to REST API
 - add WP CLI command
 - tool to manage users
 
@@ -290,5 +290,6 @@ Nice to have features:
 - allow links and newlines in chatbot responses
 
 Bug fixes:
+- page scrolls down when a new message is added to chatbot
+- check microphone permissions (e.g. what happens if denied?)
 - test user roles permissions
-- is `result['message']` needed?

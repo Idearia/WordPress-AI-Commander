@@ -78,7 +78,28 @@ class SettingsPage extends AdminPage {
             )
         );
         
-        // Add settings section
+        // Speech-to-text settings
+        register_setting(
+            'wp_nlc_settings',
+            'wp_nlc_enable_speech_to_text',
+            array(
+                'type' => 'boolean',
+                'sanitize_callback' => 'rest_sanitize_boolean',
+                'default' => true,
+            )
+        );
+        
+        register_setting(
+            'wp_nlc_settings',
+            'wp_nlc_speech_language',
+            array(
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+                'default' => '',
+            )
+        );
+        
+        // Add settings sections
         add_settings_section(
             'wp_nlc_openai_settings',
             __( 'OpenAI API Settings', 'wp-natural-language-commands' ),
@@ -86,7 +107,14 @@ class SettingsPage extends AdminPage {
             'wp_nlc_settings'
         );
         
-        // Add settings fields
+        add_settings_section(
+            'wp_nlc_speech_settings',
+            __( 'Speech-to-Text Settings', 'wp-natural-language-commands' ),
+            array( $this, 'render_speech_settings_section' ),
+            'wp_nlc_settings'
+        );
+        
+        // Add settings fields for OpenAI API
         add_settings_field(
             'wp_nlc_openai_api_key',
             __( 'API Key', 'wp-natural-language-commands' ),
@@ -109,6 +137,23 @@ class SettingsPage extends AdminPage {
             array( $this, 'render_debug_mode_field' ),
             'wp_nlc_settings',
             'wp_nlc_openai_settings'
+        );
+        
+        // Add settings fields for Speech-to-Text
+        add_settings_field(
+            'wp_nlc_enable_speech_to_text',
+            __( 'Enable Speech-to-Text', 'wp-natural-language-commands' ),
+            array( $this, 'render_enable_speech_field' ),
+            'wp_nlc_settings',
+            'wp_nlc_speech_settings'
+        );
+        
+        add_settings_field(
+            'wp_nlc_speech_language',
+            __( 'Language', 'wp-natural-language-commands' ),
+            array( $this, 'render_speech_language_field' ),
+            'wp_nlc_settings',
+            'wp_nlc_speech_settings'
         );
     }
 
@@ -216,6 +261,65 @@ class SettingsPage extends AdminPage {
         </label>
         <p class="description">
             <?php esc_html_e( 'When enabled, detailed API request and response information will be logged to the WordPress debug log. This is useful for troubleshooting but should be disabled in production.', 'wp-natural-language-commands' ); ?>
+        </p>
+        <?php
+    }
+    
+    /**
+     * Render the speech settings section.
+     */
+    public function render_speech_settings_section() {
+        ?>
+        <p><?php esc_html_e( 'Configure speech-to-text settings for the chatbot interface. This feature uses OpenAI\'s Whisper API to transcribe spoken messages.', 'wp-natural-language-commands' ); ?></p>
+        <?php
+    }
+    
+    /**
+     * Render the enable speech field.
+     */
+    public function render_enable_speech_field() {
+        $enable_speech = get_option( 'wp_nlc_enable_speech_to_text', true );
+        ?>
+        <label for="wp_nlc_enable_speech_to_text">
+            <input type="checkbox" id="wp_nlc_enable_speech_to_text" name="wp_nlc_enable_speech_to_text" value="1" <?php checked( $enable_speech, true ); ?> />
+            <?php esc_html_e( 'Enable speech-to-text functionality', 'wp-natural-language-commands' ); ?>
+        </label>
+        <p class="description">
+            <?php esc_html_e( 'When enabled, users can record voice messages using a microphone button in the chat interface.', 'wp-natural-language-commands' ); ?>
+        </p>
+        <?php
+    }
+    
+    /**
+     * Render the speech language field.
+     */
+    public function render_speech_language_field() {
+        $language = get_option( 'wp_nlc_speech_language', '' );
+        $languages = array(
+            '' => __( 'Auto-detect (recommended)', 'wp-natural-language-commands' ),
+            'en' => __( 'English', 'wp-natural-language-commands' ),
+            'es' => __( 'Spanish', 'wp-natural-language-commands' ),
+            'fr' => __( 'French', 'wp-natural-language-commands' ),
+            'de' => __( 'German', 'wp-natural-language-commands' ),
+            'it' => __( 'Italian', 'wp-natural-language-commands' ),
+            'pt' => __( 'Portuguese', 'wp-natural-language-commands' ),
+            'nl' => __( 'Dutch', 'wp-natural-language-commands' ),
+            'ja' => __( 'Japanese', 'wp-natural-language-commands' ),
+            'zh' => __( 'Chinese', 'wp-natural-language-commands' ),
+            'ru' => __( 'Russian', 'wp-natural-language-commands' ),
+            'ar' => __( 'Arabic', 'wp-natural-language-commands' ),
+            'hi' => __( 'Hindi', 'wp-natural-language-commands' ),
+        );
+        ?>
+        <select id="wp_nlc_speech_language" name="wp_nlc_speech_language">
+            <?php foreach ( $languages as $code => $name ) : ?>
+                <option value="<?php echo esc_attr( $code ); ?>" <?php selected( $language, $code ); ?>>
+                    <?php echo esc_html( $name ); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <p class="description">
+            <?php esc_html_e( 'Select a language to improve transcription accuracy. Auto-detect works well for most cases, but specifying a language can improve accuracy and processing speed.', 'wp-natural-language-commands' ); ?>
         </p>
         <?php
     }

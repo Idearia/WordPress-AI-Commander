@@ -139,13 +139,62 @@ const MessageItem = ({ message }) => {
         };
 
         /**
+         * MicrophoneIcon Component
+         * 
+         * SVG icon for the microphone button.
+         */
+        const MicrophoneIcon = () => {
+            return e(
+                'svg',
+                {
+                    className: 'wp-nlc-mic-icon',
+                    xmlns: 'http://www.w3.org/2000/svg',
+                    viewBox: '0 0 24 24',
+                    fill: 'currentColor'
+                },
+                e('path', {
+                    d: 'M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z'
+                }),
+                e('path', {
+                    d: 'M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z'
+                })
+            );
+        };
+        
+        /**
+         * RecordingStatus Component
+         * 
+         * Displays a recording status indicator.
+         */
+        const RecordingStatus = () => {
+            return e(
+                'div',
+                { className: 'wp-nlc-recording-status' },
+                e('div', { className: 'wp-nlc-recording-status-dot' }),
+                'Recording...'
+            );
+        };
+
+        /**
          * InputArea Component
          * 
          * Provides an input area for the user to type messages.
          */
         const InputArea = ({ onSendMessage, isProcessing }) => {
             const [inputValue, setInputValue] = useState('');
+            const [isRecording, setIsRecording] = useState(false);
+            const [isSpeechEnabled, setIsSpeechEnabled] = useState(true);
             const textareaRef = useRef(null);
+            const mediaRecorderRef = useRef(null);
+            const audioChunksRef = useRef([]);
+            
+            // Check if speech-to-text is enabled in settings
+            useEffect(() => {
+                // This value is set in the localized script data
+                if (typeof wpNlcData !== 'undefined' && wpNlcData.enable_speech_to_text !== undefined) {
+                    setIsSpeechEnabled(wpNlcData.enable_speech_to_text === '1');
+                }
+            }, []);
             
             const handleInputChange = (e) => {
                 setInputValue(e.target.value);
@@ -171,6 +220,127 @@ const MessageItem = ({ message }) => {
                 }
             };
             
+            // Check if the browser supports the MediaRecorder API
+            const checkMediaRecorderSupport = () => {
+                // Check if we're on HTTPS or localhost
+                const isSecureContext = window.isSecureContext || 
+                    window.location.protocol === 'https:' || 
+                    window.location.hostname === 'localhost' || 
+                    window.location.hostname === '127.0.0.1';
+                
+                if (!isSecureContext) {
+                    alert('Microphone access requires a secure connection (HTTPS). Please contact your administrator to enable HTTPS for this site.');
+                    return false;
+                }
+
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    alert('Your browser does not support audio recording. Please use a modern browser like Chrome, Edge, or Firefox.');
+                    return false;
+                }
+                
+                if (typeof MediaRecorder === 'undefined') {
+                    alert('Your browser does not support the MediaRecorder API. Please use a modern browser like Chrome, Edge, or Firefox.');
+                    return false;
+                }
+                                
+                return true;
+            };
+            
+            const startRecording = async () => {
+                // Check if the browser supports recording
+                if (!checkMediaRecorderSupport()) {
+                    return;
+                }
+                
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorderRef.current = new MediaRecorder(stream);
+                    audioChunksRef.current = [];
+                    
+                    mediaRecorderRef.current.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                            audioChunksRef.current.push(event.data);
+                        }
+                    };
+                    
+                    mediaRecorderRef.current.onstop = () => {
+                        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+                        sendAudioToServer(audioBlob);
+                        
+                        // Stop all audio tracks
+                        stream.getTracks().forEach(track => track.stop());
+                    };
+                    
+                    mediaRecorderRef.current.start();
+                    setIsRecording(true);
+                } catch (error) {
+                    console.error('Error accessing microphone:', error);
+                    
+                    // Provide more specific error messages
+                    if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                        alert('Microphone access was denied. Please allow microphone access in your browser settings and try again.\n\n' +
+                              'In most browsers, you can click on the camera/microphone icon in the address bar to change permissions.');
+                    } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+                        alert('No microphone was found. Please connect a microphone and try again.');
+                    } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+                        alert('Your microphone is busy or not available. Please close other applications that might be using your microphone.');
+                    } else {
+                        alert('Could not access your microphone: ' + error.message);
+                    }
+                }
+            };
+            
+            const stopRecording = () => {
+                if (mediaRecorderRef.current && isRecording) {
+                    mediaRecorderRef.current.stop();
+                    setIsRecording(false);
+                }
+            };
+            
+            const toggleRecording = () => {
+                if (isRecording) {
+                    stopRecording();
+                } else {
+                    startRecording();
+                }
+            };
+            
+            const sendAudioToServer = (audioBlob) => {
+                const formData = new FormData();
+                formData.append('audio', audioBlob, 'recording.webm');
+                formData.append('action', 'wp_nlc_transcribe_audio');
+                formData.append('nonce', wpNlcData.nonce);
+                
+                // Show loading state
+                // We're reusing the isProcessing state from the parent component
+                // but we could also add a separate loading state for transcription
+                
+                $.ajax({
+                    url: wpNlcData.ajax_url,
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success && response.data.transcription) {
+                            setInputValue(response.data.transcription);
+                            
+                            // Automatically send the message if it's not empty
+                            if (response.data.transcription.trim()) {
+                                onSendMessage(response.data.transcription.trim());
+                            }
+                        } else {
+                            console.error('Transcription error:', response.data ? response.data.message : 'Unknown error');
+                            alert('Error transcribing audio: ' + (response.data ? response.data.message : 'Unknown error'));
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX error:', error);
+                        alert('Error sending audio: ' + error);
+                    }
+                });
+            };
+            
             return e(
                 'div',
                 { className: 'wp-nlc-input-container' },
@@ -183,15 +353,28 @@ const MessageItem = ({ message }) => {
                     disabled: isProcessing,
                     ref: textareaRef
                 }),
+                isSpeechEnabled && e(
+                    'button',
+                    {
+                        className: `wp-nlc-mic-button ${isRecording ? 'recording' : ''}`,
+                        onClick: toggleRecording,
+                        disabled: isProcessing,
+                        title: isRecording ? 'Stop recording' : 'Start recording',
+                        type: 'button'
+                    },
+                    e(MicrophoneIcon)
+                ),
                 e(
                     'button',
                     {
                         className: 'wp-nlc-send-button',
                         onClick: handleSendMessage,
-                        disabled: isProcessing || !inputValue.trim()
+                        disabled: isProcessing || !inputValue.trim(),
+                        type: 'button'
                     },
                     'Send'
-                )
+                ),
+                isRecording && e(RecordingStatus)
             );
         };
 
@@ -444,7 +627,8 @@ const ActionResults = ({ actions }) => {
                 ajaxUrl: wpNlcData.ajax_url,
                 nonce: wpNlcData.nonce,
                 apiKey: wpNlcData.api_key,
-                model: wpNlcData.model
+                model: wpNlcData.model,
+                enableSpeechToText: wpNlcData.enable_speech_to_text
             };
             
             // Render the chat interface

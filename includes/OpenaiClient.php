@@ -14,7 +14,7 @@ if ( ! defined( 'WPINC' ) ) {
 /**
  * OpenAI Client class.
  *
- * This class handles communication with the OpenAI API for function calling.
+ * This class handles communication with the OpenAI API for function calling and speech-to-text.
  */
 class OpenaiClient {
 
@@ -26,11 +26,18 @@ class OpenaiClient {
     private $api_key;
 
     /**
-     * The OpenAI API endpoint.
+     * The OpenAI Chat API endpoint.
      *
      * @var string
      */
-    private $api_endpoint = 'https://api.openai.com/v1/chat/completions';
+    private $chat_api_endpoint = 'https://api.openai.com/v1/chat/completions';
+    
+    /**
+     * The OpenAI Whisper API endpoint.
+     *
+     * @var string
+     */
+    private $whisper_api_endpoint = 'https://api.openai.com/v1/audio/transcriptions';
 
     /**
      * The OpenAI model to use.
@@ -53,6 +60,98 @@ class OpenaiClient {
         $this->api_key = get_option( 'wp_nlc_openai_api_key', '' );
         $this->model = get_option( 'wp_nlc_openai_model', 'gpt-4-turbo' );
         $this->debug_mode = get_option( 'wp_nlc_debug_mode', false );
+    }
+    
+    /**
+     * Transcribe audio using the OpenAI Whisper API.
+     *
+     * @param string $audio_file_path The path to the audio file.
+     * @param string $language Optional language code to improve transcription accuracy.
+     * @return string|\WP_Error The transcribed text or an error.
+     */
+    public function transcribe_audio( $audio_file_path, $language = null ) {
+        if ( empty( $this->api_key ) ) {
+            return new \WP_Error(
+                'missing_api_key',
+                'OpenAI API key is not configured. Please set it in the plugin settings.'
+            );
+        }
+        
+        if ( ! file_exists( $audio_file_path ) ) {
+            return new \WP_Error(
+                'file_not_found',
+                'Audio file not found.'
+            );
+        }
+        
+        // Prepare the request
+        $boundary = wp_generate_password( 24, false );
+        $headers = array(
+            'Authorization' => 'Bearer ' . $this->api_key,
+            'Content-Type' => 'multipart/form-data; boundary=' . $boundary,
+        );
+        
+        // Start building the multipart body
+        $body = '';
+        
+        // Add the file part
+        $body .= '--' . $boundary . "\r\n";
+        $body .= 'Content-Disposition: form-data; name="file"; filename="' . basename( $audio_file_path ) . '"' . "\r\n";
+        $body .= 'Content-Type: audio/mpeg' . "\r\n\r\n";
+        $body .= file_get_contents( $audio_file_path ) . "\r\n";
+        
+        // Add the model part
+        $body .= '--' . $boundary . "\r\n";
+        $body .= 'Content-Disposition: form-data; name="model"' . "\r\n\r\n";
+        $body .= 'whisper-1' . "\r\n";
+        
+        // Add the language part if specified
+        if ( ! empty( $language ) ) {
+            $body .= '--' . $boundary . "\r\n";
+            $body .= 'Content-Disposition: form-data; name="language"' . "\r\n\r\n";
+            $body .= $language . "\r\n";
+        }
+        
+        // Close the multipart body
+        $body .= '--' . $boundary . '--';
+        
+        // Log the request if debug mode is enabled
+        if ( $this->debug_mode ) {
+            error_log( 'OpenAI Whisper API Request: ' . basename( $audio_file_path ) . ' (language: ' . ( $language ?: 'auto' ) . ')' );
+        }
+        
+        // Send the request
+        $response = wp_remote_post( $this->whisper_api_endpoint, array(
+            'headers' => $headers,
+            'body' => $body,
+            'timeout' => 60, // Longer timeout for audio processing
+        ) );
+        
+        if ( is_wp_error( $response ) ) {
+            return $response;
+        }
+        
+        $response_code = wp_remote_retrieve_response_code( $response );
+        if ( $response_code !== 200 ) {
+            $body = wp_remote_retrieve_body( $response );
+            $error = json_decode( $body, true );
+            $error_message = isset( $error['error']['message'] ) ? $error['error']['message'] : 'Unknown error';
+            
+            return new \WP_Error(
+                'openai_api_error',
+                sprintf( 'OpenAI Whisper API error (%d): %s', $response_code, $error_message )
+            );
+        }
+        
+        $body = wp_remote_retrieve_body( $response );
+        $result = json_decode( $body, true );
+        
+        // Log the response if debug mode is enabled
+        if ( $this->debug_mode ) {
+            error_log( 'OpenAI Whisper API Response: ' . wp_json_encode( $result, JSON_PRETTY_PRINT ) );
+        }
+        
+        return isset( $result['text'] ) ? $result['text'] : '';
     }
 
     /**
@@ -166,7 +265,7 @@ class OpenaiClient {
             'timeout' => 30,
         );
 
-        $response = wp_remote_post( $this->api_endpoint, $args );
+        $response = wp_remote_post( $this->chat_api_endpoint, $args );
 
         if ( is_wp_error( $response ) ) {
             return $response;

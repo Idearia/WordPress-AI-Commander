@@ -8,6 +8,7 @@
 namespace WPNaturalLanguageCommands\Includes;
 
 use WPNaturalLanguageCommands\Includes\Services\ConversationService;
+use Exception;
 
 if ( ! defined( 'WPINC' ) ) {
     die;
@@ -46,6 +47,7 @@ class AjaxHandlers {
         add_action( 'wp_ajax_wp_nlc_get_conversation', array( $this, 'get_conversation' ) );
         add_action( 'wp_ajax_wp_nlc_process_command', array( $this, 'process_command' ) );
         add_action( 'wp_ajax_wp_nlc_execute_tool', array( $this, 'execute_tool' ) );
+        add_action( 'wp_ajax_wp_nlc_transcribe_audio', array( $this, 'transcribe_audio' ) );
     }
 
     /**
@@ -168,6 +170,112 @@ class AjaxHandlers {
             wp_send_json_success( $result );
         } catch ( \Exception $e ) {
             wp_send_json_error( array( 'message' => $e->getMessage() ) );
+        }
+    }
+    
+    /**
+     * AJAX handler for transcribing audio using OpenAI Whisper API.
+     */
+    public function transcribe_audio() {
+        // Check nonce for security
+        check_ajax_referer( 'wp_nlc_nonce', 'nonce' );
+        
+        // Check user capabilities
+        if ( ! current_user_can( 'edit_posts' ) ) {
+            wp_send_json_error( array( 'message' => 'Insufficient permissions' ) );
+        }
+        
+        // Check if speech-to-text is enabled
+        $enable_speech = get_option( 'wp_nlc_enable_speech_to_text', true );
+        if ( ! $enable_speech ) {
+            wp_send_json_error( array( 'message' => 'Speech-to-text is disabled in settings' ) );
+        }
+        
+        // Check if file was uploaded
+        if ( empty( $_FILES['audio'] ) ) {
+            wp_send_json_error( array( 'message' => 'No audio file provided' ) );
+        }
+        
+        // Get the language setting
+        $language = get_option( 'wp_nlc_speech_language', '' );
+        
+        // Get the uploaded file
+        $file = $_FILES['audio'];
+        
+        // Check for upload errors
+        if ( $file['error'] !== UPLOAD_ERR_OK ) {
+            $error_message = $this->get_upload_error_message( $file['error'] );
+            wp_send_json_error( array( 'message' => $error_message ) );
+        }
+        
+        // Create uploads directory if it doesn't exist
+        $upload_dir = wp_upload_dir();
+        $audio_dir = $upload_dir['basedir'] . '/wp-nlc-audio';
+        
+        if ( ! file_exists( $audio_dir ) ) {
+            wp_mkdir_p( $audio_dir );
+            
+            // Create an index.php file to prevent directory listing
+            file_put_contents( $audio_dir . '/index.php', '<?php // Silence is golden' );
+        }
+        
+        // Generate a unique filename
+        $filename = 'audio-' . uniqid() . '.webm';
+        $file_path = $audio_dir . '/' . $filename;
+        
+        // Move the uploaded file to our directory
+        if ( ! move_uploaded_file( $file['tmp_name'], $file_path ) ) {
+            wp_send_json_error( array( 'message' => 'Failed to save audio file' ) );
+        }
+        
+        try {
+            // Create an instance of the OpenAI client
+            $openai_client = new OpenaiClient();
+            
+            // Transcribe the audio
+            $transcription = $openai_client->transcribe_audio( $file_path, $language );
+            
+            // Delete the audio file after transcription
+            @unlink( $file_path );
+            
+            if ( is_wp_error( $transcription ) ) {
+                wp_send_json_error( array( 'message' => $transcription->get_error_message() ) );
+            }
+            
+            // Return the transcription
+            wp_send_json_success( array( 'transcription' => $transcription ) );
+        } catch ( Exception $e ) {
+            // Delete the audio file if there was an error
+            @unlink( $file_path );
+            
+            wp_send_json_error( array( 'message' => $e->getMessage() ) );
+        }
+    }
+    
+    /**
+     * Get a human-readable error message for file upload errors.
+     *
+     * @param int $error_code The error code from $_FILES['file']['error'].
+     * @return string The error message.
+     */
+    private function get_upload_error_message( $error_code ) {
+        switch ( $error_code ) {
+            case UPLOAD_ERR_INI_SIZE:
+                return 'The uploaded file exceeds the upload_max_filesize directive in php.ini';
+            case UPLOAD_ERR_FORM_SIZE:
+                return 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form';
+            case UPLOAD_ERR_PARTIAL:
+                return 'The uploaded file was only partially uploaded';
+            case UPLOAD_ERR_NO_FILE:
+                return 'No file was uploaded';
+            case UPLOAD_ERR_NO_TMP_DIR:
+                return 'Missing a temporary folder';
+            case UPLOAD_ERR_CANT_WRITE:
+                return 'Failed to write file to disk';
+            case UPLOAD_ERR_EXTENSION:
+                return 'A PHP extension stopped the file upload';
+            default:
+                return 'Unknown upload error';
         }
     }
 }
