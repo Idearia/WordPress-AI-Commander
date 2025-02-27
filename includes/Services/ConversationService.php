@@ -62,6 +62,10 @@ class ConversationService {
     /**
      * Get a conversation.
      *
+     * The result will contain a $messages array formatted for OpenAI's
+     * chat completion API, and a $messages_for_frontend array containing
+     * extra info (e.g. a summary for each tool call).
+     *
      * @param string $conversation_uuid The conversation UUID.
      * @param int $user_id The WordPress user ID.
      * @return array|false The conversation data, or false if not found or not authorized.
@@ -77,11 +81,13 @@ class ConversationService {
             return false;
         }
         
-        $messages = $this->conversation_manager->format_for_frontend( $conversation_uuid );
+        $messages = $this->conversation_manager->format_for_openai( $conversation_uuid );
+        $messages_for_frontend = $this->conversation_manager->format_for_frontend( $conversation_uuid );
         
         return array(
             'conversation_uuid' => $conversation_uuid,
-            'messages' => $messages
+            'messages' => $messages,
+            'messages_for_frontend' => $messages_for_frontend
         );
     }
     

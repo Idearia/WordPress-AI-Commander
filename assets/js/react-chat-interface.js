@@ -282,7 +282,7 @@ const ActionResults = ({ actions }) => {
                             setConversationId(response.data.conversation_uuid);
                             
                             // Set the messages
-                            setMessages(response.data.messages || []);
+                            setMessages(response.data.messages_for_frontend || []);
                             
                             // Clear any actions
                             setActions([]);

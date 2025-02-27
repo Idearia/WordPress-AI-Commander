@@ -230,25 +230,6 @@ Authorization: Basic base64encode(username:application_password)
 GET /wp-json/wp-nlc/v1/conversations
 ```
 
-Response:
-
-```json
-[
-  {
-    "conversation_uuid": "12345678-1234-1234-1234-123456789012",
-    "created_at": "2025-02-27 21:00:00",
-    "updated_at": "2025-02-27 21:05:00",
-    "preview": "Create a new post titled 'Hello World'"
-  },
-  {
-    "conversation_uuid": "87654321-4321-4321-4321-210987654321",
-    "created_at": "2025-02-26 15:30:00",
-    "updated_at": "2025-02-26 15:35:00",
-    "preview": "List all posts in the 'News' category"
-  }
-]
-```
-
 #### Create a new conversation
 
 ```
@@ -259,31 +240,7 @@ Request body:
 
 ```json
 {
-  "command": "Create a new post titled 'Hello World'"
-}
-```
-
-Response:
-
-```json
-{
-  "success": true,
-  "message": "I've created a new post titled 'Hello World'.",
-  "actions": [
-    {
-      "tool": "create_post",
-      "arguments": {
-        "title": "Hello World"
-      },
-      "result": {
-        "post_id": 123,
-        "post_url": "https://example.com/hello-world"
-      },
-      "title": "Executed create_post successfully.",
-      "summary": "Created post 'Hello World' with ID 123."
-    }
-  ],
-  "conversation_uuid": "12345678-1234-1234-1234-123456789012"
+  "command": "Create a new draft post titled 'Hello World'"
 }
 ```
 
@@ -291,28 +248,6 @@ Response:
 
 ```
 GET /wp-json/wp-nlc/v1/conversations/{uuid}
-```
-
-Response:
-
-```json
-{
-  "conversation_uuid": "12345678-1234-1234-1234-123456789012",
-  "messages": [
-    {
-      "role": "assistant",
-      "content": "Hello! I'm your WordPress assistant. How can I help you today?"
-    },
-    {
-      "role": "user",
-      "content": "Create a new post titled 'Hello World'"
-    },
-    {
-      "role": "assistant",
-      "content": "I've created a new post titled 'Hello World'."
-    }
-  ]
-}
 ```
 
 #### Add a command to an existing conversation
@@ -325,43 +260,19 @@ Request body:
 
 ```json
 {
-  "command": "Create a new post titled 'Hello World'"
-}
-```
-
-Response:
-
-```json
-{
-  "success": true,
-  "message": "I've created a new post titled 'Hello World'.",
-  "actions": [
-    {
-      "tool": "create_post",
-      "arguments": {
-        "title": "Hello World"
-      },
-      "result": {
-        "post_id": 123,
-        "post_url": "https://example.com/hello-world"
-      },
-      "title": "Executed create_post successfully.",
-      "summary": "Created post 'Hello World' with ID 123."
-    }
-  ],
-  "conversation_uuid": "12345678-1234-1234-1234-123456789012"
+  "command": "Publish the post that you just created"
 }
 ```
 
 ### Postman Collection
 
-A Postman collection is included in the plugin to help you test and interact with the REST API. You can find it in the `postman_collection.json` file in the plugin directory.
+A Postman collection with example responses is included in [`postman_collection.json`](./postman_collection.json).
 
 To use the collection:
 
 1. Import the `postman_collection.json` file into Postman
 2. Set up the collection variables:
-   - `baseUrl`: Your WordPress site URL (e.g., `http://localhost/wordpress`)
+   - `baseUrl`: Your WordPress site URL
    - `username`: Your WordPress username
    - `password`: Your WordPress application password
 3. You can now use the collection to test the REST API endpoints

@@ -158,6 +158,7 @@ class PostCreationTool extends BaseTool {
         }
 
         // Get post info
+        $post_title = get_the_title( $post_id );
         $post_type = get_post_type( $post_id );
         $post_url = get_permalink( $post_id );
         $edit_url = get_edit_post_link( $post_id, 'raw' );
@@ -166,6 +167,7 @@ class PostCreationTool extends BaseTool {
         return array(
             'success' => true,
             'post_id' => $post_id,
+            'post_title' => $post_title,
             'post_type' => $post_type,
             'post_url' => $post_url,
             'edit_url' => $edit_url,
@@ -185,14 +187,14 @@ class PostCreationTool extends BaseTool {
         }
 
         $post_id = isset( $result['post_id'] ) ? $result['post_id'] : 'unknown';
-        $title = isset( $params['title'] ) ? $params['title'] : 'unknown';
+        $post_title = isset( $result['post_title'] ) ? $result['post_title'] : 'unknown';
         $post_type = isset( $result['post_type'] ) ? $result['post_type'] : 'unknown';
 
         if ( $post_type === 'post' ) {
-            return sprintf( 'Post "%s" created successfully with ID %d.', $title, $post_id );
+            return sprintf( 'Post "%s" created successfully with ID %d.', $post_title, $post_id );
         }
         else if ( $post_type === 'page' ) {
-            return sprintf( 'Page "%s" created successfully with ID %d.', $title, $post_id );
+            return sprintf( 'Page "%s" created successfully with ID %d.', $post_title, $post_id );
         }
         else {
             return sprintf( 'Post of type "%s" created successfully with ID %d.', $post_type, $post_id );

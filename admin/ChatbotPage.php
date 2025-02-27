@@ -47,7 +47,7 @@ class ChatbotPage extends AdminPage {
      * Enqueue chat interface scripts and styles.
      */
     public function enqueue_chat_interface_scripts( $hook ) {
-        // Only load in the chatbot page        error_log( 'Hook: ' . $hook );
+        // Only load in the chatbot page
         if ( $hook !== 'nl-commands_page_wp-natural-language-commands-chatbot' ) {
             return;
         }
