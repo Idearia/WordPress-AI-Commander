@@ -55,6 +55,19 @@ abstract class BaseTool {
     }
 
     /**
+     * Unregister the tool from the tool registry.
+     * 
+     * @return bool True if the tool was unregistered, false if it wasn't registered.
+     */
+    public function unregister() {
+        // Get the tool registry instance
+        $registry = ToolRegistry::get_instance();
+        
+        // Unregister this tool
+        return $registry->unregister_tool( $this->get_name() );
+    }
+
+    /**
      * Get the tool name.
      *
      * @return string The tool name.

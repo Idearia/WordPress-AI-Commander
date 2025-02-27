@@ -81,6 +81,21 @@ class ToolRegistry {
     }
 
     /**
+     * Remove a tool from the registry.
+     *
+     * @param string $name The name of the tool to remove.
+     * @return bool True if the tool was removed, false if it wasn't registered.
+     */
+    public function unregister_tool( $name ) {
+        if ( ! isset( $this->tools[ $name ] ) ) {
+            return false;
+        }
+        
+        unset( $this->tools[ $name ] );
+        return true;
+    }
+
+    /**
      * Get a registered tool by name.
      *
      * @param string $name The name of the tool to get.
