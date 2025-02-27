@@ -178,10 +178,6 @@ class ContentOrganizationTool extends BaseTool {
             return $result->get_error_message();
         }
         
-        if ( isset( $result['message'] ) ) {
-            return $result['message'];
-        }
-        
         // Create a detailed summary based on the changes made
         $summary_parts = array();
         

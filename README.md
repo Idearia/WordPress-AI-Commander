@@ -213,6 +213,7 @@ Important features to add:
 Nice to have features:
 - add system prompt to option pages
 - allow to filter system prompt
+- allow links and newlines in chatbot responses
 
 Bug fixes:
 - test user roles permissions

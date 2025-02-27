@@ -284,20 +284,34 @@ class ContentRetrievalTool extends BaseTool {
             $response['query']['tag'] = $params['tag'];
         }
         
-        // Add message
-        if ( count( $posts ) > 0 ) {
-            $response['message'] = sprintf(
-                'Found %d %s matching the criteria.',
-                count( $posts ),
-                count( $posts ) === 1 ? $params['post_type'] : $params['post_type'] . 's'
-            );
-        } else {
-            $response['message'] = sprintf(
-                'No %s found matching the criteria.',
-                $params['post_type'] === 1 ? $params['post_type'] : $params['post_type'] . 's'
-            );
+        return $response;
+    }
+
+    /**
+     * Get a human-readable summary of the tool execution result.
+     *
+     * @param array|\WP_Error $result The result of executing the tool.
+     * @param array $params The parameters used when executing the tool.
+     * @return string A human-readable summary of the result.
+     */
+    public function get_result_summary( $result, $params ) {
+        if ( is_wp_error( $result ) ) {
+            return $result->get_error_message();
         }
         
-        return $response;
+        $posts = $result['posts'];
+        $count = count( $posts );
+        
+        if ( $count === 0 ) {
+            return 'No posts found matching the criteria.';
+        }
+        
+        $summary = sprintf(
+            'Found %d %s matching the criteria.',
+            $count,
+            $count === 1 ? $params['post_type'] : $params['post_type'] . 's'
+        );
+        
+        return $summary;
     }
 }

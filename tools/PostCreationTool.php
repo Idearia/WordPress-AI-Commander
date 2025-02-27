@@ -157,23 +157,18 @@ class PostCreationTool extends BaseTool {
             wp_set_post_tags( $post_id, $params['tags'] );
         }
 
-        // Get the post URL
+        // Get post info
+        $post_type = get_post_type( $post_id );
         $post_url = get_permalink( $post_id );
-
-        // Get the edit URL
         $edit_url = get_edit_post_link( $post_id, 'raw' );
 
         // Return the result
         return array(
             'success' => true,
             'post_id' => $post_id,
+            'post_type' => $post_type,
             'post_url' => $post_url,
             'edit_url' => $edit_url,
-            'message' => sprintf(
-                'Post "%s" created successfully with ID %d.',
-                $params['title'],
-                $post_id
-            ),
         );
     }
     
@@ -188,14 +183,19 @@ class PostCreationTool extends BaseTool {
         if ( is_wp_error( $result ) ) {
             return $result->get_error_message();
         }
-        
-        if ( isset( $result['message'] ) ) {
-            return $result['message'];
-        }
-        
+
         $post_id = isset( $result['post_id'] ) ? $result['post_id'] : 'unknown';
         $title = isset( $params['title'] ) ? $params['title'] : 'unknown';
-        
-        return sprintf( 'Post "%s" created successfully with ID %d.', $title, $post_id );
+        $post_type = isset( $result['post_type'] ) ? $result['post_type'] : 'unknown';
+
+        if ( $post_type === 'post' ) {
+            return sprintf( 'Post "%s" created successfully with ID %d.', $title, $post_id );
+        }
+        else if ( $post_type === 'page' ) {
+            return sprintf( 'Page "%s" created successfully with ID %d.', $title, $post_id );
+        }
+        else {
+            return sprintf( 'Post of type "%s" created successfully with ID %d.', $post_type, $post_id );
+        }
     }
 }

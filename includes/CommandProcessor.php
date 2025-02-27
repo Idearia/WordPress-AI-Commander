@@ -123,9 +123,6 @@ class CommandProcessor {
             $summary = '';
             if ( is_wp_error( $result ) ) {
                 $summary = $result->get_error_message();
-            } elseif ( isset( $result['message'] ) ) {
-                // Use the message from the result if available
-                $summary = $result['message'];
             } elseif ( $tool ) {
                 // Let the tool generate a summary based on the result and arguments
                 $summary = $tool->get_result_summary( $result, $arguments );
