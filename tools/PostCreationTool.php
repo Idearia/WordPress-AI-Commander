@@ -24,6 +24,7 @@ class PostCreationTool extends BaseTool {
     public function __construct() {
         $this->name = 'create_post';
         $this->description = 'Creates a new WordPress post';
+        $this->required_capability = 'publish_posts';
         
         parent::__construct();
     }

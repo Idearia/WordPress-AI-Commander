@@ -24,6 +24,7 @@ class ContentOrganizationTool extends BaseTool {
     public function __construct() {
         $this->name = 'organize_content';
         $this->description = 'Organizes WordPress content by assigning categories, tags, and other taxonomies';
+        $this->required_capability = 'manage_categories';
         
         parent::__construct();
     }

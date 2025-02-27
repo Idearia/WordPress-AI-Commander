@@ -24,6 +24,7 @@ class SiteInformationTool extends BaseTool {
     public function __construct() {
         $this->name = 'get_site_info';
         $this->description = 'Retrieves basic WordPress site information';
+        $this->required_capability = 'read';
         
         parent::__construct();
     }

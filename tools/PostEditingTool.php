@@ -24,6 +24,7 @@ class PostEditingTool extends BaseTool {
     public function __construct() {
         $this->name = 'edit_post';
         $this->description = 'Edits an existing WordPress post';
+        $this->required_capability = 'edit_others_posts';
         
         parent::__construct();
     }

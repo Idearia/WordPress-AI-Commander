@@ -24,6 +24,7 @@ class ContentRetrievalTool extends BaseTool {
     public function __construct() {
         $this->name = 'retrieve_content';
         $this->description = 'Retrieves WordPress content based on various criteria';
+        $this->required_capability = 'read_private_posts';
         
         parent::__construct();
     }

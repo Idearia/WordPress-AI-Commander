@@ -186,7 +186,7 @@ class ToolRegistry {
             );
         }
         
-        return $tool->execute( $params );
+        return $tool->execute_with_permission_check( $params );
     }
 
     /**

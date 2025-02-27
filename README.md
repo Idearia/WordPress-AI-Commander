@@ -86,6 +86,7 @@ class SimplePageCreationTool extends BaseTool {
     public function __construct() {
         $this->name = 'create_empty_page';
         $this->description = 'Creates an empty WordPress page with the specified title';
+        $this->required_capability = 'publish_pages'; // Only users who can publish pages can use this tool
         
         parent::__construct();
     }
@@ -191,16 +192,14 @@ add_action('init', 'register_custom_nlc_tools', 20); // Priority 20 to ensure it
 
 ### 3. Best Practices
 
+- **OpenAI guidelines**: When defining your tools, follow the [OpenAI guidelines](https://platform.openai.com/docs/guides/function-calling) for tool creation.
 - **Descriptive Names**: Use clear, descriptive names for your tools and parameters
 - **Thorough Validation**: Always validate input parameters before executing your tool
 - **Helpful Error Messages**: Return informative error messages when something goes wrong
 - **Detailed Descriptions**: Provide detailed descriptions for your tool and its parameters
 - **Meaningful Results**: Return structured results that include a success status and message
 - **Human-Readable Summaries**: Implement the `get_result_summary` method to provide user-friendly summaries of your tool's actions
-
-For a detailed documentation, please refer to the OpenAI guide for Function Calling:
-
-- https://platform.openai.com/docs/guides/function-calling
+- **Appropriate Capabilities**: Set the `required_capability` property to ensure users can only execute tools they have permission to use; [here's a nice table of WordPress roles and capabilities](https://wordpress.org/documentation/article/roles-and-capabilities/#capability-vs-role-table)
 
 
 ## To do

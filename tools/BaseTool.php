@@ -37,6 +37,13 @@ abstract class BaseTool {
     protected $description;
 
     /**
+     * The capability required to use this tool.
+     *
+     * @var string
+     */
+    protected $required_capability = 'manage_options'; // Default capability
+
+    /**
      * Constructor.
      */
     public function __construct() {
@@ -86,6 +93,15 @@ abstract class BaseTool {
     }
 
     /**
+     * Get the capability required to use this tool.
+     *
+     * @return string The required capability.
+     */
+    public function get_required_capability() {
+        return $this->required_capability;
+    }
+
+    /**
      * Get the tool parameters for OpenAI function calling.
      *
      * @return array The tool parameters.
@@ -99,6 +115,30 @@ abstract class BaseTool {
      * @return array|\WP_Error The result of executing the tool.
      */
     abstract public function execute( $params );
+    
+    /**
+     * Execute the tool with permission checking.
+     *
+     * This method wraps the execute method with a permission check.
+     *
+     * @param array $params The parameters to use when executing the tool.
+     * @return array|\WP_Error The result of executing the tool.
+     */
+    public function execute_with_permission_check( $params ) {
+        // Check if the current user has the required capability
+        if ( ! current_user_can( $this->get_required_capability() ) ) {
+            return new \WP_Error(
+                'insufficient_permissions',
+                sprintf(
+                    'You do not have permission to use the %s tool. This operation requires the "%s" capability.',
+                    $this->get_name(),
+                    $this->get_required_capability()
+                )
+            );
+        }
+        
+        return $this->execute( $params );
+    }
 
     /**
      * Validate the parameters before executing the tool.
