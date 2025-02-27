@@ -46,7 +46,12 @@ class ChatbotPage extends AdminPage {
     /**
      * Enqueue chat interface scripts and styles.
      */
-    public function enqueue_chat_interface_scripts() {
+    public function enqueue_chat_interface_scripts( $hook ) {
+        // Only load in the chatbot page        error_log( 'Hook: ' . $hook );
+        if ( $hook !== 'nl-commands_page_wp-natural-language-commands-chatbot' ) {
+            return;
+        }
+
         // Enqueue React and ReactDOM from WordPress
         wp_enqueue_script( 'wp-element' );
         
