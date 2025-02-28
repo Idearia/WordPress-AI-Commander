@@ -9,91 +9,6 @@
 	},
 	"item": [
 		{
-			"name": "Transcribe Audio",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "audio",
-							"type": "file",
-							"src": "/path/to/your/audio/file.webm",
-							"description": "Audio file to transcribe (WebM, MP3, WAV, etc.)"
-						},
-						{
-							"key": "language",
-							"value": "en",
-							"description": "Optional language code to improve transcription accuracy",
-							"type": "text",
-							"disabled": true
-						}
-					]
-				},
-				"url": {
-					"raw": "{{baseUrl}}/wp-json/wp-nlc/v1/transcribe",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"wp-json",
-						"wp-nlc",
-						"v1",
-						"transcribe"
-					]
-				},
-				"description": "Transcribes an audio file using OpenAI's Whisper API and returns the transcribed text."
-			},
-			"response": []
-		},
-		{
-			"name": "Process Voice Command",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "audio",
-							"type": "file",
-							"src": "/path/to/your/audio/file.webm",
-							"description": "Audio file containing the voice command"
-						},
-						{
-							"key": "conversation_uuid",
-							"value": "21f9749c-3670-457c-909b-b0a1754f2063",
-							"description": "Optional conversation UUID to add the command to an existing conversation",
-							"type": "text",
-							"disabled": true
-						},
-						{
-							"key": "language",
-							"value": "en",
-							"description": "Optional language code to improve transcription accuracy",
-							"type": "text",
-							"disabled": true
-						}
-					]
-				},
-				"url": {
-					"raw": "{{baseUrl}}/wp-json/wp-nlc/v1/voice-command",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"wp-json",
-						"wp-nlc",
-						"v1",
-						"voice-command"
-					]
-				},
-				"description": "Transcribes an audio file and processes the transcribed text as a command. This endpoint combines audio transcription and command processing in a single request."
-			},
-			"response": []
-		},
-		{
 			"name": "Get all conversations",
 			"request": {
 				"method": "GET",
@@ -206,7 +121,7 @@
 			]
 		},
 		{
-			"name": "Create a new conversation",
+			"name": "Issue a command",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -217,10 +132,10 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"command\": \"Create a new draft titled 'Hello World'\"\n}"
+					"raw": "{\n  \"command\": \"Create a new draft titled 'Hello World'\",\n  \"conversation_uuid\": \"dff7ffb1-aaca-4d56-8804-4654d9ef4aa0\"\n}"
 				},
 				"url": {
-					"raw": "{{baseUrl}}/wp-json/wp-nlc/v1/conversations",
+					"raw": "{{baseUrl}}/wp-json/wp-nlc/v1/command",
 					"host": [
 						"{{baseUrl}}"
 					],
@@ -228,7 +143,7 @@
 						"wp-json",
 						"wp-nlc",
 						"v1",
-						"conversations"
+						"command"
 					]
 				},
 				"description": "Creates a new conversation with the specified command."
@@ -246,10 +161,10 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"command\": \"Create a new draft titled 'Hello World'\"\n}"
+							"raw": "{\n  \"command\": \"Create a new draft titled 'Hello World'\",\n  \"conversation_uuid\": \"dff7ffb1-aaca-4d56-8804-4654d9ef4aa0\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/wp-json/wp-nlc/v1/conversations",
+							"raw": "{{baseUrl}}/wp-json/wp-nlc/v1/command",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -257,7 +172,7 @@
 								"wp-json",
 								"wp-nlc",
 								"v1",
-								"conversations"
+								"command"
 							]
 						}
 					},
@@ -271,7 +186,7 @@
 						},
 						{
 							"key": "Date",
-							"value": "Thu, 27 Feb 2025 21:55:17 GMT"
+							"value": "Fri, 28 Feb 2025 17:36:01 GMT"
 						},
 						{
 							"key": "Content-Type",
@@ -315,7 +230,7 @@
 						},
 						{
 							"key": "Allow",
-							"value": "POST, GET"
+							"value": "POST"
 						},
 						{
 							"key": "Expires",
@@ -331,7 +246,106 @@
 						}
 					],
 					"cookie": [],
-					"body": "{\n    \"success\": true,\n    \"message\": \"\",\n    \"actions\": [\n        {\n            \"tool\": \"create_post\",\n            \"tool_call_id\": \"call_kZ0ETUhO5tFrDIThzJLkrTpW\",\n            \"arguments\": {\n                \"title\": \"Hello World\",\n                \"content\": null,\n                \"excerpt\": null,\n                \"status\": \"draft\",\n                \"post_type\": \"post\",\n                \"categories\": null,\n                \"tags\": null,\n                \"date\": null\n            },\n            \"result\": {\n                \"success\": true,\n                \"post_id\": 197,\n                \"post_title\": \"Hello World\",\n                \"post_type\": \"post\",\n                \"post_url\": \"http://test-wp-nlc-plugin.mylocal/?p=197\",\n                \"edit_url\": \"http://test-wp-nlc-plugin.mylocal/wp-admin/post.php?post=197&action=edit\"\n            },\n            \"title\": \"Executed create_post successfully.\",\n            \"summary\": \"Post \\\"Hello World\\\" created successfully with ID 197.\"\n        }\n    ],\n    \"conversation_uuid\": \"21f9749c-3670-457c-909b-b0a1754f2063\"\n}"
+					"body": "{\n    \"success\": true,\n    \"message\": \"\",\n    \"actions\": [\n        {\n            \"tool\": \"create_post\",\n            \"tool_call_id\": \"call_8Z7lMMdlKKFCHeTEjESPceab\",\n            \"arguments\": {\n                \"title\": \"Hello World\",\n                \"content\": null,\n                \"excerpt\": null,\n                \"status\": \"draft\",\n                \"post_type\": null,\n                \"categories\": null,\n                \"tags\": null,\n                \"date\": null\n            },\n            \"result\": {\n                \"success\": true,\n                \"post_id\": 229,\n                \"post_title\": \"Hello World\",\n                \"post_type\": \"post\",\n                \"post_url\": \"http://test-wp-nlc-plugin.mylocal/?p=229\",\n                \"edit_url\": \"http://test-wp-nlc-plugin.mylocal/wp-admin/post.php?post=229&action=edit\"\n            },\n            \"title\": \"Executed create_post successfully.\",\n            \"summary\": \"Post \\\"Hello World\\\" created successfully with ID 229.\"\n        }\n    ],\n    \"conversation_uuid\": \"dff7ffb1-aaca-4d56-8804-4654d9ef4aa0\"\n}"
+				},
+				{
+					"name": "Add a command to a conversation",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"command\": \"Publish the post you just created\",\n  \"conversation_uuid\": \"dff7ffb1-aaca-4d56-8804-4654d9ef4aa0\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/wp-json/wp-nlc/v1/command",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wp-json",
+								"wp-nlc",
+								"v1",
+								"command"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Server",
+							"value": "nginx/1.26.1"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 28 Feb 2025 17:37:04 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=UTF-8"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "Vary",
+							"value": "Accept-Encoding"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "PHP/8.2.23"
+						},
+						{
+							"key": "X-Robots-Tag",
+							"value": "noindex"
+						},
+						{
+							"key": "Link",
+							"value": "<http://test-wp-nlc-plugin.mylocal/wp-json/>; rel=\"https://api.w.org/\""
+						},
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "Access-Control-Expose-Headers",
+							"value": "X-WP-Total, X-WP-TotalPages, Link"
+						},
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "Authorization, X-WP-Nonce, Content-Disposition, Content-MD5, Content-Type"
+						},
+						{
+							"key": "Allow",
+							"value": "POST"
+						},
+						{
+							"key": "Expires",
+							"value": "Wed, 11 Jan 1984 05:00:00 GMT"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, must-revalidate, max-age=0, no-store, private"
+						},
+						{
+							"key": "Content-Encoding",
+							"value": "gzip"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"success\": true,\n    \"message\": \"\",\n    \"actions\": [\n        {\n            \"tool\": \"edit_post\",\n            \"tool_call_id\": \"call_LyHgnXVVlit7QRREApfkdaeO\",\n            \"arguments\": {\n                \"post_id\": 229,\n                \"post_title\": null,\n                \"title\": null,\n                \"content\": null,\n                \"excerpt\": null,\n                \"status\": \"publish\",\n                \"categories\": null,\n                \"tags\": null,\n                \"date\": null\n            },\n            \"result\": {\n                \"success\": true,\n                \"post_id\": 229,\n                \"post_title\": \"Hello World\",\n                \"post_type\": \"post\",\n                \"post_url\": \"http://test-wp-nlc-plugin.mylocal/hello-world/\",\n                \"edit_url\": \"http://test-wp-nlc-plugin.mylocal/wp-admin/post.php?post=229&action=edit\"\n            },\n            \"title\": \"Executed edit_post successfully.\",\n            \"summary\": \"Post \\\"Hello World\\\" updated successfully with ID 229.\"\n        }\n    ],\n    \"conversation_uuid\": \"dff7ffb1-aaca-4d56-8804-4654d9ef4aa0\"\n}"
 				}
 			]
 		},
@@ -355,7 +369,7 @@
 					"variable": [
 						{
 							"key": "uuid",
-							"value": "21f9749c-3670-457c-909b-b0a1754f2063",
+							"value": "dff7ffb1-aaca-4d56-8804-4654d9ef4aa0",
 							"description": "The conversation UUID"
 						}
 					]
@@ -464,21 +478,30 @@
 			]
 		},
 		{
-			"name": "Add a command to an existing conversation",
+			"name": "Transcribe Audio",
 			"request": {
 				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
+				"header": [],
 				"body": {
-					"mode": "raw",
-					"raw": "{\n  \"command\": \"Publish the post\"\n}"
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "audio",
+							"description": "Audio file to transcribe (WebM, MP3, WAV, etc.)",
+							"type": "file",
+							"src": "/path/to/your/audio/file.webm"
+						},
+						{
+							"key": "language",
+							"value": "en",
+							"description": "Optional language code to improve transcription accuracy",
+							"type": "text",
+							"disabled": true
+						}
+					]
 				},
 				"url": {
-					"raw": "{{baseUrl}}/wp-json/wp-nlc/v1/conversations/:uuid/commands",
+					"raw": "{{baseUrl}}/wp-json/wp-nlc/v1/transcribe",
 					"host": [
 						"{{baseUrl}}"
 					],
@@ -486,130 +509,58 @@
 						"wp-json",
 						"wp-nlc",
 						"v1",
-						"conversations",
-						":uuid",
-						"commands"
-					],
-					"variable": [
+						"transcribe"
+					]
+				},
+				"description": "Transcribes an audio file using OpenAI's Whisper API and returns the transcribed text."
+			},
+			"response": []
+		},
+		{
+			"name": "Process Voice Command",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
 						{
-							"key": "uuid",
+							"key": "audio",
+							"description": "Audio file containing the voice command",
+							"type": "file",
+							"src": "/path/to/your/audio/file.webm"
+						},
+						{
+							"key": "conversation_uuid",
 							"value": "21f9749c-3670-457c-909b-b0a1754f2063",
-							"description": "The conversation UUID"
+							"description": "Optional conversation UUID to add the command to an existing conversation",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "language",
+							"value": "en",
+							"description": "Optional language code to improve transcription accuracy",
+							"type": "text",
+							"disabled": true
 						}
 					]
 				},
-				"description": "Adds a command to an existing conversation."
-			},
-			"response": [
-				{
-					"name": "Add a command to an existing conversation",
-					"originalRequest": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"command\": \"Publish the post\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/wp-json/wp-nlc/v1/conversations/:uuid/commands",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"wp-json",
-								"wp-nlc",
-								"v1",
-								"conversations",
-								":uuid",
-								"commands"
-							],
-							"variable": [
-								{
-									"key": "uuid",
-									"value": "21f9749c-3670-457c-909b-b0a1754f2063",
-									"description": "The conversation UUID"
-								}
-							]
-						}
-					},
-					"status": "OK",
-					"code": 200,
-					"_postman_previewlanguage": "json",
-					"header": [
-						{
-							"key": "Server",
-							"value": "nginx/1.26.1"
-						},
-						{
-							"key": "Date",
-							"value": "Thu, 27 Feb 2025 21:55:51 GMT"
-						},
-						{
-							"key": "Content-Type",
-							"value": "application/json; charset=UTF-8"
-						},
-						{
-							"key": "Transfer-Encoding",
-							"value": "chunked"
-						},
-						{
-							"key": "Connection",
-							"value": "keep-alive"
-						},
-						{
-							"key": "Vary",
-							"value": "Accept-Encoding"
-						},
-						{
-							"key": "X-Powered-By",
-							"value": "PHP/8.2.23"
-						},
-						{
-							"key": "X-Robots-Tag",
-							"value": "noindex"
-						},
-						{
-							"key": "Link",
-							"value": "<http://test-wp-nlc-plugin.mylocal/wp-json/>; rel=\"https://api.w.org/\""
-						},
-						{
-							"key": "X-Content-Type-Options",
-							"value": "nosniff"
-						},
-						{
-							"key": "Access-Control-Expose-Headers",
-							"value": "X-WP-Total, X-WP-TotalPages, Link"
-						},
-						{
-							"key": "Access-Control-Allow-Headers",
-							"value": "Authorization, X-WP-Nonce, Content-Disposition, Content-MD5, Content-Type"
-						},
-						{
-							"key": "Allow",
-							"value": "POST"
-						},
-						{
-							"key": "Expires",
-							"value": "Wed, 11 Jan 1984 05:00:00 GMT"
-						},
-						{
-							"key": "Cache-Control",
-							"value": "no-cache, must-revalidate, max-age=0, no-store, private"
-						},
-						{
-							"key": "Content-Encoding",
-							"value": "gzip"
-						}
+				"url": {
+					"raw": "{{baseUrl}}/wp-json/wp-nlc/v1/voice-command",
+					"host": [
+						"{{baseUrl}}"
 					],
-					"cookie": [],
-					"body": "{\n    \"success\": true,\n    \"message\": \"\",\n    \"actions\": [\n        {\n            \"tool\": \"edit_post\",\n            \"tool_call_id\": \"call_fRzZCWy6yqi6st7SO35JJtYk\",\n            \"arguments\": {\n                \"post_id\": 197,\n                \"post_title\": null,\n                \"title\": \"Hello World\",\n                \"content\": null,\n                \"excerpt\": null,\n                \"status\": \"publish\",\n                \"categories\": null,\n                \"tags\": null,\n                \"date\": null\n            },\n            \"result\": {\n                \"success\": true,\n                \"post_id\": 197,\n                \"post_title\": \"Hello World\",\n                \"post_type\": \"post\",\n                \"post_url\": \"http://test-wp-nlc-plugin.mylocal/hello-world-7/\",\n                \"edit_url\": \"http://test-wp-nlc-plugin.mylocal/wp-admin/post.php?post=197&action=edit\"\n            },\n            \"title\": \"Executed edit_post successfully.\",\n            \"summary\": \"Post \\\"Hello World\\\" updated successfully with ID 197.\"\n        }\n    ],\n    \"conversation_uuid\": \"21f9749c-3670-457c-909b-b0a1754f2063\"\n}"
-				}
-			]
+					"path": [
+						"wp-json",
+						"wp-nlc",
+						"v1",
+						"voice-command"
+					]
+				},
+				"description": "Transcribes an audio file and processes the transcribed text as a command. This endpoint combines audio transcription and command processing in a single request."
+			},
+			"response": []
 		}
 	],
 	"auth": {

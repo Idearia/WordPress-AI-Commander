@@ -232,38 +232,27 @@ Authorization: Basic base64encode(username:application_password)
 GET /wp-json/wp-nlc/v1/conversations
 ```
 
-#### Create a new conversation
+#### Process a command
 
 ```
-POST /wp-json/wp-nlc/v1/conversations
+POST /wp-json/wp-nlc/v1/commands
 ```
 
 Request body:
 
 ```json
 {
-  "command": "Create a new draft post titled 'Hello World'"
+  "command": "Create a new draft post titled 'Hello World'",
+  "conversation_uuid": "optional-existing-conversation-id"
 }
 ```
+
+This endpoint handles both creating a new conversation (when `conversation_uuid` is omitted) and adding a command to an existing conversation (when `conversation_uuid` is provided).
 
 #### Get an existing conversation
 
 ```
 GET /wp-json/wp-nlc/v1/conversations/{uuid}
-```
-
-#### Add a command to an existing conversation
-
-```
-POST /wp-json/wp-nlc/v1/conversations/{uuid}/commands
-```
-
-Request body:
-
-```json
-{
-  "command": "Publish the post that you just created"
-}
 ```
 
 #### Transcribe audio
@@ -301,7 +290,8 @@ conversation_uuid: [optional conversation UUID]
 language: [optional language code, e.g., 'en']
 ```
 
-This endpoint combines audio transcription and command processing in a single request. It transcribes the audio file and then processes the transcribed text as a command.
+This endpoint combines audio transcription and command processing in a single request.
+
 
 ### Postman Collection
 

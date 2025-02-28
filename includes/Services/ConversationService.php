@@ -144,8 +144,8 @@ class ConversationService {
      *
      * @param string $command The command to process.
      * @param string|null $conversation_uuid The conversation UUID. If null, a new conversation will be created.
-     * @param int $user_id The WordPress user ID.
-     * @return array|false The result of processing the command, or false if not found or not authorized.
+     * @param int|null $user_id The WordPress user ID.
+     * @return array|false The result of processing the command, or false if either the user or the conversation are not found (or not authorized.
      */
     public function process_command( $command, $conversation_uuid = null, $user_id = null ) {
         // If a conversation UUID is provided, verify ownership
@@ -213,8 +213,8 @@ class ConversationService {
      *
      * @param string $audio_file_path The path to the audio file.
      * @param string|null $conversation_uuid The conversation UUID. If null, a new conversation will be created.
-     * @param int $user_id The WordPress user ID.
-     * @param string $language Optional language code to improve transcription accuracy.
+     * @param int|null $user_id The WordPress user ID.
+     * @param string|null $language Optional language code to improve transcription accuracy.
      * @return array The result containing transcription and command processing results.
      */
     public function process_voice_command( $audio_file_path, $conversation_uuid = null, $user_id = null, $language = null ) {

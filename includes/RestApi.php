@@ -41,14 +41,20 @@ class RestApi {
      * Register REST API routes.
      */
     public function register_routes() {
-        // Register route for creating a new conversation with a command
-        register_rest_route( 'wp-nlc/v1', '/conversations', array(
+        // Register route for processing commands (creating a new conversation or adding to an existing one)
+        register_rest_route( 'wp-nlc/v1', '/command', array(
             'methods' => 'POST',
-            'callback' => array( $this, 'create_conversation' ),
+            'callback' => array( $this, 'process_command' ),
             'permission_callback' => array( $this, 'check_permission' ),
             'args' => array(
                 'command' => array(
                     'required' => true,
+                    'validate_callback' => function( $param ) {
+                        return is_string( $param ) && ! empty( $param );
+                    },
+                ),
+                'conversation_uuid' => array(
+                    'required' => false,
                     'validate_callback' => function( $param ) {
                         return is_string( $param ) && ! empty( $param );
                     },
@@ -100,26 +106,6 @@ class RestApi {
             ),
         ) );
         
-        // Register route for adding a command to an existing conversation
-        register_rest_route( 'wp-nlc/v1', '/conversations/(?P<uuid>[a-zA-Z0-9-]+)/commands', array(
-            'methods' => 'POST',
-            'callback' => array( $this, 'add_command_to_conversation' ),
-            'permission_callback' => array( $this, 'check_permission' ),
-            'args' => array(
-                'uuid' => array(
-                    'required' => true,
-                    'validate_callback' => function( $param ) {
-                        return is_string( $param ) && ! empty( $param );
-                    },
-                ),
-                'command' => array(
-                    'required' => true,
-                    'validate_callback' => function( $param ) {
-                        return is_string( $param ) && ! empty( $param );
-                    },
-                ),
-            ),
-        ) );
     }
 
     /**
@@ -187,49 +173,30 @@ class RestApi {
     }
 
     /**
-     * Add a command to an existing conversation.
+     * Process a command, either creating a new conversation or adding to an existing one.
      *
      * @param \WP_REST_Request $request The request object.
      * @return \WP_REST_Response|\WP_Error The response object.
      */
-    public function add_command_to_conversation( $request ) {
-        // Get the conversation UUID and command from the request
-        $conversation_uuid = $request->get_param( 'uuid' );
+    public function process_command( $request ) {
+        // Get the command and optional conversation UUID
         $command = $request->get_param( 'command' );
-
+        $conversation_uuid = $request->get_param( 'conversation_uuid' );
+        
         // Get the current user ID
         $user_id = get_current_user_id();
         
-        // Process the command in the existing conversation
+        // Process the command (if conversation_uuid is null, a new one will be created)
         $result = $this->conversation_service->process_command( $command, $conversation_uuid, $user_id );
         
-        if ( ! $result ) {
+        // If conversation_uuid was provided but result is false, the conversation wasn't found
+        if ( $conversation_uuid && ! $result ) {
             return new \WP_Error(
                 'rest_not_found',
                 __( 'Conversation not found or you do not have permission to access it.', 'wp-natural-language-commands' ),
                 array( 'status' => 404 )
             );
         }
-        
-        // Return the response
-        return rest_ensure_response( $result );
-    }
-    
-    /**
-     * Start a new conversation
-     *
-     * @param \WP_REST_Request $request The request object.
-     * @return \WP_REST_Response|\WP_Error The response object.
-     */
-    public function create_conversation( $request ) {
-        // Get the command from the request
-        $command = $request->get_param( 'command' );
-        
-        // Get the current user ID
-        $user_id = get_current_user_id();
-        
-        // Process the command with no conversation UUID (will create a new one)
-        $result = $this->conversation_service->process_command( $command, null, $user_id );
         
         // Return the response
         return rest_ensure_response( $result );
