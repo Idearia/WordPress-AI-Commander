@@ -1,13 +1,15 @@
-# WP Natural Language Commands
+# WPNL: WordPress Natural Language
 
-Issue commands in natural language to WordPress via a chatbot interface.  Supports voice input.  Integrates with OpenAI's API to process natural language commands and execute the appropriate WordPress actions.
+Issue commands in natural language to WordPress via voice, chatbot interface or REST API endpoint.  Integrates with OpenAI's API to process natural language commands and execute the appropriate WordPress actions.
 
 ## Features
 
 - **Natural Language Interface**: Interact with WordPress using conversational language
 - **Chatbot Interface**: User-friendly chat interface in the WordPress admin area
+- **Voice Input**: Supports voice input from the browser microphone
 - **Conversation History**: Maintains context across multiple commands in a conversation
 - **Extensible Tool System**: Add new tools and capabilities to control plugins and themes
+- **REST API**: Allows remote interaction with the chatbot via API
 
 ## Installation
 
@@ -282,14 +284,15 @@ To use the collection:
 Important features to add:
 - add voice input support to REST API
 - add WP CLI command
-- tool to manage users
 
 Nice to have features:
 - add system prompt to option pages
 - allow to filter system prompt
 - allow links and newlines in chatbot responses
+- tool to manage users
 
 Bug fixes:
 - page scrolls down when a new message is added to chatbot
+- page scrolls down too much when a new conversation is created
 - check microphone permissions (e.g. what happens if denied?)
 - test user roles permissions

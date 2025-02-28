@@ -120,17 +120,37 @@ const MessageItem = ({ message }) => {
          */
         const MessageList = ({ messages }) => {
             const messagesEndRef = useRef(null);
+            const messageListRef = useRef(null);
+            const prevMessagesLengthRef = useRef(0);
             
-            // Auto-scroll to bottom when messages change
+            // Improved scroll behavior to avoid excessive scrolling
             useEffect(() => {
-                if (messagesEndRef.current) {
-                    messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+                if (!messagesEndRef.current || !messageListRef.current) return;
+                
+                const container = messageListRef.current;
+                const isScrolledToBottom = container.scrollHeight - container.clientHeight <= container.scrollTop + 50;
+                const hasNewMessages = messages.length > prevMessagesLengthRef.current;
+                
+                // Only auto-scroll if we're already near the bottom or if there are new messages
+                if (isScrolledToBottom || hasNewMessages) {
+                    // Use a small timeout to ensure the DOM has updated
+                    setTimeout(() => {
+                        messagesEndRef.current.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'nearest' // Only scroll the minimum amount needed
+                        });
+                    }, 10);
                 }
+                
+                prevMessagesLengthRef.current = messages.length;
             }, [messages]);
             
             return e(
                 'div',
-                { className: 'wp-nlc-message-list' },
+                { 
+                    className: 'wp-nlc-message-list',
+                    ref: messageListRef
+                },
                 messages.map((message, index) => 
                     e(MessageItem, { key: index, message: message })
                 ),
@@ -246,6 +266,16 @@ const MessageItem = ({ message }) => {
                 return true;
             };
             
+            // Check for microphone support on component mount
+            useEffect(() => {
+                if (isSpeechEnabled) {
+                    const isSupported = checkMediaRecorderSupport();
+                    if (!isSupported) {
+                        setIsSpeechEnabled(false);
+                    }
+                }
+            }, []);
+            
             const startRecording = async () => {
                 // Check if the browser supports recording
                 if (!checkMediaRecorderSupport()) {
@@ -305,15 +335,17 @@ const MessageItem = ({ message }) => {
                 }
             };
             
+            // State for transcription loading
+            const [isTranscribing, setIsTranscribing] = useState(false);
+            
             const sendAudioToServer = (audioBlob) => {
                 const formData = new FormData();
                 formData.append('audio', audioBlob, 'recording.webm');
                 formData.append('action', 'wp_nlc_transcribe_audio');
                 formData.append('nonce', wpNlcData.nonce);
                 
-                // Show loading state
-                // We're reusing the isProcessing state from the parent component
-                // but we could also add a separate loading state for transcription
+                // Show transcription loading state
+                setIsTranscribing(true);
                 
                 $.ajax({
                     url: wpNlcData.ajax_url,
@@ -322,6 +354,8 @@ const MessageItem = ({ message }) => {
                     processData: false,
                     contentType: false,
                     success: function(response) {
+                        setIsTranscribing(false);
+                        
                         if (response.success && response.data.transcription) {
                             setInputValue(response.data.transcription);
                             
@@ -335,6 +369,7 @@ const MessageItem = ({ message }) => {
                         }
                     },
                     error: function(xhr, status, error) {
+                        setIsTranscribing(false);
                         console.error('AJAX error:', error);
                         alert('Error sending audio: ' + error);
                     }
@@ -350,16 +385,16 @@ const MessageItem = ({ message }) => {
                     value: inputValue,
                     onChange: handleInputChange,
                     onKeyDown: handleKeyDown,
-                    disabled: isProcessing,
+                    disabled: isProcessing || isTranscribing,
                     ref: textareaRef
                 }),
                 isSpeechEnabled && e(
                     'button',
                     {
-                        className: `wp-nlc-mic-button ${isRecording ? 'recording' : ''}`,
+                        className: `wp-nlc-mic-button ${isRecording ? 'recording' : ''} ${isTranscribing ? 'transcribing' : ''}`,
                         onClick: toggleRecording,
-                        disabled: isProcessing,
-                        title: isRecording ? 'Stop recording' : 'Start recording',
+                        disabled: isProcessing || isTranscribing,
+                        title: isRecording ? 'Stop recording' : (isTranscribing ? 'Transcribing...' : 'Start recording'),
                         type: 'button'
                     },
                     e(MicrophoneIcon)
@@ -369,12 +404,17 @@ const MessageItem = ({ message }) => {
                     {
                         className: 'wp-nlc-send-button',
                         onClick: handleSendMessage,
-                        disabled: isProcessing || !inputValue.trim(),
+                        disabled: isProcessing || isTranscribing || !inputValue.trim(),
                         type: 'button'
                     },
                     'Send'
                 ),
-                isRecording && e(RecordingStatus)
+                isRecording && e(RecordingStatus),
+                isTranscribing && e(
+                    'div',
+                    { className: 'wp-nlc-transcribing-status' },
+                    'Transcribing audio...'
+                )
             );
         };
 
