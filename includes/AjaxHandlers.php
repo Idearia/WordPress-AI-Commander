@@ -229,11 +229,8 @@ class AjaxHandlers {
         }
         
         try {
-            // Create an instance of the OpenAI client
-            $openai_client = new OpenaiClient();
-            
-            // Transcribe the audio
-            $transcription = $openai_client->transcribe_audio( $file_path, $language );
+            // Use the ConversationService to transcribe the audio
+            $transcription = $this->conversation_service->transcribe_audio( $file_path, $language );
             
             // Delete the audio file after transcription
             @unlink( $file_path );

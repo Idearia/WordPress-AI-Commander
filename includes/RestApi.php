@@ -55,6 +55,28 @@ class RestApi {
                 ),
             ),
         ) );
+        
+        // Register route for transcribing audio
+        register_rest_route( 'wp-nlc/v1', '/transcribe', array(
+            'methods' => 'POST',
+            'callback' => array( $this, 'transcribe_audio' ),
+            'permission_callback' => array( $this, 'check_permission' ),
+        ) );
+        
+        // Register route for processing voice commands (transcribe + process in one request)
+        register_rest_route( 'wp-nlc/v1', '/voice-command', array(
+            'methods' => 'POST',
+            'callback' => array( $this, 'process_voice_command' ),
+            'permission_callback' => array( $this, 'check_permission' ),
+            'args' => array(
+                'conversation_uuid' => array(
+                    'required' => false,
+                    'validate_callback' => function( $param ) {
+                        return is_string( $param ) && ! empty( $param );
+                    },
+                ),
+            ),
+        ) );
 
         // Register route for getting all conversations for the current user
         register_rest_route( 'wp-nlc/v1', '/conversations', array(
@@ -211,5 +233,231 @@ class RestApi {
         
         // Return the response
         return rest_ensure_response( $result );
+    }
+    
+    /**
+     * Transcribe audio using the OpenAI Whisper API.
+     *
+     * @param \WP_REST_Request $request The request object.
+     * @return \WP_REST_Response|\WP_Error The response object.
+     */
+    public function transcribe_audio( $request ) {
+        // Check if speech-to-text is enabled
+        $enable_speech = get_option( 'wp_nlc_enable_speech_to_text', true );
+        if ( ! $enable_speech ) {
+            return new \WP_Error(
+                'speech_disabled',
+                __( 'Speech-to-text is disabled in settings.', 'wp-natural-language-commands' ),
+                array( 'status' => 400 )
+            );
+        }
+        
+        // Get the language parameter if provided
+        $language = $request->get_param( 'language' );
+        
+        // Check if file was uploaded
+        $files = $request->get_file_params();
+        if ( empty( $files['audio'] ) ) {
+            return new \WP_Error(
+                'missing_audio',
+                __( 'No audio file provided.', 'wp-natural-language-commands' ),
+                array( 'status' => 400 )
+            );
+        }
+        
+        $file = $files['audio'];
+        
+        // Check for upload errors
+        if ( $file['error'] !== UPLOAD_ERR_OK ) {
+            $error_message = $this->get_upload_error_message( $file['error'] );
+            return new \WP_Error(
+                'upload_error',
+                $error_message,
+                array( 'status' => 400 )
+            );
+        }
+        
+        // Create uploads directory if it doesn't exist
+        $upload_dir = wp_upload_dir();
+        $audio_dir = $upload_dir['basedir'] . '/wp-nlc-audio';
+        
+        if ( ! file_exists( $audio_dir ) ) {
+            wp_mkdir_p( $audio_dir );
+            
+            // Create an index.php file to prevent directory listing
+            file_put_contents( $audio_dir . '/index.php', '<?php // Silence is golden' );
+        }
+        
+        // Generate a unique filename
+        $filename = 'audio-' . uniqid() . '.webm';
+        $file_path = $audio_dir . '/' . $filename;
+        
+        // Move the uploaded file to our directory
+        if ( ! move_uploaded_file( $file['tmp_name'], $file_path ) ) {
+            return new \WP_Error(
+                'file_save_error',
+                __( 'Failed to save audio file.', 'wp-natural-language-commands' ),
+                array( 'status' => 500 )
+            );
+        }
+        
+        try {
+            // Transcribe the audio
+            $transcription = $this->conversation_service->transcribe_audio( $file_path, $language );
+            
+            // Delete the audio file after transcription
+            @unlink( $file_path );
+            
+            if ( is_wp_error( $transcription ) ) {
+                return new \WP_Error(
+                    'transcription_error',
+                    $transcription->get_error_message(),
+                    array( 'status' => 500 )
+                );
+            }
+            
+            // Return the transcription
+            return rest_ensure_response( array(
+                'transcription' => $transcription
+            ) );
+        } catch ( \Exception $e ) {
+            // Delete the audio file if there was an error
+            @unlink( $file_path );
+            
+            return new \WP_Error(
+                'transcription_error',
+                $e->getMessage(),
+                array( 'status' => 500 )
+            );
+        }
+    }
+    
+    /**
+     * Process a voice command by transcribing audio and then processing the transcribed text.
+     *
+     * @param \WP_REST_Request $request The request object.
+     * @return \WP_REST_Response|\WP_Error The response object.
+     */
+    public function process_voice_command( $request ) {
+        // Check if speech-to-text is enabled
+        $enable_speech = get_option( 'wp_nlc_enable_speech_to_text', true );
+        if ( ! $enable_speech ) {
+            return new \WP_Error(
+                'speech_disabled',
+                __( 'Speech-to-text is disabled in settings.', 'wp-natural-language-commands' ),
+                array( 'status' => 400 )
+            );
+        }
+        
+        // Get the conversation UUID if provided
+        $conversation_uuid = $request->get_param( 'conversation_uuid' );
+        
+        // Get the language parameter if provided
+        $language = $request->get_param( 'language' );
+        
+        // Check if file was uploaded
+        $files = $request->get_file_params();
+        if ( empty( $files['audio'] ) ) {
+            return new \WP_Error(
+                'missing_audio',
+                __( 'No audio file provided.', 'wp-natural-language-commands' ),
+                array( 'status' => 400 )
+            );
+        }
+        
+        $file = $files['audio'];
+        
+        // Check for upload errors
+        if ( $file['error'] !== UPLOAD_ERR_OK ) {
+            $error_message = $this->get_upload_error_message( $file['error'] );
+            return new \WP_Error(
+                'upload_error',
+                $error_message,
+                array( 'status' => 400 )
+            );
+        }
+        
+        // Create uploads directory if it doesn't exist
+        $upload_dir = wp_upload_dir();
+        $audio_dir = $upload_dir['basedir'] . '/wp-nlc-audio';
+        
+        if ( ! file_exists( $audio_dir ) ) {
+            wp_mkdir_p( $audio_dir );
+            
+            // Create an index.php file to prevent directory listing
+            file_put_contents( $audio_dir . '/index.php', '<?php // Silence is golden' );
+        }
+        
+        // Generate a unique filename
+        $filename = 'audio-' . uniqid() . '.webm';
+        $file_path = $audio_dir . '/' . $filename;
+        
+        // Move the uploaded file to our directory
+        if ( ! move_uploaded_file( $file['tmp_name'], $file_path ) ) {
+            return new \WP_Error(
+                'file_save_error',
+                __( 'Failed to save audio file.', 'wp-natural-language-commands' ),
+                array( 'status' => 500 )
+            );
+        }
+        
+        try {
+            // Get the current user ID
+            $user_id = get_current_user_id();
+            
+            // Process the voice command
+            $result = $this->conversation_service->process_voice_command( $file_path, $conversation_uuid, $user_id, $language );
+            
+            // Delete the audio file after processing
+            @unlink( $file_path );
+            
+            if ( ! $result || isset( $result['success'] ) && $result['success'] === false ) {
+                $message = isset( $result['message'] ) ? $result['message'] : 'Unknown error';
+                return new \WP_Error(
+                    'voice_command_error',
+                    $message,
+                    array( 'status' => 500 )
+                );
+            }
+            
+            // Return the result
+            return rest_ensure_response( $result );
+        } catch ( \Exception $e ) {
+            // Delete the audio file if there was an error
+            @unlink( $file_path );
+            
+            return new \WP_Error(
+                'voice_command_error',
+                $e->getMessage(),
+                array( 'status' => 500 )
+            );
+        }
+    }
+    
+    /**
+     * Get a human-readable error message for file upload errors.
+     *
+     * @param int $error_code The error code from $_FILES['file']['error'].
+     * @return string The error message.
+     */
+    private function get_upload_error_message( $error_code ) {
+        switch ( $error_code ) {
+            case UPLOAD_ERR_INI_SIZE:
+                return __( 'The uploaded file exceeds the upload_max_filesize directive in php.ini', 'wp-natural-language-commands' );
+            case UPLOAD_ERR_FORM_SIZE:
+                return __( 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form', 'wp-natural-language-commands' );
+            case UPLOAD_ERR_PARTIAL:
+                return __( 'The uploaded file was only partially uploaded', 'wp-natural-language-commands' );
+            case UPLOAD_ERR_NO_FILE:
+                return __( 'No file was uploaded', 'wp-natural-language-commands' );
+            case UPLOAD_ERR_NO_TMP_DIR:
+                return __( 'Missing a temporary folder', 'wp-natural-language-commands' );
+            case UPLOAD_ERR_CANT_WRITE:
+                return __( 'Failed to write file to disk', 'wp-natural-language-commands' );
+            case UPLOAD_ERR_EXTENSION:
+                return __( 'A PHP extension stopped the file upload', 'wp-natural-language-commands' );
+            default:
+                return __( 'Unknown upload error', 'wp-natural-language-commands' );
+        }
     }
 }

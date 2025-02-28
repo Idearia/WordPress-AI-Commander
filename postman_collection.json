@@ -9,6 +9,91 @@
 	},
 	"item": [
 		{
+			"name": "Transcribe Audio",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "audio",
+							"type": "file",
+							"src": "/path/to/your/audio/file.webm",
+							"description": "Audio file to transcribe (WebM, MP3, WAV, etc.)"
+						},
+						{
+							"key": "language",
+							"value": "en",
+							"description": "Optional language code to improve transcription accuracy",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseUrl}}/wp-json/wp-nlc/v1/transcribe",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"wp-json",
+						"wp-nlc",
+						"v1",
+						"transcribe"
+					]
+				},
+				"description": "Transcribes an audio file using OpenAI's Whisper API and returns the transcribed text."
+			},
+			"response": []
+		},
+		{
+			"name": "Process Voice Command",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "audio",
+							"type": "file",
+							"src": "/path/to/your/audio/file.webm",
+							"description": "Audio file containing the voice command"
+						},
+						{
+							"key": "conversation_uuid",
+							"value": "21f9749c-3670-457c-909b-b0a1754f2063",
+							"description": "Optional conversation UUID to add the command to an existing conversation",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "language",
+							"value": "en",
+							"description": "Optional language code to improve transcription accuracy",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseUrl}}/wp-json/wp-nlc/v1/voice-command",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"wp-json",
+						"wp-nlc",
+						"v1",
+						"voice-command"
+					]
+				},
+				"description": "Transcribes an audio file and processes the transcribed text as a command. This endpoint combines audio transcription and command processing in a single request."
+			},
+			"response": []
+		},
+		{
 			"name": "Get all conversations",
 			"request": {
 				"method": "GET",

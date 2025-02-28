@@ -266,6 +266,43 @@ Request body:
 }
 ```
 
+#### Transcribe audio
+
+```
+POST /wp-json/wp-nlc/v1/transcribe
+```
+
+Request body (multipart/form-data):
+
+```
+audio: [audio file]
+language: [optional language code, e.g., 'en']
+```
+
+Response:
+
+```json
+{
+  "transcription": "The transcribed text from the audio file"
+}
+```
+
+#### Process voice command
+
+```
+POST /wp-json/wp-nlc/v1/voice-command
+```
+
+Request body (multipart/form-data):
+
+```
+audio: [audio file]
+conversation_uuid: [optional conversation UUID]
+language: [optional language code, e.g., 'en']
+```
+
+This endpoint combines audio transcription and command processing in a single request. It transcribes the audio file and then processes the transcribed text as a command.
+
 ### Postman Collection
 
 A Postman collection with example responses is included in [`postman_collection.json`](./postman_collection.json).
@@ -282,7 +319,6 @@ To use the collection:
 ## To do
 
 Important features to add:
-- add voice input support to REST API
 - add WP CLI command
 
 Nice to have features:
@@ -292,7 +328,3 @@ Nice to have features:
 - tool to manage users
 
 Bug fixes:
-- page scrolls down when a new message is added to chatbot
-- page scrolls down too much when a new conversation is created
-- check microphone permissions (e.g. what happens if denied?)
-- test user roles permissions
