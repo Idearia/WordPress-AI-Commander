@@ -111,7 +111,7 @@ public function enqueue_overview_styles( $hook ) {
                     <ol>
                         <li><?php esc_html_e( 'Go to the Settings tab and enter your OpenAI API key.', 'wpnl' ); ?></li>
                         <li><?php esc_html_e( 'Navigate to the Chatbot tab to start issuing commands.', 'wpnl' ); ?></li>
-                        <li><?php esc_html_e( 'Try saying something like "Create a new post titled \'Hello World\' with the content \'This is my first post created with natural language.\'".', 'wpnl' ); ?></li>
+                        <li><?php esc_html_e( 'Try saying something like "Create a post on the topic \'Best practices to index a website on Google\' and tag it as \'SEO\' and \'How-to\'.', 'wpnl' ); ?></li>
                     </ol>
                 </div>
                 

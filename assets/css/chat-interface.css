@@ -284,6 +284,7 @@
 .wpnl-tool-summary {
     margin-bottom: 12px;
     line-height: 1.5;
+    white-space: pre-line;
 }
 
 .wpnl-tool-details-button {

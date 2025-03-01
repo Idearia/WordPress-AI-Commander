@@ -67,7 +67,10 @@ const ToolCallMessage = ({ action }) => {
         e('div', 
             { className: 'wpnl-message-content' },
             e('div', { className: 'wpnl-tool-title' }, action.title),
-            e('div', { className: 'wpnl-tool-summary' }, action.summary),
+            e('div', { 
+                className: 'wpnl-tool-summary',
+                dangerouslySetInnerHTML: { __html: action.summary }
+            }),
             e('button', {
                 className: 'wpnl-tool-details-button',
                 onClick: toggleDetails
@@ -93,7 +96,7 @@ const MessageItem = ({ message }) => {
         return e(ToolCallMessage, { action: action });
     }
     
-    // Simple function to preserve line breaks in text
+    // Function to preserve line breaks in text
     const formatContent = (text) => {
         if (!text) return '';
         
