@@ -7,7 +7,7 @@ parameters:
     
     # Paths to analyze
     paths:
-        - wp-natural-language-commands.php
+        - wpnl-wordpress-natural-language.php
         - admin/
         - includes/
         - tools/
@@ -19,8 +19,8 @@ parameters:
     # Ignore some common WordPress patterns and project-specific issues
     ignoreErrors:
         # Project-specific constants
-        - '#Constant WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_URL not found\.#'
-        - '#Constant WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR not found\.#'
+        - '#Constant WPNL_PLUGIN_URL not found\.#'
+        - '#Constant WPNL_PLUGIN_DIR not found\.#'
         
         # WordPress admin includes
         - '#Path in require_once\(\) ".\/wp-admin\/includes\/.*" is not a file or it does not exist\.#'

@@ -2,10 +2,10 @@
 /**
  * OpenAI Client Class
  *
- * @package WP_Natural_Language_Commands
+ * @package WPNL
  */
 
-namespace WPNaturalLanguageCommands\Includes;
+namespace WPNL\Includes;
 
 if ( ! defined( 'WPINC' ) ) {
     die;
@@ -57,9 +57,9 @@ class OpenaiClient {
      * Constructor.
      */
     public function __construct() {
-        $this->api_key = get_option( 'wp_nlc_openai_api_key', '' );
-        $this->model = get_option( 'wp_nlc_openai_model', 'gpt-4-turbo' );
-        $this->debug_mode = get_option( 'wp_nlc_debug_mode', false );
+        $this->api_key = get_option( 'wpnl_openai_api_key', '' );
+        $this->model = get_option( 'wpnl_openai_model', 'gpt-4o' );
+        $this->debug_mode = get_option( 'wpnl_debug_mode', false );
     }
     
     /**

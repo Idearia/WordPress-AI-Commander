@@ -2,10 +2,10 @@
 /**
  * Command Processor Class
  *
- * @package WP_Natural_Language_Commands
+ * @package WPNL
  */
 
-namespace WPNaturalLanguageCommands\Includes;
+namespace WPNL\Includes;
 
 if ( ! defined( 'WPINC' ) ) {
     die;

@@ -1,6 +1,6 @@
 {
-    "name": "wp-natural-language-commands/plugin",
-    "description": "WordPress Natural Language Commands Plugin",
+    "name": "wpnl/plugin",
+    "description": "WPNL: WordPress Natural Language Plugin",
     "type": "wordpress-plugin",
     "require-dev": {
         "phpstan/phpstan": "^2.1",

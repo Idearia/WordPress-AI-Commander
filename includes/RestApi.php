@@ -2,12 +2,12 @@
 /**
  * REST API Class
  *
- * @package WP_Natural_Language_Commands
+ * @package WPNL
  */
 
-namespace WPNaturalLanguageCommands\Includes;
+namespace WPNL\Includes;
 
-use WPNaturalLanguageCommands\Includes\Services\ConversationService;
+use WPNL\Includes\Services\ConversationService;
 
 if ( ! defined( 'WPINC' ) ) {
     die;
@@ -42,7 +42,7 @@ class RestApi {
      */
     public function register_routes() {
         // Register route for processing commands (creating a new conversation or adding to an existing one)
-        register_rest_route( 'wp-nlc/v1', '/command', array(
+        register_rest_route( 'wpnl/v1', '/command', array(
             'methods' => 'POST',
             'callback' => array( $this, 'process_command' ),
             'permission_callback' => array( $this, 'check_permission' ),
@@ -63,14 +63,14 @@ class RestApi {
         ) );
         
         // Register route for transcribing audio
-        register_rest_route( 'wp-nlc/v1', '/transcribe', array(
+        register_rest_route( 'wpnl/v1', '/transcribe', array(
             'methods' => 'POST',
             'callback' => array( $this, 'transcribe_audio' ),
             'permission_callback' => array( $this, 'check_permission' ),
         ) );
         
         // Register route for processing voice commands (transcribe + process in one request)
-        register_rest_route( 'wp-nlc/v1', '/voice-command', array(
+        register_rest_route( 'wpnl/v1', '/voice-command', array(
             'methods' => 'POST',
             'callback' => array( $this, 'process_voice_command' ),
             'permission_callback' => array( $this, 'check_permission' ),
@@ -85,14 +85,14 @@ class RestApi {
         ) );
 
         // Register route for getting all conversations for the current user
-        register_rest_route( 'wp-nlc/v1', '/conversations', array(
+        register_rest_route( 'wpnl/v1', '/conversations', array(
             'methods' => 'GET',
             'callback' => array( $this, 'get_all_conversations' ),
             'permission_callback' => array( $this, 'check_permission' ),
         ) );
         
         // Register route for getting a conversation
-        register_rest_route( 'wp-nlc/v1', '/conversations/(?P<uuid>[a-zA-Z0-9-]+)', array(
+        register_rest_route( 'wpnl/v1', '/conversations/(?P<uuid>[a-zA-Z0-9-]+)', array(
             'methods' => 'GET',
             'callback' => array( $this, 'get_conversation' ),
             'permission_callback' => array( $this, 'check_permission' ),
@@ -119,7 +119,7 @@ class RestApi {
         if ( ! current_user_can( 'edit_posts' ) ) {
             return new \WP_Error(
                 'rest_forbidden',
-                __( 'You do not have permission to use this API.', 'wp-natural-language-commands' ),
+                __( 'You do not have permission to use this API.', 'wpnl' ),
                 array( 'status' => 403 )
             );
         }
@@ -163,7 +163,7 @@ class RestApi {
         if ( ! $result ) {
             return new \WP_Error(
                 'rest_not_found',
-                __( 'Conversation not found or you do not have permission to access it.', 'wp-natural-language-commands' ),
+                __( 'Conversation not found or you do not have permission to access it.', 'wpnl' ),
                 array( 'status' => 404 )
             );
         }
@@ -193,7 +193,7 @@ class RestApi {
         if ( $conversation_uuid && ! $result ) {
             return new \WP_Error(
                 'rest_not_found',
-                __( 'Conversation not found or you do not have permission to access it.', 'wp-natural-language-commands' ),
+                __( 'Conversation not found or you do not have permission to access it.', 'wpnl' ),
                 array( 'status' => 404 )
             );
         }
@@ -210,11 +210,11 @@ class RestApi {
      */
     public function transcribe_audio( $request ) {
         // Check if speech-to-text is enabled
-        $enable_speech = get_option( 'wp_nlc_enable_speech_to_text', true );
+        $enable_speech = get_option( 'wpnl_enable_speech_to_text', true );
         if ( ! $enable_speech ) {
             return new \WP_Error(
                 'speech_disabled',
-                __( 'Speech-to-text is disabled in settings.', 'wp-natural-language-commands' ),
+                __( 'Speech-to-text is disabled in settings.', 'wpnl' ),
                 array( 'status' => 400 )
             );
         }
@@ -227,7 +227,7 @@ class RestApi {
         if ( empty( $files['audio'] ) ) {
             return new \WP_Error(
                 'missing_audio',
-                __( 'No audio file provided.', 'wp-natural-language-commands' ),
+                __( 'No audio file provided.', 'wpnl' ),
                 array( 'status' => 400 )
             );
         }
@@ -246,7 +246,7 @@ class RestApi {
         
         // Create uploads directory if it doesn't exist
         $upload_dir = wp_upload_dir();
-        $audio_dir = $upload_dir['basedir'] . '/wp-nlc-audio';
+        $audio_dir = $upload_dir['basedir'] . '/wpnl-audio';
         
         if ( ! file_exists( $audio_dir ) ) {
             wp_mkdir_p( $audio_dir );
@@ -263,7 +263,7 @@ class RestApi {
         if ( ! move_uploaded_file( $file['tmp_name'], $file_path ) ) {
             return new \WP_Error(
                 'file_save_error',
-                __( 'Failed to save audio file.', 'wp-natural-language-commands' ),
+                __( 'Failed to save audio file.', 'wpnl' ),
                 array( 'status' => 500 )
             );
         }
@@ -307,11 +307,11 @@ class RestApi {
      */
     public function process_voice_command( $request ) {
         // Check if speech-to-text is enabled
-        $enable_speech = get_option( 'wp_nlc_enable_speech_to_text', true );
+        $enable_speech = get_option( 'wpnl_enable_speech_to_text', true );
         if ( ! $enable_speech ) {
             return new \WP_Error(
                 'speech_disabled',
-                __( 'Speech-to-text is disabled in settings.', 'wp-natural-language-commands' ),
+                __( 'Speech-to-text is disabled in settings.', 'wpnl' ),
                 array( 'status' => 400 )
             );
         }
@@ -327,7 +327,7 @@ class RestApi {
         if ( empty( $files['audio'] ) ) {
             return new \WP_Error(
                 'missing_audio',
-                __( 'No audio file provided.', 'wp-natural-language-commands' ),
+                __( 'No audio file provided.', 'wpnl' ),
                 array( 'status' => 400 )
             );
         }
@@ -346,7 +346,7 @@ class RestApi {
         
         // Create uploads directory if it doesn't exist
         $upload_dir = wp_upload_dir();
-        $audio_dir = $upload_dir['basedir'] . '/wp-nlc-audio';
+        $audio_dir = $upload_dir['basedir'] . '/wpnl-audio';
         
         if ( ! file_exists( $audio_dir ) ) {
             wp_mkdir_p( $audio_dir );
@@ -363,7 +363,7 @@ class RestApi {
         if ( ! move_uploaded_file( $file['tmp_name'], $file_path ) ) {
             return new \WP_Error(
                 'file_save_error',
-                __( 'Failed to save audio file.', 'wp-natural-language-commands' ),
+                __( 'Failed to save audio file.', 'wpnl' ),
                 array( 'status' => 500 )
             );
         }
@@ -410,21 +410,21 @@ class RestApi {
     private function get_upload_error_message( $error_code ) {
         switch ( $error_code ) {
             case UPLOAD_ERR_INI_SIZE:
-                return __( 'The uploaded file exceeds the upload_max_filesize directive in php.ini', 'wp-natural-language-commands' );
+                return __( 'The uploaded file exceeds the upload_max_filesize directive in php.ini', 'wpnl' );
             case UPLOAD_ERR_FORM_SIZE:
-                return __( 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form', 'wp-natural-language-commands' );
+                return __( 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form', 'wpnl' );
             case UPLOAD_ERR_PARTIAL:
-                return __( 'The uploaded file was only partially uploaded', 'wp-natural-language-commands' );
+                return __( 'The uploaded file was only partially uploaded', 'wpnl' );
             case UPLOAD_ERR_NO_FILE:
-                return __( 'No file was uploaded', 'wp-natural-language-commands' );
+                return __( 'No file was uploaded', 'wpnl' );
             case UPLOAD_ERR_NO_TMP_DIR:
-                return __( 'Missing a temporary folder', 'wp-natural-language-commands' );
+                return __( 'Missing a temporary folder', 'wpnl' );
             case UPLOAD_ERR_CANT_WRITE:
-                return __( 'Failed to write file to disk', 'wp-natural-language-commands' );
+                return __( 'Failed to write file to disk', 'wpnl' );
             case UPLOAD_ERR_EXTENSION:
-                return __( 'A PHP extension stopped the file upload', 'wp-natural-language-commands' );
+                return __( 'A PHP extension stopped the file upload', 'wpnl' );
             default:
-                return __( 'Unknown upload error', 'wp-natural-language-commands' );
+                return __( 'Unknown upload error', 'wpnl' );
         }
     }
 }

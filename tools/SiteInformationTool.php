@@ -2,10 +2,10 @@
 /**
  * Site Information Tool Class
  *
- * @package WP_Natural_Language_Commands
+ * @package WPNL
  */
 
-namespace WPNaturalLanguageCommands\Tools;
+namespace WPNL\Tools;
 
 if ( ! defined( 'WPINC' ) ) {
     die;

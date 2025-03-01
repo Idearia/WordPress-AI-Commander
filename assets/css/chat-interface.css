@@ -5,7 +5,7 @@
  */
 
 /* Container */
-.wp-nlc-chat-container {
+.wpnl-chat-container {
     min-height: 600px;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -16,7 +16,7 @@
 }
 
 /* Chat header */
-.wp-nlc-chat-header {
+.wpnl-chat-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -25,13 +25,13 @@
     background-color: #f7f7f7;
 }
 
-.wp-nlc-chat-header h3 {
+.wpnl-chat-header h3 {
     margin: 0;
     font-size: 16px;
     color: #333;
 }
 
-.wp-nlc-new-conversation-button {
+.wpnl-new-conversation-button {
     background-color: #f0f0f0;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -41,17 +41,17 @@
     transition: background-color 0.2s;
 }
 
-.wp-nlc-new-conversation-button:hover {
+.wpnl-new-conversation-button:hover {
     background-color: #e0e0e0;
 }
 
-.wp-nlc-new-conversation-button:disabled {
+.wpnl-new-conversation-button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
 /* Message list */
-.wp-nlc-message-list {
+.wpnl-message-list {
     flex: 1;
     overflow-y: auto;
     padding: 20px;
@@ -59,16 +59,16 @@
 }
 
 /* Message item */
-.wp-nlc-message {
+.wpnl-message {
     margin-bottom: 15px;
     display: flex;
 }
 
-.wp-nlc-message.user {
+.wpnl-message.user {
     justify-content: flex-end;
 }
 
-.wp-nlc-message-content {
+.wpnl-message-content {
     max-width: 80%;
     padding: 10px 15px;
     border-radius: 18px;
@@ -76,39 +76,39 @@
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.wp-nlc-message.user .wp-nlc-message-content {
+.wpnl-message.user .wpnl-message-content {
     background-color: #0073aa;
     color: white;
 }
 
-.wp-nlc-message.assistant .wp-nlc-message-content {
+.wpnl-message.assistant .wpnl-message-content {
     background-color: #fff;
     border: 1px solid #ddd;
 }
 
 /* Message line */
-.wp-nlc-message-line {
+.wpnl-message-line {
     min-height: 1.2em;
     line-height: 1.4;
 }
 
-.wp-nlc-message-line:empty {
+.wpnl-message-line:empty {
     display: none;
 }
 
-.wp-nlc-message-line:empty + .wp-nlc-message-line:empty {
+.wpnl-message-line:empty + .wpnl-message-line:empty {
     display: none;
 }
 
 /* Input area */
-.wp-nlc-input-container {
+.wpnl-input-container {
     display: flex;
     padding: 15px;
     background-color: white;
     border-top: 1px solid #ddd;
 }
 
-.wp-nlc-message-input {
+.wpnl-message-input {
     flex: 1;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -119,7 +119,7 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
-.wp-nlc-send-button {
+.wpnl-send-button {
     margin-left: 10px;
     background-color: #0073aa;
     color: white;
@@ -130,17 +130,17 @@
     height: 40px;
 }
 
-.wp-nlc-send-button:hover {
+.wpnl-send-button:hover {
     background-color: #006291;
 }
 
-.wp-nlc-send-button:disabled {
+.wpnl-send-button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
 }
 
 /* Microphone button */
-.wp-nlc-mic-button {
+.wpnl-mic-button {
     margin-left: 10px;
     background-color: #f0f0f0;
     color: #333;
@@ -155,41 +155,41 @@
     transition: all 0.2s ease;
 }
 
-.wp-nlc-mic-button:hover {
+.wpnl-mic-button:hover {
     background-color: #e0e0e0;
 }
 
-.wp-nlc-mic-button:disabled {
+.wpnl-mic-button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
-.wp-nlc-mic-button.recording {
+.wpnl-mic-button.recording {
     background-color: #ff5252;
     color: white;
     border-color: #ff5252;
     animation: pulse 1.5s infinite;
 }
 
-.wp-nlc-mic-button.recording:hover {
+.wpnl-mic-button.recording:hover {
     background-color: #ff0000;
     border-color: #ff0000;
 }
 
 /* Transcribing state for mic button */
-.wp-nlc-mic-button.transcribing {
+.wpnl-mic-button.transcribing {
     background-color: #2271b1;
     color: white;
     border-color: #2271b1;
     animation: fade 1.5s infinite;
 }
 
-.wp-nlc-mic-button.transcribing:hover {
+.wpnl-mic-button.transcribing:hover {
     background-color: #135e96;
     border-color: #135e96;
 }
 
-.wp-nlc-mic-icon {
+.wpnl-mic-icon {
     width: 18px;
     height: 18px;
     fill: currentColor;
@@ -222,7 +222,7 @@
 }
 
 /* Recording status */
-.wp-nlc-recording-status {
+.wpnl-recording-status {
     position: absolute;
     bottom: 70px;
     left: 50%;
@@ -237,7 +237,7 @@
     z-index: 10;
 }
 
-.wp-nlc-recording-status-dot {
+.wpnl-recording-status-dot {
     width: 10px;
     height: 10px;
     background-color: #ff5252;
@@ -247,7 +247,7 @@
 }
 
 /* Transcribing status */
-.wp-nlc-transcribing-status {
+.wpnl-transcribing-status {
     position: absolute;
     bottom: 70px;
     left: 50%;
@@ -270,23 +270,23 @@
 }
 
 /* Tool Call Message */
-.wp-nlc-tool-call .wp-nlc-message-content {
+.wpnl-tool-call .wpnl-message-content {
     padding: 15px;
     border-left: 3px solid #0073aa;
 }
 
-.wp-nlc-tool-title {
+.wpnl-tool-title {
     font-weight: bold;
     margin-bottom: 8px;
     color: #0073aa;
 }
 
-.wp-nlc-tool-summary {
+.wpnl-tool-summary {
     margin-bottom: 12px;
     line-height: 1.5;
 }
 
-.wp-nlc-tool-details-button {
+.wpnl-tool-details-button {
     background-color: #f0f0f0;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -296,12 +296,12 @@
     transition: background-color 0.2s;
 }
 
-.wp-nlc-tool-details-button:hover {
+.wpnl-tool-details-button:hover {
     background-color: #e0e0e0;
 }
 
 /* Tool Call Popup */
-.wp-nlc-popup-overlay {
+.wpnl-popup-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -314,7 +314,7 @@
     justify-content: center;
 }
 
-.wp-nlc-popup-content {
+.wpnl-popup-content {
     background-color: white;
     border-radius: 6px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -326,7 +326,7 @@
     flex-direction: column;
 }
 
-.wp-nlc-popup-header {
+.wpnl-popup-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -334,13 +334,13 @@
     border-bottom: 1px solid #ddd;
 }
 
-.wp-nlc-popup-header h3 {
+.wpnl-popup-header h3 {
     margin: 0;
     font-size: 18px;
     color: #0073aa;
 }
 
-.wp-nlc-popup-close {
+.wpnl-popup-close {
     background: none;
     border: none;
     font-size: 24px;
@@ -348,22 +348,22 @@
     color: #666;
 }
 
-.wp-nlc-popup-close:hover {
+.wpnl-popup-close:hover {
     color: #0073aa;
 }
 
-.wp-nlc-popup-body {
+.wpnl-popup-body {
     padding: 20px;
     overflow-y: auto;
 }
 
-.wp-nlc-popup-body h4 {
+.wpnl-popup-body h4 {
     margin: 0 0 10px 0;
     font-size: 14px;
     color: #333;
 }
 
-.wp-nlc-popup-body pre {
+.wpnl-popup-body pre {
     background-color: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -374,12 +374,12 @@
 }
 
 /* Action results - keeping for backward compatibility but hidden */
-.wp-nlc-actions-container {
+.wpnl-actions-container {
     display: none;
 }
 
 /* Loading indicator */
-.wp-nlc-loading {
+.wpnl-loading {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -394,13 +394,13 @@
     z-index: 10;
 }
 
-.wp-nlc-loading .spinner {
+.wpnl-loading .spinner {
     float: none;
     margin-right: 10px;
 }
 
 /* No API key message */
-.wp-nlc-no-api-key {
+.wpnl-no-api-key {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -411,14 +411,14 @@
     background-color: #f9f9f9;
 }
 
-.wp-nlc-no-api-key p {
+.wpnl-no-api-key p {
     font-size: 16px;
     color: #666;
 }
 
 /* Responsive adjustments */
 @media screen and (max-width: 782px) {
-    .wp-nlc-chat-container {
+    .wpnl-chat-container {
         min-height: 400px;
     }
 }

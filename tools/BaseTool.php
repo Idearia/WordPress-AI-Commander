@@ -2,12 +2,12 @@
 /**
  * Base Tool Class
  *
- * @package WP_Natural_Language_Commands
+ * @package WPNL
  */
 
-namespace WPNaturalLanguageCommands\Tools;
+namespace WPNL\Tools;
 
-use WPNaturalLanguageCommands\Includes\ToolRegistry;
+use WPNL\Includes\ToolRegistry;
 
 if ( ! defined( 'WPINC' ) ) {
     die;

@@ -13,10 +13,10 @@ Issue commands in natural language to WordPress via voice, chatbot interface or 
 
 ## Installation
 
-1. Upload the `wp-natural-language-commands` directory to the `/wp-content/plugins/` directory
+1. Upload the `wpnl-wordpress-natural-language` directory to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Go to 'NL Commands > Settings' and insert your OpenAI API key
-4. Go to the 'NL Commands > Chatbot' and try a test command, e.g. create a "Hello world" post with tag "Testing".
+3. Go to 'WPNL > Settings' and insert your OpenAI API key
+4. Go to the 'WPNL > Chatbot' and try a test command, e.g. create a "Hello world" post with tag "Testing".
 
 ## Demo video
 
@@ -78,7 +78,7 @@ Create a new PHP file in your theme or plugin, for example `SimplePageCreationTo
 
 ```php
 <?php
-use WPNaturalLanguageCommands\Tools\BaseTool;
+use WPNL\Tools\BaseTool;
 
 /**
  * Tool to create an empty WordPress page with just a title.
@@ -177,9 +177,9 @@ In your theme's `functions.php` file or your plugin file, add code to register y
 /**
  * Register custom tools with WP Natural Language Commands
  */
-function register_custom_nlc_tools() {
+function register_custom_wpnl_tools() {
     // Make sure WP Natural Language Commands plugin is active
-    if (!class_exists('WPNaturalLanguageCommands\\Includes\\ToolRegistry')) {
+    if (!class_exists('WPNL\\Includes\\ToolRegistry')) {
         return;
     }
     
@@ -189,7 +189,7 @@ function register_custom_nlc_tools() {
     // Instantiate your tool (this will automatically register it)
     new SimplePageCreationTool();
 }
-add_action('init', 'register_custom_nlc_tools', 20); // Priority 20 to ensure it runs after the plugin's tools are registered
+add_action('init', 'register_custom_wpnl_tools', 20); // Priority 20 to ensure it runs after the plugin's tools are registered
 ```
 
 ### 3. Best Practices
@@ -229,13 +229,13 @@ Authorization: Basic base64encode(username:application_password)
 #### Get all conversations
 
 ```
-GET /wp-json/wp-nlc/v1/conversations
+GET /wp-json/wpnl/v1/conversations
 ```
 
 #### Process a command
 
 ```
-POST /wp-json/wp-nlc/v1/commands
+POST /wp-json/wpnl/v1/commands
 ```
 
 Request body:
@@ -252,13 +252,13 @@ This endpoint handles both creating a new conversation (when `conversation_uuid`
 #### Get an existing conversation
 
 ```
-GET /wp-json/wp-nlc/v1/conversations/{uuid}
+GET /wp-json/wpnl/v1/conversations/{uuid}
 ```
 
 #### Transcribe audio
 
 ```
-POST /wp-json/wp-nlc/v1/transcribe
+POST /wp-json/wpnl/v1/transcribe
 ```
 
 Request body (multipart/form-data):
@@ -279,7 +279,7 @@ Response:
 #### Process voice command
 
 ```
-POST /wp-json/wp-nlc/v1/voice-command
+POST /wp-json/wpnl/v1/voice-command
 ```
 
 Request body (multipart/form-data):

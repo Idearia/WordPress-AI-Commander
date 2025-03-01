@@ -26,18 +26,18 @@ const ToolCallDetailsPopup = ({ action, onClose }) => {
     
     return e(
         'div',
-        { className: 'wp-nlc-popup-overlay' },
+        { className: 'wpnl-popup-overlay' },
         e(
             'div',
-            { className: 'wp-nlc-popup-content' },
-            e('div', { className: 'wp-nlc-popup-header' }, 
+            { className: 'wpnl-popup-content' },
+            e('div', { className: 'wpnl-popup-header' }, 
                 e('h3', null, `Tool: ${action.tool}`),
                 e('button', { 
-                    className: 'wp-nlc-popup-close',
+                    className: 'wpnl-popup-close',
                     onClick: onClose
                 }, '×')
             ),
-            e('div', { className: 'wp-nlc-popup-body' },
+            e('div', { className: 'wpnl-popup-body' },
                 e('h4', null, 'Tool call ID:'),
                 e('pre', null, action.tool_call_id),
                 e('h4', null, 'Arguments:'),
@@ -63,13 +63,13 @@ const ToolCallMessage = ({ action }) => {
     
     return e(
         'div',
-        { className: 'wp-nlc-message assistant wp-nlc-tool-call' },
+        { className: 'wpnl-message assistant wpnl-tool-call' },
         e('div', 
-            { className: 'wp-nlc-message-content' },
-            e('div', { className: 'wp-nlc-tool-title' }, action.title),
-            e('div', { className: 'wp-nlc-tool-summary' }, action.summary),
+            { className: 'wpnl-message-content' },
+            e('div', { className: 'wpnl-tool-title' }, action.title),
+            e('div', { className: 'wpnl-tool-summary' }, action.summary),
             e('button', {
-                className: 'wp-nlc-tool-details-button',
+                className: 'wpnl-tool-details-button',
                 onClick: toggleDetails
             }, 'View Details')
         ),
@@ -99,15 +99,15 @@ const MessageItem = ({ message }) => {
         
         // Split by newlines and create an array of text elements
         return text.split('\n').map((line, i) => 
-            e('div', { key: i, className: 'wp-nlc-message-line' }, line)
+            e('div', { key: i, className: 'wpnl-message-line' }, line)
         );
     };
     
     return e(
         'div',
-        { className: `wp-nlc-message ${role}` },
+        { className: `wpnl-message ${role}` },
         e('div', 
-            { className: 'wp-nlc-message-content' },
+            { className: 'wpnl-message-content' },
             formatContent(content)
         )
     );
@@ -148,7 +148,7 @@ const MessageItem = ({ message }) => {
             return e(
                 'div',
                 { 
-                    className: 'wp-nlc-message-list',
+                    className: 'wpnl-message-list',
                     ref: messageListRef
                 },
                 messages.map((message, index) => 
@@ -167,7 +167,7 @@ const MessageItem = ({ message }) => {
             return e(
                 'svg',
                 {
-                    className: 'wp-nlc-mic-icon',
+                    className: 'wpnl-mic-icon',
                     xmlns: 'http://www.w3.org/2000/svg',
                     viewBox: '0 0 24 24',
                     fill: 'currentColor'
@@ -189,8 +189,8 @@ const MessageItem = ({ message }) => {
         const RecordingStatus = () => {
             return e(
                 'div',
-                { className: 'wp-nlc-recording-status' },
-                e('div', { className: 'wp-nlc-recording-status-dot' }),
+                { className: 'wpnl-recording-status' },
+                e('div', { className: 'wpnl-recording-status-dot' }),
                 'Recording...'
             );
         };
@@ -211,8 +211,8 @@ const MessageItem = ({ message }) => {
             // Check if speech-to-text is enabled in settings
             useEffect(() => {
                 // This value is set in the localized script data
-                if (typeof wpNlcData !== 'undefined' && wpNlcData.enable_speech_to_text !== undefined) {
-                    setIsSpeechEnabled(wpNlcData.enable_speech_to_text === '1');
+                if (typeof wpnlData !== 'undefined' && wpnlData.enable_speech_to_text !== undefined) {
+                    setIsSpeechEnabled(wpnlData.enable_speech_to_text === '1');
                 }
             }, []);
             
@@ -308,8 +308,8 @@ const MessageItem = ({ message }) => {
                     
                     // Provide more specific error messages
                     if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-                        alert('Microphone access was denied. Please allow microphone access in your browser settings and try again.\n\n' +
-                              'In most browsers, you can click on the camera/microphone icon in the address bar to change permissions.');
+                        alert('Microphone access was denied. Please try again but this time allow microphone access.\n\n' +
+                              'In alternative, in most browsers, you can click on the camera/microphone icon in the address bar to change permissions.');
                     } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
                         alert('No microphone was found. Please connect a microphone and try again.');
                     } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
@@ -341,14 +341,14 @@ const MessageItem = ({ message }) => {
             const sendAudioToServer = (audioBlob) => {
                 const formData = new FormData();
                 formData.append('audio', audioBlob, 'recording.webm');
-                formData.append('action', 'wp_nlc_transcribe_audio');
-                formData.append('nonce', wpNlcData.nonce);
+                formData.append('action', 'wpnl_transcribe_audio');
+                formData.append('nonce', wpnlData.nonce);
                 
                 // Show transcription loading state
                 setIsTranscribing(true);
                 
                 $.ajax({
-                    url: wpNlcData.ajax_url,
+                    url: wpnlData.ajax_url,
                     method: 'POST',
                     data: formData,
                     processData: false,
@@ -378,9 +378,9 @@ const MessageItem = ({ message }) => {
             
             return e(
                 'div',
-                { className: 'wp-nlc-input-container' },
+                { className: 'wpnl-input-container' },
                 e('textarea', {
-                    className: 'wp-nlc-message-input',
+                    className: 'wpnl-message-input',
                     placeholder: 'Type your command here...',
                     value: inputValue,
                     onChange: handleInputChange,
@@ -391,7 +391,7 @@ const MessageItem = ({ message }) => {
                 isSpeechEnabled && e(
                     'button',
                     {
-                        className: `wp-nlc-mic-button ${isRecording ? 'recording' : ''} ${isTranscribing ? 'transcribing' : ''}`,
+                        className: `wpnl-mic-button ${isRecording ? 'recording' : ''} ${isTranscribing ? 'transcribing' : ''}`,
                         onClick: toggleRecording,
                         disabled: isProcessing || isTranscribing,
                         title: isRecording ? 'Stop recording' : (isTranscribing ? 'Transcribing...' : 'Start recording'),
@@ -402,7 +402,7 @@ const MessageItem = ({ message }) => {
                 e(
                     'button',
                     {
-                        className: 'wp-nlc-send-button',
+                        className: 'wpnl-send-button',
                         onClick: handleSendMessage,
                         disabled: isProcessing || isTranscribing || !inputValue.trim(),
                         type: 'button'
@@ -412,7 +412,7 @@ const MessageItem = ({ message }) => {
                 isRecording && e(RecordingStatus),
                 isTranscribing && e(
                     'div',
-                    { className: 'wp-nlc-transcribing-status' },
+                    { className: 'wpnl-transcribing-status' },
                     'Transcribing audio...'
                 )
             );
@@ -448,7 +448,7 @@ const ActionResults = ({ actions }) => {
                     url: config.ajaxUrl,
                     method: 'POST',
                     data: {
-                        action: 'wp_nlc_create_conversation',
+                        action: 'wpnl_create_conversation',
                         nonce: config.nonce
                     },
                     success: function(response) {
@@ -460,7 +460,7 @@ const ActionResults = ({ actions }) => {
                             setConversationId(newConversationId);
                             
                             // Save the conversation ID to localStorage
-                            localStorage.setItem('wp_nlc_conversation_id', newConversationId);
+                            localStorage.setItem('wp_wpnl_conversation_id', newConversationId);
                             
                             // Set the initial messages
                             setMessages(response.data.messages || []);
@@ -493,7 +493,7 @@ const ActionResults = ({ actions }) => {
                     url: config.ajaxUrl,
                     method: 'POST',
                     data: {
-                        action: 'wp_nlc_get_conversation',
+                        action: 'wpnl_get_conversation',
                         nonce: config.nonce,
                         conversation_uuid: conversationUuid
                     },
@@ -512,7 +512,7 @@ const ActionResults = ({ actions }) => {
                         } else {
                             // If there's an error loading the conversation, create a new one
                             console.error('Failed to load conversation:', response.data.message);
-                            localStorage.removeItem('wp_nlc_conversation_id');
+                            localStorage.removeItem('wp_wpnl_conversation_id');
                             startNewConversation();
                         }
                     },
@@ -521,7 +521,7 @@ const ActionResults = ({ actions }) => {
                         console.error('Error loading conversation:', error);
                         
                         // If there's an error, create a new conversation
-                        localStorage.removeItem('wp_nlc_conversation_id');
+                        localStorage.removeItem('wp_wpnl_conversation_id');
                         startNewConversation();
                     }
                 });
@@ -529,7 +529,7 @@ const ActionResults = ({ actions }) => {
             
             // When component mounts, check for existing conversation ID
             useEffect(() => {
-                const savedConversationId = localStorage.getItem('wp_nlc_conversation_id');
+                const savedConversationId = localStorage.getItem('wp_wpnl_conversation_id');
                 
                 if (savedConversationId) {
                     // Load the existing conversation
@@ -558,7 +558,7 @@ const ActionResults = ({ actions }) => {
                     url: config.ajaxUrl,
                     method: 'POST',
                     data: {
-                        action: 'wp_nlc_process_command',
+                        action: 'wpnl_process_command',
                         nonce: config.nonce,
                         command: message,
                         conversation_uuid: conversationId
@@ -622,15 +622,15 @@ const ActionResults = ({ actions }) => {
             
             return e(
                 'div',
-                { className: 'wp-nlc-chat-container' },
+                { className: 'wpnl-chat-container' },
                 e(
                     'div',
-                    { className: 'wp-nlc-chat-header' },
+                    { className: 'wpnl-chat-header' },
                     e('h3', null, 'WordPress Assistant'),
                     e(
                         'button',
                         {
-                            className: 'wp-nlc-new-conversation-button',
+                            className: 'wpnl-new-conversation-button',
                             onClick: startNewConversation,
                             disabled: isProcessing
                         },
@@ -645,7 +645,7 @@ const ActionResults = ({ actions }) => {
                 }),
                 isProcessing && e(
                     'div',
-                    { className: 'wp-nlc-loading' },
+                    { className: 'wpnl-loading' },
                     e('span', { className: 'spinner is-active' }),
                     'Processing your command...'
                 )
@@ -656,7 +656,7 @@ const ActionResults = ({ actions }) => {
          * Initialize the chat interface.
          */
         function init() {
-            const container = document.getElementById('wp-nlc-chat-interface');
+            const container = document.getElementById('wpnl-chat-interface');
             if (!container) {
                 console.error('Chat interface container not found');
                 return;
@@ -664,11 +664,11 @@ const ActionResults = ({ actions }) => {
             
             // Get configuration from global variable
             const config = {
-                ajaxUrl: wpNlcData.ajax_url,
-                nonce: wpNlcData.nonce,
-                apiKey: wpNlcData.api_key,
-                model: wpNlcData.model,
-                enableSpeechToText: wpNlcData.enable_speech_to_text
+                ajaxUrl: wpnlData.ajax_url,
+                nonce: wpnlData.nonce,
+                apiKey: wpnlData.api_key,
+                model: wpnlData.model,
+                enableSpeechToText: wpnlData.enable_speech_to_text
             };
             
             // Render the chat interface

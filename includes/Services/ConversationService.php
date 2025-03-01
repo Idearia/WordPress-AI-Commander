@@ -2,14 +2,14 @@
 /**
  * Conversation Service Class
  *
- * @package WP_Natural_Language_Commands
+ * @package WPNL
  */
 
-namespace WPNaturalLanguageCommands\Includes\Services;
+namespace WPNL\Includes\Services;
 
-use WPNaturalLanguageCommands\Includes\ConversationManager;
-use WPNaturalLanguageCommands\Includes\CommandProcessor;
-use WPNaturalLanguageCommands\Includes\OpenaiClient;
+use WPNL\Includes\ConversationManager;
+use WPNL\Includes\CommandProcessor;
+use WPNL\Includes\OpenaiClient;
 use Exception;
 
 if ( ! defined( 'WPINC' ) ) {
@@ -175,7 +175,7 @@ class ConversationService {
      */
     public function transcribe_audio( $audio_file_path, $language = null ) {
         // Check if speech-to-text is enabled
-        $enable_speech = get_option( 'wp_nlc_enable_speech_to_text', true );
+        $enable_speech = get_option( 'wpnl_enable_speech_to_text', true );
         if ( ! $enable_speech ) {
             return new \WP_Error(
                 'speech_disabled',

@@ -2,12 +2,12 @@
 /**
  * AJAX Handlers Class
  *
- * @package WP_Natural_Language_Commands
+ * @package WPNL
  */
 
-namespace WPNaturalLanguageCommands\Includes;
+namespace WPNL\Includes;
 
-use WPNaturalLanguageCommands\Includes\Services\ConversationService;
+use WPNL\Includes\Services\ConversationService;
 use Exception;
 
 if ( ! defined( 'WPINC' ) ) {
@@ -43,11 +43,11 @@ class AjaxHandlers {
         $this->tool_registry = ToolRegistry::get_instance();
         
         // Register AJAX handlers
-        add_action( 'wp_ajax_wp_nlc_create_conversation', array( $this, 'create_conversation' ) );
-        add_action( 'wp_ajax_wp_nlc_get_conversation', array( $this, 'get_conversation' ) );
-        add_action( 'wp_ajax_wp_nlc_process_command', array( $this, 'process_command' ) );
-        add_action( 'wp_ajax_wp_nlc_execute_tool', array( $this, 'execute_tool' ) );
-        add_action( 'wp_ajax_wp_nlc_transcribe_audio', array( $this, 'transcribe_audio' ) );
+        add_action( 'wp_ajax_wpnl_create_conversation', array( $this, 'create_conversation' ) );
+        add_action( 'wp_ajax_wpnl_get_conversation', array( $this, 'get_conversation' ) );
+        add_action( 'wp_ajax_wpnl_process_command', array( $this, 'process_command' ) );
+        add_action( 'wp_ajax_wpnl_execute_tool', array( $this, 'execute_tool' ) );
+        add_action( 'wp_ajax_wpnl_transcribe_audio', array( $this, 'transcribe_audio' ) );
     }
 
     /**
@@ -55,7 +55,7 @@ class AjaxHandlers {
      */
     public function create_conversation() {
         // Check nonce for security
-        check_ajax_referer( 'wp_nlc_nonce', 'nonce' );
+        check_ajax_referer( 'wpnl_nonce', 'nonce' );
         
         // Check user capabilities
         if ( ! current_user_can( 'edit_posts' ) ) {
@@ -77,7 +77,7 @@ class AjaxHandlers {
      */
     public function get_conversation() {
         // Check nonce for security
-        check_ajax_referer( 'wp_nlc_nonce', 'nonce' );
+        check_ajax_referer( 'wpnl_nonce', 'nonce' );
         
         // Check user capabilities
         if ( ! current_user_can( 'edit_posts' ) ) {
@@ -110,7 +110,7 @@ class AjaxHandlers {
      */
     public function process_command() {
         // Check nonce for security
-        check_ajax_referer( 'wp_nlc_nonce', 'nonce' );
+        check_ajax_referer( 'wpnl_nonce', 'nonce' );
         
         // Check user capabilities
         if ( ! current_user_can( 'edit_posts' ) ) {
@@ -144,7 +144,7 @@ class AjaxHandlers {
      */
     public function execute_tool() {
         // Check nonce for security
-        check_ajax_referer( 'wp_nlc_nonce', 'nonce' );
+        check_ajax_referer( 'wpnl_nonce', 'nonce' );
         
         // Check user capabilities
         if ( ! current_user_can( 'edit_posts' ) ) {
@@ -178,7 +178,7 @@ class AjaxHandlers {
      */
     public function transcribe_audio() {
         // Check nonce for security
-        check_ajax_referer( 'wp_nlc_nonce', 'nonce' );
+        check_ajax_referer( 'wpnl_nonce', 'nonce' );
         
         // Check user capabilities
         if ( ! current_user_can( 'edit_posts' ) ) {
@@ -186,7 +186,7 @@ class AjaxHandlers {
         }
         
         // Check if speech-to-text is enabled
-        $enable_speech = get_option( 'wp_nlc_enable_speech_to_text', true );
+        $enable_speech = get_option( 'wpnl_enable_speech_to_text', true );
         if ( ! $enable_speech ) {
             wp_send_json_error( array( 'message' => 'Speech-to-text is disabled in settings' ) );
         }
@@ -197,7 +197,7 @@ class AjaxHandlers {
         }
         
         // Get the language setting
-        $language = get_option( 'wp_nlc_speech_language', '' );
+        $language = get_option( 'wpnl_speech_language', '' );
         
         // Get the uploaded file
         $file = $_FILES['audio'];
@@ -210,7 +210,7 @@ class AjaxHandlers {
         
         // Create uploads directory if it doesn't exist
         $upload_dir = wp_upload_dir();
-        $audio_dir = $upload_dir['basedir'] . '/wp-nlc-audio';
+        $audio_dir = $upload_dir['basedir'] . '/wpnl-audio';
         
         if ( ! file_exists( $audio_dir ) ) {
             wp_mkdir_p( $audio_dir );

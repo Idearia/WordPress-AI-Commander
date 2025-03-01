@@ -2,12 +2,12 @@
 /**
  * Tool Registry Class
  *
- * @package WP_Natural_Language_Commands
+ * @package WPNL
  */
 
-namespace WPNaturalLanguageCommands\Includes;
+namespace WPNL\Includes;
 
-use WPNaturalLanguageCommands\Tools\BaseTool;
+use WPNL\Tools\BaseTool;
 
 if ( ! defined( 'WPINC' ) ) {
     die;
@@ -193,7 +193,7 @@ class ToolRegistry {
      * Auto-discover and register tools from the tools directory.
      */
     public function discover_tools() {
-        $tools_dir = WP_NATURAL_LANGUAGE_COMMANDS_PLUGIN_DIR . 'tools/';
+        $tools_dir = WPNL_PLUGIN_DIR . 'tools/';
         $tool_files = glob( $tools_dir . 'class-*-tool.php' );
         
         foreach ( $tool_files as $file ) {
@@ -211,7 +211,7 @@ class ToolRegistry {
                 array( '', '', '_' ), 
                 basename( $file ) 
             );
-            $class_name = 'WP_NLC_' . ucwords( $class_name, '_' ) . '_Tool';
+            $class_name = 'WPNL_' . ucwords( $class_name, '_' ) . '_Tool';
             
             // Instantiate the tool
             if ( class_exists( $class_name ) ) {
