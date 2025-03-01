@@ -97,7 +97,29 @@ class OpenaiClient {
         // Add the file part
         $body .= '--' . $boundary . "\r\n";
         $body .= 'Content-Disposition: form-data; name="file"; filename="' . basename( $audio_file_path ) . '"' . "\r\n";
-        $body .= 'Content-Type: audio/mpeg' . "\r\n\r\n";
+        
+        // Determine the correct Content-Type based on file extension
+        $file_extension = strtolower(pathinfo($audio_file_path, PATHINFO_EXTENSION));
+        $content_type = 'audio/mpeg'; // Default
+        
+        // Map file extensions to MIME types
+        $mime_types = array(
+            'm4a' => 'audio/mp4',
+            'mp4' => 'video/mp4',
+            'mp3' => 'audio/mpeg',
+            'wav' => 'audio/wav',
+            'flac' => 'audio/flac',
+            'ogg' => 'audio/ogg',
+            'oga' => 'audio/ogg',
+            'webm' => 'audio/webm',
+            'mpga' => 'audio/mpeg',
+        );
+        
+        if (isset($mime_types[$file_extension])) {
+            $content_type = $mime_types[$file_extension];
+        }
+        
+        $body .= 'Content-Type: ' . $content_type . "\r\n\r\n";
         $body .= file_get_contents( $audio_file_path ) . "\r\n";
         
         // Add the model part

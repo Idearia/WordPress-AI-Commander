@@ -167,6 +167,82 @@ class ConversationService {
     }
     
     /**
+     * Handle audio file upload.
+     *
+     * @param array $file The uploaded file data from $_FILES.
+     * @return array|\WP_Error Array with file_path on success, \WP_Error on failure.
+     */
+    public function handle_audio_upload( $file ) {
+        // Check for upload errors
+        if ( $file['error'] !== UPLOAD_ERR_OK ) {
+            $error_message = $this->get_upload_error_message( $file['error'] );
+            return new \WP_Error(
+                'upload_error',
+                $error_message
+            );
+        }
+        
+        // Create uploads directory if it doesn't exist
+        $upload_dir = wp_upload_dir();
+        $audio_dir = $upload_dir['basedir'] . '/wpnl-audio';
+        
+        if ( ! file_exists( $audio_dir ) ) {
+            wp_mkdir_p( $audio_dir );
+            
+            // Create an index.php file to prevent directory listing
+            file_put_contents( $audio_dir . '/index.php', '<?php // Silence is golden' );
+        }
+        
+        // Get the original file extension
+        $file_info = pathinfo( $file['name'] );
+        $extension = isset( $file_info['extension'] ) ? strtolower( $file_info['extension'] ) : 'tmp';
+        
+        // Generate a unique filename while preserving the original extension
+        $filename = 'audio-' . uniqid() . '.' . $extension;
+        $file_path = $audio_dir . '/' . $filename;
+        
+        // Move the uploaded file to our directory
+        if ( ! move_uploaded_file( $file['tmp_name'], $file_path ) ) {
+            return new \WP_Error(
+                'file_save_error',
+                'Failed to save audio file'
+            );
+        }
+        
+        return array(
+            'file_path' => $file_path,
+            'extension' => $extension
+        );
+    }
+    
+    /**
+     * Get a human-readable error message for file upload errors.
+     *
+     * @param int $error_code The error code from $_FILES['file']['error'].
+     * @return string The error message.
+     */
+    private function get_upload_error_message( $error_code ) {
+        switch ( $error_code ) {
+            case UPLOAD_ERR_INI_SIZE:
+                return 'The uploaded file exceeds the upload_max_filesize directive in php.ini';
+            case UPLOAD_ERR_FORM_SIZE:
+                return 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form';
+            case UPLOAD_ERR_PARTIAL:
+                return 'The uploaded file was only partially uploaded';
+            case UPLOAD_ERR_NO_FILE:
+                return 'No file was uploaded';
+            case UPLOAD_ERR_NO_TMP_DIR:
+                return 'Missing a temporary folder';
+            case UPLOAD_ERR_CANT_WRITE:
+                return 'Failed to write file to disk';
+            case UPLOAD_ERR_EXTENSION:
+                return 'A PHP extension stopped the file upload';
+            default:
+                return 'Unknown upload error';
+        }
+    }
+    
+    /**
      * Transcribe audio file using OpenAI Whisper API.
      *
      * @param string $audio_file_path The path to the audio file.

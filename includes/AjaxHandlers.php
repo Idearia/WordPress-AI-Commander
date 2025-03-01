@@ -199,34 +199,14 @@ class AjaxHandlers {
         // Get the language setting
         $language = get_option( 'wpnl_speech_language', '' );
         
-        // Get the uploaded file
-        $file = $_FILES['audio'];
+        // Handle the file upload using the ConversationService
+        $upload_result = $this->conversation_service->handle_audio_upload( $_FILES['audio'] );
         
-        // Check for upload errors
-        if ( $file['error'] !== UPLOAD_ERR_OK ) {
-            $error_message = $this->get_upload_error_message( $file['error'] );
-            wp_send_json_error( array( 'message' => $error_message ) );
+        if ( is_wp_error( $upload_result ) ) {
+            wp_send_json_error( array( 'message' => $upload_result->get_error_message() ) );
         }
         
-        // Create uploads directory if it doesn't exist
-        $upload_dir = wp_upload_dir();
-        $audio_dir = $upload_dir['basedir'] . '/wpnl-audio';
-        
-        if ( ! file_exists( $audio_dir ) ) {
-            wp_mkdir_p( $audio_dir );
-            
-            // Create an index.php file to prevent directory listing
-            file_put_contents( $audio_dir . '/index.php', '<?php // Silence is golden' );
-        }
-        
-        // Generate a unique filename
-        $filename = 'audio-' . uniqid() . '.webm';
-        $file_path = $audio_dir . '/' . $filename;
-        
-        // Move the uploaded file to our directory
-        if ( ! move_uploaded_file( $file['tmp_name'], $file_path ) ) {
-            wp_send_json_error( array( 'message' => 'Failed to save audio file' ) );
-        }
+        $file_path = $upload_result['file_path'];
         
         try {
             // Use the ConversationService to transcribe the audio
