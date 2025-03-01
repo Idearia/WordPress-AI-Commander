@@ -160,10 +160,6 @@ class SimplePageCreationTool extends BaseTool {
             return $result->get_error_message();
         }
         
-        if (isset($result['message'])) {
-            return $result['message'];
-        }
-        
         return sprintf('Empty page "%s" created successfully with ID %d.', $params['title'], $result['page_id']);
     }
 }
