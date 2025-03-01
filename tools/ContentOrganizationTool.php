@@ -117,9 +117,6 @@ class ContentOrganizationTool extends BaseTool {
             );
         }
 
-        // Apply default values
-        $params = $this->apply_parameter_defaults( $params );
-
         // Track changes
         $changes = array();
 

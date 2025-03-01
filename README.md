@@ -117,15 +117,6 @@ class SimplePageCreationTool extends BaseTool {
      * Execute the tool with the given parameters.
      */
     public function execute($params) {
-        // Validate parameters
-        $validation = $this->validate_parameters($params);
-        if ($validation instanceof \WP_Error) {
-            return $validation;
-        }
-
-        // Apply default values
-        $params = $this->apply_parameter_defaults( $params );
-
         // Create the page
         $page_data = array(
             'post_title'    => sanitize_text_field($params['title']),

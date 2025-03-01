@@ -95,15 +95,6 @@ class PostCreationTool extends BaseTool {
      * @return array|\WP_Error The result of executing the tool.
      */
     public function execute( $params ) {
-        // Validate parameters
-        $validation = $this->validate_parameters( $params );
-        if ( $validation instanceof \WP_Error ) {
-            return $validation;
-        }
-
-        // Apply default values
-        $params = $this->apply_parameter_defaults( $params );
-
         // Prepare post data
         $post_data = array(
             'post_title'    => sanitize_text_field( $params['title'] ),

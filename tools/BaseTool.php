@@ -111,15 +111,15 @@ abstract class BaseTool {
     /**
      * Execute the tool with the given parameters.
      *
-     * @param array $params The parameters to use when executing the tool.
+     * @param array $params The parameters to use when executing the tool,
+     * with default values applied.
      * @return array|\WP_Error The result of executing the tool.
      */
     abstract public function execute( $params );
     
     /**
-     * Execute the tool with permission checking.
-     *
-     * This method wraps the execute method with a permission check.
+     * Execute the tool with permission checking, basic validation
+     * and default values.
      *
      * @param array $params The parameters to use when executing the tool.
      * @return array|\WP_Error The result of executing the tool.
@@ -136,6 +136,13 @@ abstract class BaseTool {
                 )
             );
         }
+
+        $validation = $this->validate_parameters( $params );
+        if ( $validation instanceof \WP_Error ) {
+            return $validation;
+        }
+
+        $params = $this->apply_parameter_defaults( $params );
         
         return $this->execute( $params );
     }

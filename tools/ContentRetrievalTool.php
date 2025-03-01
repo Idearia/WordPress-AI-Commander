@@ -102,10 +102,7 @@ class ContentRetrievalTool extends BaseTool {
      * @param array $params The parameters to use when executing the tool.
      * @return array|\WP_Error The result of executing the tool.
      */
-    public function execute( $params ) {
-        // Apply default values
-        $params = $this->apply_parameter_defaults( $params );
-        
+    public function execute( $params ) {        
         // Build query arguments
         $query_args = array(
             'post_type'      => $params['post_type'],
