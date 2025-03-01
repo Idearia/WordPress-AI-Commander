@@ -316,5 +316,6 @@ Nice to have features:
 - allow to filter system prompt
 - allow links and newlines in chatbot responses
 - tool to manage users
+- web search or Perplexity integration, e.g. create a new post on latest news on AI
 
 Bug fixes:

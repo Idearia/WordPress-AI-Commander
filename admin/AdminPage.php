@@ -32,12 +32,25 @@ class AdminPage {
      */
     protected $capability = 'edit_posts';
 
-    /**
-     * Constructor.
-     */
-    public function __construct() {
-        add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
+/**
+ * Constructor.
+ */
+public function __construct() {
+    add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
+    add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_overview_styles' ) );
+}
+
+/**
+ * Enqueue styles for the overview page.
+ */
+public function enqueue_overview_styles( $hook ) {
+    // Only load on the main plugin page
+    if ( $hook !== 'toplevel_page_wpnl' ) {
+        return;
     }
+    
+    wp_enqueue_style( 'wpnl-admin-overview', WPNL_PLUGIN_URL . 'assets/css/admin-overview.css', array(), WPNL_VERSION );
+}
 
     /**
      * Add the admin menu items.
@@ -70,7 +83,7 @@ class AdminPage {
      */
     public function render_page() {
         ?>
-        <div class="wrap">
+        <div class="wrap wpnl-overview">
             <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
             <p><?php esc_html_e( 'Welcome to WPNL: WordPress Natural Language. Use the tabs below to navigate.', 'wpnl' ); ?></p>
             
@@ -102,15 +115,36 @@ class AdminPage {
                     </ol>
                 </div>
                 
-                <div class="card">
+                <div class="card available-commands">
                     <h2><?php esc_html_e( 'Available Commands', 'wpnl' ); ?></h2>
                     <p><?php esc_html_e( 'You can use natural language to perform the following actions:', 'wpnl' ); ?></p>
                     <ul>
-                        <li><?php esc_html_e( 'Create new posts and pages', 'wpnl' ); ?></li>
-                        <li><?php esc_html_e( 'Edit existing content', 'wpnl' ); ?></li>
-                        <li><?php esc_html_e( 'Assign categories and tags', 'wpnl' ); ?></li>
-                        <li><?php esc_html_e( 'Set featured images', 'wpnl' ); ?></li>
-                        <li><?php esc_html_e( 'Schedule posts for publication', 'wpnl' ); ?></li>
+                        <?php
+                        // Get all registered tools from the ToolRegistry
+                        $tool_registry = \WPNL\Includes\ToolRegistry::get_instance();
+                        $tools = $tool_registry->get_tools();
+                        
+                        // Loop through each tool and display its name and description
+                        foreach ( $tools as $tool_name => $tool ) {
+                            $description = $tool->get_description();
+                            $has_permission = current_user_can( $tool->get_required_capability() );
+                            
+                            // If user doesn't have permission, show the tool as disabled
+                            if ( ! $has_permission ) {
+                                echo '<li class="tool-disabled" style="opacity: 0.5; text-decoration: line-through;">';
+                            } else {
+                                echo '<li>';
+                            }
+                            
+                            echo '<strong>' . esc_html( $tool_name ) . '</strong>: ' . esc_html( $description );
+                            echo '</li>';
+                        }
+                        
+                        // If no tools are registered, show a message
+                        if ( empty( $tools ) ) {
+                            echo '<li>' . esc_html__( 'No commands available. Please check your plugin configuration.', 'wpnl' ) . '</li>';
+                        }
+                        ?>
                     </ul>
                 </div>
             </div>
