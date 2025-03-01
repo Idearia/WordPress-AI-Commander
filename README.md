@@ -68,6 +68,12 @@ The plugin comes with several built-in tools:
 - **Functionality**: Gets site title, URL, tagline, and multisite information
 - **Example prompt**: "Show site information"
 
+### Date Tool
+- **Name**: `get_date`
+- **Description**: Returns the current date in ISO 8601 format
+- **Functionality**: Provides the current date and time in the standard ISO 8601 format
+- **Example prompt**: "What's today's date?"
+
 ## How to Add New Tools from Another Theme or Plugin
 
 You can extend the plugin's functionality by adding new tools from your own theme or plugin. Here's how:
