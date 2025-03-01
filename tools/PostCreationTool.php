@@ -205,13 +205,10 @@ class PostCreationTool extends BaseTool {
         }
         
         // Add bullet points with links to view and edit the post
-        if ( $post_url ) {
-            $summary .= "\n• <a href='" . esc_url( $post_url ) . "' target='_blank'>View post</a>";
-        }
-        
-        if ( $edit_url ) {
-            $summary .= "\n• <a href='" . esc_url( $edit_url ) . "' target='_blank'>Edit post</a>";
-        }
+        $summary .= "<ul>";
+        $summary .= "<li><a href='" . esc_url( $post_url ) . "' target='_blank'>View post</a></li>";
+        $summary .= "<li><a href='" . esc_url( $edit_url ) . "' target='_blank'>Edit post</a></li>";
+        $summary .= "</ul>";
         
         return $summary;
     }

@@ -208,7 +208,8 @@ class ContentRetrievalTool extends BaseTool {
                     'status'     => get_post_status(),
                     'author'     => get_the_author(),
                     'permalink'  => get_permalink(),
-                    'edit_link'  => get_edit_post_link( $post_id, 'raw' ),
+                    'post_url'  => get_permalink( $post_id ),
+                    'edit_url'  => get_edit_post_link( $post_id, 'raw' ),
                 );
                 
                 // Add excerpt
@@ -307,10 +308,26 @@ class ContentRetrievalTool extends BaseTool {
         }
         
         $summary = sprintf(
-            'Found %d %s matching the criteria.',
+            'Found %d %s matching the criteria:',
             $count,
             $count === 1 ? $params['post_type'] : $params['post_type'] . 's'
         );
+        
+        // For each post, show title, view link and edit link
+        if ( $count > 0 ) {
+            $summary .= "<ul>";
+        }
+        foreach ( $posts as $post ) {
+            $summary .= sprintf(
+                "<li>%s (%s | %s)</li>",
+                $post['title'],
+                "<a href='" . esc_url( $post['post_url'] ) . "' target='_blank'>View</a>",
+                "<a href='" . esc_url( $post['edit_url'] ) . "' target='_blank'>Edit</a>"
+            );
+        }
+        if ( $count > 0 ) {
+            $summary .= "</ul>";
+        }
         
         return $summary;
     }

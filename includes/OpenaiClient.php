@@ -252,7 +252,7 @@ class OpenaiClient {
         return 'You are a helpful assistant that can perform actions in WordPress. ' .
                'You have access to various tools that allow you to create and edit content. ' .
                'When a user asks you to do something, use the appropriate tool to accomplish the task. ' .
-               'Always respond in a helpful and informative manner. ' .
+               'Show the raw output from the tool call: do not comment on it. ' .
                'If you are unable to perform a requested action, explain why and suggest alternatives.';
     }
 
