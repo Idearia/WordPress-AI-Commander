@@ -567,43 +567,18 @@ const ActionResults = ({ actions }) => {
                         conversation_uuid: conversationId
                     },
                     success: function(response) {
-                        setIsProcessing(false);
-                        
                         if (response.success) {
                             // Update conversation ID if it changed
                             if (response.data.conversation_uuid) {
                                 setConversationId(response.data.conversation_uuid);
                             }
                             
-                            // Process the response message and actions
-                            const messageContent = response.data.message;
-                            const hasActions = response.data.actions && response.data.actions.length > 0;
-                            
-                            // Only add the assistant message if it has content or there are no actions
-                            if ((messageContent && messageContent.trim() !== '') || !hasActions) {
-                                setMessages(prevMessages => [
-                                    ...prevMessages,
-                                    { role: 'assistant', content: messageContent }
-                                ]);
-                            }
-                            
-                            // Set actions if any and add them as separate messages
-                            if (hasActions) {
-                                setActions(response.data.actions);
-                                
-                                // Add each action as a separate message
-                                response.data.actions.forEach(action => {
-                                    setMessages(prevMessages => [
-                                        ...prevMessages,
-                                        { 
-                                            role: 'assistant', 
-                                            isToolCall: true,
-                                            action: action
-                                        }
-                                    ]);
-                                });
-                            }
+                            // Instead of processing messages here, refetch the entire conversation
+                            // This ensures server-side filtering is consistently applied
+                            refetchConversation(response.data.conversation_uuid || conversationId);
                         } else {
+                            setIsProcessing(false);
+                            
                             // Add error message to the chat
                             setMessages(prevMessages => [
                                 ...prevMessages,
@@ -619,6 +594,44 @@ const ActionResults = ({ actions }) => {
                             ...prevMessages,
                             { role: 'assistant', content: `Error: ${error || 'Failed to process command'}` }
                         ]);
+                    }
+                });
+            };
+            
+            // Function to refetch the entire conversation
+            const refetchConversation = (convId) => {
+                // Note: We don't set isProcessing to true here because it's already true
+                // from the handleSendMessage function
+                
+                $.ajax({
+                    url: config.ajaxUrl,
+                    method: 'POST',
+                    data: {
+                        action: 'wpnl_get_conversation',
+                        nonce: config.nonce,
+                        conversation_uuid: convId
+                    },
+                    success: function(response) {
+                        // Now we can set isProcessing to false after refetching
+                        setIsProcessing(false);
+                        
+                        if (response.success) {
+                            // Replace all messages with the freshly filtered messages from the server
+                            setMessages(response.data.messages_for_frontend || []);
+                            
+                            // Update actions if needed
+                            if (response.data.actions) {
+                                setActions(response.data.actions);
+                            } else {
+                                setActions([]);
+                            }
+                        } else {
+                            console.error('Failed to refetch conversation:', response.data.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        setIsProcessing(false);
+                        console.error('Error refetching conversation:', error);
                     }
                 });
             };
