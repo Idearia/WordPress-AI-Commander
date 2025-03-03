@@ -68,91 +68,101 @@ class CommandProcessor {
         // Add the user message to the conversation
         $this->conversation_manager->add_message( $conversation_uuid, 'user', $command );
         
-        // Get the formatted conversation history for OpenAI
-        $messages = $this->conversation_manager->format_for_openai( $conversation_uuid );
-        
-        // Process the command using the OpenAI API with conversation history
-        $response = $this->openai_client->process_command_with_history( $messages, $tool_definitions );
-        
-        if ( $response instanceof \WP_Error ) {
-            return array(
-                'success' => false,
-                'message' => $response->get_error_message(),
-                'conversation_uuid' => $conversation_uuid,
-            );
-        }
-        
-        // Add the assistant response to the conversation
-        $this->conversation_manager->add_message( 
-            $conversation_uuid, 
-            'assistant', 
-            $response['content'],
-            empty( $response['tool_calls'] ) ? null : $response['tool_calls']
-        );
-        
-        // If there are no tool calls, just return the content
-        if ( empty( $response['tool_calls'] ) ) {
-            return array(
-                'success' => true,
-                'message' => $response['content'],
-                'actions' => array(),
-                'conversation_uuid' => $conversation_uuid,
-            );
-        }
-        
-        // Execute the tool calls suggested by the assistant
+        // Initialize variables for the loop
+        $has_tool_calls = true;
         $actions = array();
-        foreach ( $response['tool_calls'] as $tool_call ) {
-            // Execute tool
-            $name = $tool_call['function']['name'];
-            $arguments = json_decode( $tool_call['function']['arguments'], true );
-            $result = $this->execute_tool( $name, $arguments );
+        $final_message = '';
+        
+        // Continue processing until no more tool calls are needed
+        while ( $has_tool_calls ) {
+            // Get the formatted conversation history for OpenAI
+            $messages = $this->conversation_manager->format_for_openai( $conversation_uuid );
             
-            // Get the tool instance to access its properties
-            $tool = $this->tool_registry->get_tool( $name );
+            // Process the command using the OpenAI API with conversation history
+            $response = $this->openai_client->process_command_with_history( $messages, $tool_definitions );
             
-            // Outcome of the tool call
-            $title = '';
-            if ( is_wp_error( $result ) ) {
-                $title = sprintf( 'Error executing %s', $tool->get_name() );
-            } else {
-                $title = sprintf( 'Executed %s successfully.', $tool->get_name() );
+            if ( $response instanceof \WP_Error ) {
+                return array(
+                    'success' => false,
+                    'message' => $response->get_error_message(),
+                    'conversation_uuid' => $conversation_uuid,
+                );
             }
+            
+            // Add the assistant response to the conversation
+            $this->conversation_manager->add_message( 
+                $conversation_uuid, 
+                'assistant', 
+                $response['content'],
+                empty( $response['tool_calls'] ) ? null : $response['tool_calls']
+            );
+            
+            // Update the final message with the latest response
+            $final_message = $response['content'];
+            
+            // If there are no tool calls, break the loop
+            if ( empty( $response['tool_calls'] ) ) {
+                $has_tool_calls = false;
+                continue;
+            }
+            
+            // Execute the tool calls suggested by the assistant
+            foreach ( $response['tool_calls'] as $tool_call ) {
+                // Execute tool
+                $name = $tool_call['function']['name'];
+                $arguments = json_decode( $tool_call['function']['arguments'], true );
+                $result = $this->execute_tool( $name, $arguments );
+                
+                // Get the tool instance to access its properties
+                $tool = $this->tool_registry->get_tool( $name );
+                
+                // Outcome of the tool call
+                $title = '';
+                if ( is_wp_error( $result ) ) {
+                    $title = sprintf( 'Error executing %s', $tool->get_name() );
+                } else {
+                    $title = sprintf( 'Executed %s successfully.', $tool->get_name() );
+                }
 
-            // Generate a summary message for the action
-            $summary = '';
-            if ( is_wp_error( $result ) ) {
-                $summary = $result->get_error_message();
-            } elseif ( $tool ) {
-                // Let the tool generate a summary based on the result and arguments
-                $summary = $tool->get_result_summary( $result, $arguments );
+                // Generate a summary message for the action
+                $summary = '';
+                if ( is_wp_error( $result ) ) {
+                    $summary = $result->get_error_message();
+                } elseif ( $tool ) {
+                    // Let the tool generate a summary based on the result and arguments
+                    $summary = $tool->get_result_summary( $result, $arguments );
+                }
+                
+                // Create the complete action object with all necessary information
+                $action = array(
+                    'tool' => $name,
+                    'tool_call_id' => isset( $tool_call['id'] ) ? $tool_call['id'] : null,
+                    'arguments' => $arguments,
+                    'result' => $result,
+                    'title' => $title,
+                    'summary' => $summary,
+                );
+                
+                // Add the tool response to the conversation with the complete action data
+                $this->conversation_manager->add_message(
+                    $conversation_uuid,
+                    'tool',
+                    is_wp_error( $result ) ? $result->get_error_message() : wp_json_encode( $result ),
+                    $action, // Store the complete action object including title and summary
+                    isset( $tool_call['id'] ) ? $tool_call['id'] : null
+                );
+                
+                $actions[] = $action;
             }
-            
-            // Create the complete action object with all necessary information
-            $action = array(
-                'tool' => $name,
-                'tool_call_id' => isset( $tool_call['id'] ) ? $tool_call['id'] : null,
-                'arguments' => $arguments,
-                'result' => $result,
-                'title' => $title,
-                'summary' => $summary,
-            );
-            
-            // Add the tool response to the conversation with the complete action data
-            $this->conversation_manager->add_message(
-                $conversation_uuid,
-                'tool',
-                is_wp_error( $result ) ? $result->get_error_message() : wp_json_encode( $result ),
-                $action, // Store the complete action object including title and summary
-                isset( $tool_call['id'] ) ? $tool_call['id'] : null
-            );
-            
-            $actions[] = $action;
         }
         
+        // TODO: Se l'ultima risposta dall'assistente non prevede tool calls, allora
+        // mostriamo solamente l'ultima tool call eseguite, perché spesso l'assistente
+        // nel suo messaggio finale modifica l'output in una maniera che non è prevedibile.
+
         return array(
             'success' => true,
-            'message' => $response['content'],
+            'message' => $final_message,
             'actions' => $actions,
             'conversation_uuid' => $conversation_uuid,
         );
