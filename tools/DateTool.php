@@ -23,7 +23,7 @@ class DateTool extends BaseTool {
      */
     public function __construct() {
         $this->name = 'get_date';
-        $this->description = 'Returns the current date in ISO 8601 format';
+        $this->description = 'Returns the current date in ISO 8601 format.  Useful to interpret queries that contain "today", "yesterday", "tomorrow", "last week", "next week", etc.';
         $this->required_capability = 'read'; // Basic capability that most users have
         
         parent::__construct();
