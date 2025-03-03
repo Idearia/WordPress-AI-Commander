@@ -180,27 +180,51 @@ class PostCreationTool extends BaseTool {
         $post_id = isset( $result['post_id'] ) ? $result['post_id'] : 'unknown';
         $post_title = isset( $result['post_title'] ) ? $result['post_title'] : 'unknown';
         $post_type = isset( $result['post_type'] ) ? $result['post_type'] : 'unknown';
-        $post_url = isset( $result['post_url'] ) ? $result['post_url'] : '';
-        $edit_url = isset( $result['edit_url'] ) ? $result['edit_url'] : '';
-
-        $summary = '';
         
         if ( $post_type === 'post' ) {
-            $summary = sprintf( 'Post "%s" created successfully with ID %d.', $post_title, $post_id );
+            return sprintf( 'Post "%s" created successfully with ID %d.', $post_title, $post_id );
+        } elseif ( $post_type === 'page' ) {
+            return sprintf( 'Page "%s" created successfully with ID %d.', $post_title, $post_id );
+        } else {
+            return sprintf( 'Post of type "%s" created successfully with ID %d.', $post_type, $post_id );
         }
-        elseif ( $post_type === 'page' ) {
-            $summary = sprintf( 'Page "%s" created successfully with ID %d.', $post_title, $post_id );
+    }
+    
+    /**
+     * Get action buttons for the tool execution result.
+     *
+     * @param array|\WP_Error $result The result of executing the tool.
+     * @param array $params The parameters used when executing the tool.
+     * @return array Array of action button definitions.
+     */
+    public function get_action_buttons( $result, $params ) {
+        if ( is_wp_error( $result ) ) {
+            return array();
         }
-        else {
-            $summary = sprintf( 'Post of type "%s" created successfully with ID %d.', $post_type, $post_id );
+
+        $post_url = isset( $result['post_url'] ) ? $result['post_url'] : '';
+        $edit_url = isset( $result['edit_url'] ) ? $result['edit_url'] : '';
+        
+        $buttons = array();
+        
+        if ( !empty( $post_url ) ) {
+            $buttons[] = array(
+                'type' => 'link',
+                'label' => 'View post',
+                'url' => $post_url,
+                'target' => '_blank',
+            );
         }
         
-        // Add bullet points with links to view and edit the post
-        $summary .= "<ul>";
-        $summary .= "<li><a href='" . esc_url( $post_url ) . "' target='_blank'>View post</a></li>";
-        $summary .= "<li><a href='" . esc_url( $edit_url ) . "' target='_blank'>Edit post</a></li>";
-        $summary .= "</ul>";
+        if ( !empty( $edit_url ) ) {
+            $buttons[] = array(
+                'type' => 'link',
+                'label' => 'Edit post',
+                'url' => $edit_url,
+                'target' => '_blank',
+            );
+        }
         
-        return $summary;
+        return $buttons;
     }
 }

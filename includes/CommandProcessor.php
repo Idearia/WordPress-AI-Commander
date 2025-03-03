@@ -133,6 +133,12 @@ class CommandProcessor {
                     $summary = $tool->get_result_summary( $result, $arguments );
                 }
                 
+                // Get action buttons from the tool
+                $action_buttons = array();
+                if ( !is_wp_error( $result ) && $tool ) {
+                    $action_buttons = $tool->get_action_buttons( $result, $arguments );
+                }
+                
                 // Create the complete action object with all necessary information
                 $action = array(
                     'tool' => $name,
@@ -141,6 +147,7 @@ class CommandProcessor {
                     'result' => $result,
                     'title' => $title,
                     'summary' => $summary,
+                    'action_buttons' => $action_buttons,
                 );
                 
                 // Add the tool response to the conversation with the complete action data

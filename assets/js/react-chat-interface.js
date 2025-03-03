@@ -61,6 +61,192 @@ const ToolCallMessage = ({ action }) => {
         setShowDetails(!showDetails);
     };
     
+    // Function to handle action button clicks
+    const handleActionButtonClick = (button, event) => {
+        const buttonElement = event.target;
+        
+        switch (button.type) {
+            case 'link':
+                // Open link in new tab
+                window.open(button.url, button.target || '_blank');
+                break;
+                
+            case 'modal':
+                // Create modal with HTML content
+                const modalContent = button.content || '';
+                
+                // Create and append modal to the DOM
+                const modalOverlay = document.createElement('div');
+                modalOverlay.className = 'wpnl-popup-overlay';
+                
+                modalOverlay.innerHTML = `
+                    <div class="wpnl-popup-content">
+                        <div class="wpnl-popup-header">
+                            <h3>${button.title || 'Details'}</h3>
+                            <button class="wpnl-popup-close">×</button>
+                        </div>
+                        <div class="wpnl-popup-body">
+                            ${modalContent}
+                        </div>
+                    </div>
+                `;
+                
+                // Add close button functionality
+                modalOverlay.querySelector('.wpnl-popup-close').addEventListener('click', () => {
+                    document.body.removeChild(modalOverlay);
+                });
+                
+                // Add click outside to close
+                modalOverlay.addEventListener('click', (e) => {
+                    if (e.target === modalOverlay) {
+                        document.body.removeChild(modalOverlay);
+                    }
+                });
+                
+                // Append to body
+                document.body.appendChild(modalOverlay);
+                break;
+                
+            case 'ajax':
+                // Disable the button and show spinner
+                const originalText = buttonElement.textContent;
+                buttonElement.disabled = true;
+                buttonElement.innerHTML = '<span class="wpnl-spinner"></span> ' + (button.loadingText || 'Processing...');
+                
+                // Confirm if needed
+                if (button.confirmMessage && !window.confirm(button.confirmMessage)) {
+                    // Re-enable button if user cancels
+                    buttonElement.disabled = false;
+                    buttonElement.textContent = originalText;
+                    return;
+                }
+                
+                // Send AJAX request
+                $.ajax({
+                    url: button.url,
+                    method: button.method || 'POST',
+                    data: button.data || {},
+                    success: function(response) {
+                        // Re-enable button
+                        buttonElement.disabled = false;
+                        buttonElement.textContent = originalText;
+                        
+                        // Handle success
+                        handleAjaxResponse(response, button);
+                    },
+                    error: function(xhr, status, error) {
+                        // Re-enable button
+                        buttonElement.disabled = false;
+                        buttonElement.textContent = originalText;
+                        
+                        // Show error message
+                        alert('Error: ' + (xhr.responseJSON?.message || error || 'Unknown error'));
+                        console.error('AJAX error:', error);
+                    }
+                });
+                break;
+                
+            default:
+                console.warn('Unknown action button type:', button.type);
+        }
+    };
+    
+    // Function to handle AJAX responses
+    const handleAjaxResponse = (response, button) => {
+        // Check if response is successful
+        if (!response.success) {
+            alert('Error: ' + (response.data?.message || 'Unknown error'));
+            return;
+        }
+        
+        // Handle different response actions based on button configuration
+        switch (button.responseAction) {
+            case 'refresh':
+                // Refresh the current page
+                window.location.reload();
+                break;
+                
+            case 'redirect':
+                // Redirect to a URL from the response or button config
+                const redirectUrl = response.data?.redirect_url || button.redirectUrl;
+                if (redirectUrl) {
+                    window.location.href = redirectUrl;
+                }
+                break;
+                
+            case 'message':
+                // Display a success message
+                const message = response.data?.message || button.successMessage || 'Operation completed successfully';
+                alert(message);
+                break;
+                
+            case 'update':
+                // Update specific elements on the page
+                if (response.data?.updates) {
+                    for (const [selector, content] of Object.entries(response.data.updates)) {
+                        const element = document.querySelector(selector);
+                        if (element) {
+                            element.innerHTML = content;
+                        }
+                    }
+                }
+                break;
+                
+            case 'modal':
+                // Show response in a modal
+                const modalContent = response.data?.content || JSON.stringify(response.data);
+                const modalTitle = response.data?.title || button.modalTitle || 'Response';
+                
+                // Create modal with the response content
+                const modalOverlay = document.createElement('div');
+                modalOverlay.className = 'wpnl-popup-overlay';
+                
+                modalOverlay.innerHTML = `
+                    <div class="wpnl-popup-content">
+                        <div class="wpnl-popup-header">
+                            <h3>${modalTitle}</h3>
+                            <button class="wpnl-popup-close">×</button>
+                        </div>
+                        <div class="wpnl-popup-body">
+                            ${modalContent}
+                        </div>
+                    </div>
+                `;
+                
+                // Add close button functionality
+                modalOverlay.querySelector('.wpnl-popup-close').addEventListener('click', () => {
+                    document.body.removeChild(modalOverlay);
+                });
+                
+                // Add click outside to close
+                modalOverlay.addEventListener('click', (e) => {
+                    if (e.target === modalOverlay) {
+                        document.body.removeChild(modalOverlay);
+                    }
+                });
+                
+                // Append to body
+                document.body.appendChild(modalOverlay);
+                break;
+                
+            case 'custom':
+                // Execute a custom callback if defined
+                if (typeof window[button.callback] === 'function') {
+                    window[button.callback](response, button);
+                }
+                break;
+                
+            default:
+                // If no specific action is defined, check for common response patterns
+                if (response.data?.message) {
+                    alert(response.data.message);
+                } else if (response.data?.redirect_url) {
+                    window.location.href = response.data.redirect_url;
+                }
+                break;
+        }
+    };
+    
     return e(
         'div',
         { className: 'wpnl-message assistant wpnl-tool-call' },
@@ -71,10 +257,21 @@ const ToolCallMessage = ({ action }) => {
                 className: 'wpnl-tool-summary',
                 dangerouslySetInnerHTML: { __html: action.summary }
             }),
-            e('button', {
-                className: 'wpnl-tool-details-button',
-                onClick: toggleDetails
-            }, 'View Details')
+            e('div', { className: 'wpnl-tool-actions' },
+                // Render custom action buttons if available
+                action.action_buttons && action.action_buttons.map((button, index) => 
+                    e('button', {
+                        key: index,
+                        className: 'wpnl-tool-action-button',
+                        onClick: (event) => handleActionButtonClick(button, event)
+                    }, button.label)
+                ),
+                // Always include the View Details button
+                e('button', {
+                    className: 'wpnl-tool-details-button',
+                    onClick: toggleDetails
+                }, 'View Details')
+            )
         ),
         showDetails && e(ToolCallDetailsPopup, {
             action: action,

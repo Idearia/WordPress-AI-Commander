@@ -211,4 +211,23 @@ abstract class BaseTool {
         // Default generic summary
         return sprintf( 'Executed %s successfully.', $this->get_name() );
     }
+    
+    /**
+     * Get action buttons for the tool execution result.
+     * 
+     * This method can be overridden by child classes to provide custom action buttons.
+     * By default, it returns an empty array.
+     *
+     * Supported button types:
+     * - link: Opens a URL in a new tab
+     * - modal: Opens a modal with HTML content
+     * - ajax: Sends an AJAX request
+     *
+     * @param array|\WP_Error $result The result of executing the tool.
+     * @param array $params The parameters used when executing the tool.
+     * @return array Array of action button definitions.
+     */
+    public function get_action_buttons( $result, $params ) {
+        return array();
+    }
 }

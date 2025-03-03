@@ -196,6 +196,145 @@ add_action('init', 'register_custom_wpnl_tools', 20); // Priority 20 to ensure i
 - **Human-Readable Summaries**: Implement the `get_result_summary` method to provide user-friendly summaries of your tool's actions
 - **Appropriate Capabilities**: Set the `required_capability` property to ensure users can only execute tools they have permission to use; [here's a nice table of WordPress roles and capabilities](https://wordpress.org/documentation/article/roles-and-capabilities/#capability-vs-role-table)
 
+## Action Buttons for Tool Messages
+
+The plugin supports adding interactive action buttons to tool messages in the chatbot interface. These buttons allow users to perform additional actions related to the tool's result, such as viewing or editing a post, opening a modal with more information, or sending AJAX requests.
+
+### Types of Action Buttons
+
+The system supports three types of action buttons:
+
+1. **Link buttons**: Open URLs in a new tab
+2. **Modal buttons**: Open a modal with HTML content
+3. **AJAX buttons**: Send AJAX requests with visual feedback
+
+### Adding Action Buttons to Your Tool
+
+To add action buttons to your tool, override the `get_action_buttons` method in your tool class:
+
+```php
+/**
+ * Get action buttons for the tool execution result.
+ *
+ * @param array|\WP_Error $result The result of executing the tool.
+ * @param array $params The parameters used when executing the tool.
+ * @return array Array of action button definitions.
+ */
+public function get_action_buttons($result, $params) {
+    if (is_wp_error($result)) {
+        return array();
+    }
+    
+    $buttons = array();
+    
+    // Example: Add a link button
+    if (!empty($result['some_url'])) {
+        $buttons[] = array(
+            'type' => 'link',
+            'label' => 'View Item',
+            'url' => $result['some_url'],
+            'target' => '_blank',
+        );
+    }
+    
+    // Example: Add a modal button
+    $buttons[] = array(
+        'type' => 'modal',
+        'label' => 'View Details',
+        'title' => 'Item Details',
+        'content' => '<h2>Details</h2><p>Here are the details of the item.</p>',
+    );
+    
+    // Example: Add an AJAX button
+    $buttons[] = array(
+        'type' => 'ajax',
+        'label' => 'Delete Item',
+        'url' => admin_url('admin-ajax.php'),
+        'method' => 'POST',
+        'data' => array(
+            'action' => 'my_delete_action',
+            'item_id' => $result['item_id'],
+            'nonce' => wp_create_nonce('my_delete_action'),
+        ),
+        'confirmMessage' => 'Are you sure you want to delete this item?',
+        'loadingText' => 'Deleting...',
+        'responseAction' => 'message',
+        'successMessage' => 'Item deleted successfully!',
+    );
+    
+    return $buttons;
+}
+```
+
+### Button Configuration Options
+
+#### Link Button Options
+
+```php
+array(
+    'type' => 'link',
+    'label' => 'Button Label',
+    'url' => 'https://example.com',
+    'target' => '_blank', // Optional, defaults to '_blank'
+)
+```
+
+#### Modal Button Options
+
+```php
+array(
+    'type' => 'modal',
+    'label' => 'Button Label',
+    'title' => 'Modal Title', // Optional, defaults to 'Details'
+    'content' => '<p>HTML content for the modal</p>',
+)
+```
+
+#### AJAX Button Options
+
+```php
+array(
+    'type' => 'ajax',
+    'label' => 'Button Label',
+    'url' => admin_url('admin-ajax.php'),
+    'method' => 'POST', // Optional, defaults to 'POST'
+    'data' => array(
+        'action' => 'my_ajax_action',
+        'param1' => 'value1',
+        'nonce' => wp_create_nonce('my_ajax_action'),
+    ),
+    'confirmMessage' => 'Are you sure?', // Optional confirmation message
+    'loadingText' => 'Processing...', // Optional text to show during AJAX request
+    'responseAction' => 'message', // How to handle the response
+    'successMessage' => 'Operation completed successfully!', // For 'message' responseAction
+    'redirectUrl' => 'https://example.com', // For 'redirect' responseAction
+    'modalTitle' => 'Response', // For 'modal' responseAction
+)
+```
+
+### AJAX Response Handling
+
+For AJAX buttons, you can specify how to handle the response using the `responseAction` property:
+
+- **refresh**: Reload the current page
+- **redirect**: Navigate to a URL from the response or the `redirectUrl` property
+- **message**: Display a success message from the response or the `successMessage` property
+- **update**: Update specific elements on the page with content from the response
+- **modal**: Show the response in a modal
+- **custom**: Execute a custom callback function
+
+### Example: Response Format for 'update' Action
+
+If you're using the 'update' responseAction, your AJAX handler should return a response in this format:
+
+```php
+wp_send_json_success(array(
+    'updates' => array(
+        '#element-id-1' => '<p>New content for element 1</p>',
+        '.element-class' => '<div>New content for elements with this class</div>',
+    )
+));
+```
 
 ## REST API
 
