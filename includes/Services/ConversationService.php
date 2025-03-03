@@ -61,7 +61,8 @@ class ConversationService {
      */
     public function create_conversation( $user_id ) {
         $conversation_uuid = $this->conversation_manager->create_conversation( $user_id );
-        $messages = $this->conversation_manager->format_for_frontend( $conversation_uuid );
+        
+        $messages = $this->conversation_manager->format_for_frontend( $conversation_uuid, true );
         
         return array(
             'conversation_uuid' => $conversation_uuid,
@@ -92,7 +93,8 @@ class ConversationService {
         }
         
         $messages = $this->conversation_manager->format_for_openai( $conversation_uuid );
-        $messages_for_frontend = $this->conversation_manager->format_for_frontend( $conversation_uuid );
+        
+        $messages_for_frontend = $this->conversation_manager->format_for_frontend( $conversation_uuid, true );
         
         return array(
             'conversation_uuid' => $conversation_uuid,

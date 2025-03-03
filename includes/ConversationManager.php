@@ -217,13 +217,31 @@ class ConversationManager {
      * or when a new conversation is created from the frontend.
      *
      * @param string $conversation_uuid The conversation UUID.
+     * @param bool $hide_assistant_response_after_tool_calls Whether to hide the assistant response after a tool call.
      * @return array The formatted messages.
      */
-    public function format_for_frontend( $conversation_uuid ) {
+    public function format_for_frontend( $conversation_uuid, $hide_assistant_response_after_tool_calls = true ) {
         $messages = $this->get_messages( $conversation_uuid );
         $formatted = array();
         
+        // Track previous message for context-aware filtering
+        $previous_message = null;
+        
         foreach ( $messages as $message ) {
+            $should_hide = false;
+            
+            // Hide assistant messages that follow tool messages if the flag is set
+            if ( $hide_assistant_response_after_tool_calls && 
+                 $message->role === 'assistant' && 
+                 $previous_message && $previous_message->role === 'tool' ) {
+                $should_hide = true;
+            }
+            
+            // Skip this message if it should be hidden
+            if ( $should_hide ) {
+                continue;
+            }
+            
             $formatted_message = array(
                 'role' => $message->role,
                 'content' => $message->content ? stripslashes($message->content) : ''
@@ -242,8 +260,11 @@ class ConversationManager {
             }
 
             $formatted[] = $formatted_message;
+            
+            // Store this message for context in the next iteration
+            $previous_message = $message;
         }
-        
+
         return $formatted;
     }
 }
