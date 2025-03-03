@@ -354,31 +354,4 @@ class RestApi {
             );
         }
     }
-    
-    /**
-     * Get a human-readable error message for file upload errors.
-     *
-     * @param int $error_code The error code from $_FILES['file']['error'].
-     * @return string The error message.
-     */
-    private function get_upload_error_message( $error_code ) {
-        switch ( $error_code ) {
-            case UPLOAD_ERR_INI_SIZE:
-                return __( 'The uploaded file exceeds the upload_max_filesize directive in php.ini', 'wpnl' );
-            case UPLOAD_ERR_FORM_SIZE:
-                return __( 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form', 'wpnl' );
-            case UPLOAD_ERR_PARTIAL:
-                return __( 'The uploaded file was only partially uploaded', 'wpnl' );
-            case UPLOAD_ERR_NO_FILE:
-                return __( 'No file was uploaded', 'wpnl' );
-            case UPLOAD_ERR_NO_TMP_DIR:
-                return __( 'Missing a temporary folder', 'wpnl' );
-            case UPLOAD_ERR_CANT_WRITE:
-                return __( 'Failed to write file to disk', 'wpnl' );
-            case UPLOAD_ERR_EXTENSION:
-                return __( 'A PHP extension stopped the file upload', 'wpnl' );
-            default:
-                return __( 'Unknown upload error', 'wpnl' );
-        }
-    }
 }
