@@ -168,9 +168,11 @@ const ToolCallMessage = ({ action }) => {
                 
             case 'redirect':
                 // Redirect to a URL from the response or button config
+                // with target=_blank
                 const redirectUrl = response.data?.redirect_url || button.redirectUrl;
+                const redirectTarget = response.data?.redirectTarget || button.redirectTarget || '_self';
                 if (redirectUrl) {
-                    window.location.href = redirectUrl;
+                    window.open(redirectUrl, redirectTarget);
                 }
                 break;
                 
@@ -266,11 +268,11 @@ const ToolCallMessage = ({ action }) => {
                         onClick: (event) => handleActionButtonClick(button, event)
                     }, button.label)
                 ),
-                // Always include the View Details button
+                // Always include the debug button
                 e('button', {
                     className: 'wpnl-tool-details-button',
                     onClick: toggleDetails
-                }, 'View Details')
+                }, 'Debug')
             )
         ),
         showDetails && e(ToolCallDetailsPopup, {
