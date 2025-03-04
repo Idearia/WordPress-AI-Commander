@@ -7,6 +7,8 @@
 
 namespace WPNL\Admin;
 
+use WPNL\Includes\OpenaiClient;
+
 if ( ! defined( 'WPINC' ) ) {
     die;
 }
@@ -78,6 +80,21 @@ class SettingsPage extends AdminPage {
             )
         );
         
+        // System prompt setting
+        register_setting(
+            'wpnl_settings',
+            'wpnl_system_prompt',
+            array(
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_textarea_field',
+                'default' => 'You are a helpful assistant that can perform actions in WordPress. ' .
+                            'You have access to various tools that allow you to search, create and edit content. ' .
+                            'When a user asks you to do something, use the appropriate tool to accomplish the task. ' .
+                            'Do not explain or interpret tool results. When no further tool calls are needed, simply indicate completion with minimal explanation. ' .
+                            'If you are unable to perform a requested action, explain why and suggest alternatives.',
+            )
+        );
+        
         // Speech-to-text settings
         register_setting(
             'wpnl_settings',
@@ -135,6 +152,14 @@ class SettingsPage extends AdminPage {
             'wpnl_debug_mode',
             __( 'Debug Mode', 'wpnl' ),
             array( $this, 'render_debug_mode_field' ),
+            'wpnl_settings',
+            'wpnl_openai_settings'
+        );
+        
+        add_settings_field(
+            'wpnl_system_prompt',
+            __( 'System Prompt', 'wpnl' ),
+            array( $this, 'render_system_prompt_field' ),
             'wpnl_settings',
             'wpnl_openai_settings'
         );
@@ -290,6 +315,36 @@ class SettingsPage extends AdminPage {
         <?php
     }
     
+    /**
+     * Render the system prompt field.
+     */
+    public function render_system_prompt_field() {
+        $system_prompt = get_option( 'wpnl_system_prompt', '' );
+        $filtered_prompt = apply_filters( 'wpnl_filter_system_prompt', $system_prompt );
+        $is_filtered = $filtered_prompt !== $system_prompt;
+        ?>
+        <?php if ( ! $is_filtered ) : ?>
+            <textarea id="wpnl_system_prompt" name="wpnl_system_prompt" rows="6" class="large-text code"><?php echo esc_textarea( $system_prompt ); ?></textarea>
+            <p class="description">
+            <?php esc_html_e( 'The system prompt sets the behavior and capabilities of the AI assistant. Customize this to change how the assistant responds to user requests.  If empty, the following default system prompt will be used:', 'wpnl' ); ?>
+            </p>
+            <p>
+                <code>
+                    <?php echo esc_html( OpenaiClient::get_default_system_prompt() ); ?>
+                </code>
+            </p>
+        <?php else : ?>
+            <div class="notice notice-warning inline">
+                <p>
+                    <strong><?php esc_html_e( 'Note:', 'wpnl' ); ?></strong>
+                    <?php esc_html_e( 'The system prompt is currently set by code using the `wpnl_filter_system_prompt` filter. This is the actual value used:', 'wpnl' ); ?>
+                    <code><?php echo esc_html( $filtered_prompt ); ?></code>
+                </p>
+            </div>
+        <?php endif; ?>        
+        <?php
+    }
+
     /**
      * Render the speech language field.
      */

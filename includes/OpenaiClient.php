@@ -243,17 +243,32 @@ class OpenaiClient {
         return $this->process_response( $response );
     }
 
+    public static function get_default_system_prompt() {
+        return 'You are a helpful assistant that can perform actions in WordPress. ' .
+               'You have access to various tools that allow you to search, create and edit content. ' .
+               'When a user asks you to do something, use the appropriate tool to accomplish the task. ' .
+               'Do not explain or interpret tool results. When no further tool calls are needed, simply indicate completion with minimal explanation. ' .
+               'If you are unable to perform a requested action, explain why and suggest alternatives.';
+    }
+
     /**
      * Get the system prompt for the OpenAI API.
      *
      * @return string The system prompt.
      */
-    private function get_system_prompt() {
-        return 'You are a helpful assistant that can perform actions in WordPress. ' .
-               'You have access to various tools that allow you to create and edit content. ' .
-               'When a user asks you to do something, use the appropriate tool to accomplish the task. ' .
-               'Show the raw output from the tool call: do not comment on it. ' .
-               'If you are unable to perform a requested action, explain why and suggest alternatives.';
+    public function get_system_prompt() {
+        // Default system prompt if option is not set
+        $default_prompt = $this->get_default_system_prompt();
+
+        // Get the system prompt from options, fallback to default if empty
+        $system_prompt = get_option( 'wpnl_system_prompt', $default_prompt );
+        
+        if ( empty( $system_prompt ) ) {
+            $system_prompt = $default_prompt;
+        }
+        
+        // Apply filter to allow developers to modify the system prompt
+        return apply_filters( 'wpnl_filter_system_prompt', $system_prompt );
     }
 
     /**

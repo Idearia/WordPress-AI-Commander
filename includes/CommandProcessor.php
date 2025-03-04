@@ -163,10 +163,6 @@ class CommandProcessor {
             }
         }
         
-        // TODO: Se l'ultima risposta dall'assistente non prevede tool calls, allora
-        // mostriamo solamente l'ultima tool call eseguite, perché spesso l'assistente
-        // nel suo messaggio finale modifica l'output in una maniera che non è prevedibile.
-
         return array(
             'success' => true,
             'message' => $final_message,

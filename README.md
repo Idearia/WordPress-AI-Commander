@@ -182,7 +182,7 @@ function register_custom_wpnl_tools() {
     // Instantiate your tool (this will automatically register it)
     new SimplePageCreationTool();
 }
-add_action('init', 'register_custom_wpnl_tools', 20); // Priority 20 to ensure it runs after the plugin's tools are registered
+add_action('init', 'register_custom_wpnl_tools', 10);
 ```
 
 ### 3. Best Practices
