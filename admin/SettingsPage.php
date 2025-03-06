@@ -95,6 +95,17 @@ class SettingsPage extends AdminPage {
             )
         );
         
+        // Assistant greeting setting
+        register_setting(
+            'wpnl_settings',
+            'wpnl_assistant_greeting',
+            array(
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_textarea_field',
+                'default' => \WPNL\Includes\ConversationManager::get_default_assistant_greeting(),
+            )
+        );
+        
         // Speech-to-text settings
         register_setting(
             'wpnl_settings',
@@ -160,6 +171,14 @@ class SettingsPage extends AdminPage {
             'wpnl_system_prompt',
             __( 'System Prompt', 'wpnl' ),
             array( $this, 'render_system_prompt_field' ),
+            'wpnl_settings',
+            'wpnl_openai_settings'
+        );
+        
+        add_settings_field(
+            'wpnl_assistant_greeting',
+            __( 'Assistant Greeting', 'wpnl' ),
+            array( $this, 'render_assistant_greeting_field' ),
             'wpnl_settings',
             'wpnl_openai_settings'
         );
@@ -345,6 +364,36 @@ class SettingsPage extends AdminPage {
         <?php
     }
 
+    /**
+     * Render the assistant greeting field.
+     */
+    public function render_assistant_greeting_field() {
+        $greeting = get_option( 'wpnl_assistant_greeting', '' );
+        $filtered_greeting = apply_filters( 'wpnl_filter_assistant_greeting', $greeting );
+        $is_filtered = $filtered_greeting !== $greeting;
+        ?>
+        <?php if ( ! $is_filtered ) : ?>
+            <textarea id="wpnl_assistant_greeting" name="wpnl_assistant_greeting" rows="3" class="large-text"><?php echo esc_textarea( $greeting ); ?></textarea>
+            <p class="description">
+            <?php esc_html_e( 'The initial greeting message shown to users when starting a new conversation. If empty, the default greeting will be used:', 'wpnl' ); ?>
+            </p>
+            <p>
+                <code>
+                    <?php echo esc_html( \WPNL\Includes\ConversationManager::get_default_assistant_greeting() ); ?>
+                </code>
+            </p>
+        <?php else : ?>
+            <div class="notice notice-warning inline">
+                <p>
+                    <strong><?php esc_html_e( 'Note:', 'wpnl' ); ?></strong>
+                    <?php esc_html_e( 'The assistant greeting is currently set by code using the `wpnl_filter_assistant_greeting` filter. This is the actual value used:', 'wpnl' ); ?>
+                    <code><?php echo esc_html( $filtered_greeting ); ?></code>
+                </p>
+            </div>
+        <?php endif; ?>        
+        <?php
+    }
+    
     /**
      * Render the speech language field.
      */

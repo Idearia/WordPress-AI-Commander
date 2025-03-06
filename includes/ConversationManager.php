@@ -18,6 +18,35 @@ if ( ! defined( 'WPINC' ) ) {
  */
 class ConversationManager {
     /**
+     * Get the default assistant greeting.
+     *
+     * @return string The default assistant greeting.
+     */
+    public static function get_default_assistant_greeting() {
+        return 'Hello! I\'m your WordPress assistant. How can I help you today?';
+    }
+    
+    /**
+     * Get the assistant greeting.
+     *
+     * @return string The assistant greeting.
+     */
+    public function get_assistant_greeting() {
+        // Default greeting if option is not set
+        $default_greeting = self::get_default_assistant_greeting();
+
+        // Get the greeting from options, fallback to default if empty
+        $greeting = get_option( 'wpnl_assistant_greeting', $default_greeting );
+        
+        if ( empty( $greeting ) ) {
+            $greeting = $default_greeting;
+        }
+        
+        // Apply filter to allow developers to modify the greeting
+        return apply_filters( 'wpnl_filter_assistant_greeting', $greeting );
+    }
+    
+    /**
      * Create a new conversation.
      *
      * @param int $user_id The WordPress user ID.
@@ -46,7 +75,7 @@ class ConversationManager {
         $this->add_message(
             $uuid,
             'assistant',
-            'Hello! I\'m your WordPress assistant. How can I help you today?'
+            $this->get_assistant_greeting()
         );
         
         return $uuid;
