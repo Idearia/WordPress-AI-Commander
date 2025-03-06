@@ -189,13 +189,8 @@ class RestApi {
         // Process the command (if conversation_uuid is null, a new one will be created)
         $result = $this->conversation_service->process_command( $command, $conversation_uuid, $user_id );
         
-        // If conversation_uuid was provided but result is false, the conversation wasn't found
-        if ( $conversation_uuid && ! $result ) {
-            return new \WP_Error(
-                'rest_not_found',
-                __( 'Conversation not found or you do not have permission to access it.', 'wpnl' ),
-                array( 'status' => 404 )
-            );
+        if ( is_wp_error( $result ) ) {
+            return $result;
         }
         
         // Return the response

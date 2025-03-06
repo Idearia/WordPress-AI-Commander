@@ -441,13 +441,10 @@ To use the collection:
 ## To do
 
 Important features to add:
+- processing spinner should show what is being done, not as an intertitial, but in-chat like Claude and ChatGPT do
 - add WP CLI command
 
 Nice to have features:
-- add system prompt to option pages
-- allow to filter system prompt
-- allow links and newlines in chatbot responses
-- tool to manage users
 - web search or Perplexity integration, e.g. create a new post on latest news on AI
 
 Bug fixes:

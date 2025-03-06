@@ -313,7 +313,7 @@ class OpenaiClient {
             $body = wp_remote_retrieve_body( $response );
             $error = json_decode( $body, true );
             $error_message = isset( $error['error']['message'] ) ? $error['error']['message'] : 'Unknown error';
-            
+
             return new \WP_Error(
                 'openai_api_error',
                 sprintf( 'OpenAI API error (%d): %s', $response_code, $error_message )

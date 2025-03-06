@@ -184,6 +184,9 @@ abstract class BaseTool {
             if ( $param_not_given && isset( $param['default'] ) ) {
                 $params[ $name ] = $param['default'];
             }
+            else if ( $param_not_given && $param['required'] === false ) {
+                $params[ $name ] = null;
+            }
         }
         
         return $params;

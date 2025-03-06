@@ -131,8 +131,8 @@ class AjaxHandlers {
         // Process the command using the service
         $result = $this->conversation_service->process_command( $command, $conversation_uuid, $user_id );
         
-        if ( ! $result ) {
-            wp_send_json_error( array( 'message' => 'Conversation not found or you do not have permission to access it' ) );
+        if ( is_wp_error( $result ) ) {
+            wp_send_json_error( array( 'message' => $result->get_error_message() ) );
         }
         
         // Return the result

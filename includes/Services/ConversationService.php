@@ -147,7 +147,7 @@ class ConversationService {
      * @param string $command The command to process.
      * @param string|null $conversation_uuid The conversation UUID. If null, a new conversation will be created.
      * @param int|null $user_id The WordPress user ID.
-     * @return array|false The result of processing the command, or false if either the user or the conversation are not found (or not authorized.
+     * @return array|\WP_Error The result of processing the command, or an error if something went wrong (e.g. conversation not found or user not authorized).
      */
     public function process_command( $command, $conversation_uuid = null, $user_id = null ) {
         // If a conversation UUID is provided, verify ownership
@@ -155,16 +155,20 @@ class ConversationService {
             $conversation = $this->conversation_manager->get_conversation( $conversation_uuid );
             
             if ( ! $conversation ) {
-                return false;
+                return new \WP_Error(
+                    'conversation_not_found',
+                    'Conversation not found'
+                );
             }
             
             if ( $user_id !== null && $conversation->user_id != $user_id ) {
-                return false;
+                return new \WP_Error(
+                    'conversation_not_authorized',
+                    'Conversation not authorized'
+                );
             }
         }
         
-        // Process the command - if conversation_uuid is null, a new one will be created
-        // inside the CommandProcessor
         return $this->command_processor->process( $command, $conversation_uuid );
     }
     

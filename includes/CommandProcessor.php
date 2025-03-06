@@ -53,7 +53,7 @@ class CommandProcessor {
      *
      * @param string $command The command to process.
      * @param string|null $conversation_uuid The conversation UUID. If null, a new conversation will be created.
-     * @return array The result of processing the command.
+     * @return array|\WP_Error The result of processing the command.
      */
     public function process( $command, $conversation_uuid = null ) {
         // Get the tool definitions for OpenAI function calling
@@ -81,12 +81,10 @@ class CommandProcessor {
             // Process the command using the OpenAI API with conversation history
             $response = $this->openai_client->process_command_with_history( $messages, $tool_definitions );
             
-            if ( $response instanceof \WP_Error ) {
-                return array(
-                    'success' => false,
-                    'message' => $response->get_error_message(),
-                    'conversation_uuid' => $conversation_uuid,
-                );
+            // Errors at this point are likely to be due to the API key being
+            // invalid or the quota being exceeded
+            if ( is_wp_error( $response ) ) {
+                return $response;
             }
             
             // Add the assistant response to the conversation
@@ -113,31 +111,21 @@ class CommandProcessor {
                 $arguments = json_decode( $tool_call['function']['arguments'], true );
                 $result = $this->execute_tool( $name, $arguments );
                 
+                if ( is_wp_error( $result ) ) {
+                    return $result;
+                }
+
                 // Get the tool instance to access its properties
                 $tool = $this->tool_registry->get_tool( $name );
                 
                 // Outcome of the tool call
-                $title = '';
-                if ( is_wp_error( $result ) ) {
-                    $title = sprintf( 'Error executing %s', $tool->get_name() );
-                } else {
-                    $title = sprintf( 'Executed %s successfully.', $tool->get_name() );
-                }
+                $title = sprintf( 'Executed %s successfully.', $name );
 
-                // Generate a summary message for the action
-                $summary = '';
-                if ( is_wp_error( $result ) ) {
-                    $summary = $result->get_error_message();
-                } elseif ( $tool ) {
-                    // Let the tool generate a summary based on the result and arguments
-                    $summary = $tool->get_result_summary( $result, $arguments );
-                }
+                // Let the tool generate a summary based on the result and arguments
+                $summary = $tool->get_result_summary( $result, $arguments );
                 
                 // Get action buttons from the tool
-                $action_buttons = array();
-                if ( !is_wp_error( $result ) && $tool ) {
-                    $action_buttons = $tool->get_action_buttons( $result, $arguments );
-                }
+                $action_buttons = $tool->get_action_buttons( $result, $arguments );
                 
                 // Create the complete action object with all necessary information
                 $action = array(
@@ -154,7 +142,7 @@ class CommandProcessor {
                 $this->conversation_manager->add_message(
                     $conversation_uuid,
                     'tool',
-                    is_wp_error( $result ) ? $result->get_error_message() : wp_json_encode( $result ),
+                    wp_json_encode( $result ),
                     $action, // Store the complete action object including title and summary
                     isset( $tool_call['id'] ) ? $tool_call['id'] : null
                 );
