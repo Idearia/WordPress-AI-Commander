@@ -40,39 +40,33 @@ The plugin comes with several built-in tools:
 
 ### Post Creation Tool
 - **Name**: `create_post`
-- **Description**: Creates a new WordPress post
 - **Functionality**: Creates posts with title, content, excerpt, categories, tags, and more
 - **Example prompt**: "Create a new 'Hello world' post as a draft with tag 'Testing'"
 
 ### Content Retrieval Tool
 - **Name**: `retrieve_content`
-- **Description**: Retrieves WordPress content based on various criteria
 - **Functionality**: Searches and filters posts, pages, and custom post types by author, category, tag, status, etc.
 - **Example prompt**: "Show all drafts with tag 'Testing'"
 
 ### Post Editing Tool
 - **Name**: `edit_post`
-- **Description**: Edits an existing WordPress post
 - **Functionality**: Updates post title, content, excerpt, status, categories, tags, etc.
 - **Example prompt**: "Edit the post with title 'Hello world' and set the status to 'Published'"
 
 ### Content Organization Tool
 - **Name**: `organize_content`
-- **Description**: Organizes WordPress content
 - **Functionality**: Manages categories, tags, and other taxonomies
 - **Example prompt**: "Create a new category 'Testing category' and assign it to all posts with title 'Hello world'"
 
 ### Site Information Tool
 - **Name**: `get_site_info`
-- **Description**: Retrieves basic WordPress site information
 - **Functionality**: Gets site title, URL, tagline, and multisite information
 - **Example prompt**: "Show site information"
 
 ### Date Tool
-- **Name**: `get_date`
-- **Description**: Returns the current date in ISO 8601 format
-- **Functionality**: Provides the current date and time in the standard ISO 8601 format
-- **Example prompt**: "What's today's date?"
+- **Name**: `get_today_date`
+- **Functionality**: Returns the current date in ISO 8601 format, together with the day of the week
+- **Example prompt**: "Show me all posts published last week"
 
 ## How to Add New Tools from Another Theme or Plugin
 
@@ -441,6 +435,7 @@ To use the collection:
 ## To do
 
 Important features to add:
+- allow to give back control to the user from within the tool call execution, e.g. "You asked to delete post XYZ, do you want to proceed?"  or  "You asked to modify post with title 'Hello world', but there are two of them.  Which one do you want to modify?"
 - processing spinner should show what is being done, not as an intertitial, but in-chat like Claude and ChatGPT do
 - add WP CLI command
 
@@ -448,3 +443,4 @@ Nice to have features:
 - web search or Perplexity integration, e.g. create a new post on latest news on AI
 
 Bug fixes:
+- After a failed tool call it is impossible to send another command due to OpenAI error > Error: OpenAI API error (400): An assistant message with 'tool_calls' must be followed by tool messages responding to each 'tool_call_id'. The following tool_call_ids did not have response messages: call_c8lhBMxiUzRmAGywvfpl5ayH

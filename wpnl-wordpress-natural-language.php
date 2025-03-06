@@ -26,7 +26,7 @@ use WPNL\Tools\PostEditingTool;
 use WPNL\Tools\ContentOrganizationTool;
 use WPNL\Tools\ContentRetrievalTool;
 use WPNL\Tools\SiteInformationTool;
-use WPNL\Tools\DateTool;
+use WPNL\Tools\GetTodayDateTool;
 
 /**
  * Currently plugin version.
@@ -127,7 +127,7 @@ function wpnl_load_dependencies() {
     require_once WPNL_PLUGIN_DIR . 'tools/ContentOrganizationTool.php';
     require_once WPNL_PLUGIN_DIR . 'tools/ContentRetrievalTool.php';
     require_once WPNL_PLUGIN_DIR . 'tools/SiteInformationTool.php';
-    require_once WPNL_PLUGIN_DIR . 'tools/DateTool.php';
+    require_once WPNL_PLUGIN_DIR . 'tools/GetTodayDateTool.php';
 }
 
 /**
@@ -185,7 +185,7 @@ function wpnl_register_tools() {
     new ContentOrganizationTool();
     new ContentRetrievalTool();
     new SiteInformationTool();
-    new DateTool();
+    new GetTodayDateTool();
     
     // You can add more tools here as they are developed
 }

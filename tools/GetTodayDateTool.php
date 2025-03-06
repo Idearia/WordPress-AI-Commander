@@ -16,14 +16,14 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * This class provides the current date in ISO 8601 format.
  */
-class DateTool extends BaseTool {
+class GetTodayDateTool extends BaseTool {
 
     /**
      * Constructor.
      */
     public function __construct() {
-        $this->name = 'get_date';
-        $this->description = 'Returns the current date in ISO 8601 format.  Useful to interpret queries that contain "today", "yesterday", "tomorrow", "last week", "next week", etc.';
+        $this->name = 'get_today_date';
+        $this->description = 'Returns the current date in ISO 8601 format, together with the week day name.  Useful to interpret queries that contain "today", "yesterday", "tomorrow", "next monday", "last week", "next week", etc.';
         $this->required_capability = 'read'; // Basic capability that most users have
         
         parent::__construct();
@@ -48,11 +48,13 @@ class DateTool extends BaseTool {
     public function execute( $params ) {
         // Get current date in ISO 8601 format
         $current_date = current_datetime()->format('c');
+        $week_day_name = current_datetime()->format('l');
         
         // Prepare the response
         $response = array(
             'success' => true,
-            'date' => $current_date,
+            'today_date' => $current_date,
+            'week_day_name' => $week_day_name,
         );
         
         return $response;
@@ -70,6 +72,6 @@ class DateTool extends BaseTool {
             return $result->get_error_message();
         }
         
-        return sprintf( 'Current date: %s', $result['date'] );
+        return sprintf( '<p>Today is %s, %s</p>', $result['week_day_name'], $result['today_date'] );
     }
 }
