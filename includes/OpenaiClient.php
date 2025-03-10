@@ -248,6 +248,7 @@ class OpenaiClient {
                'You have access to various tools that allow you to search, create and edit content. ' .
                'When a user asks you to do something, use the appropriate tool to accomplish the task. ' .
                'Do not explain or interpret tool results. When no further tool calls are needed, simply indicate completion with minimal explanation. ' .
+               'Do not use markdown formatting in your responses. ' .
                'If you are unable to perform a requested action, explain why and suggest alternatives.';
     }
 
