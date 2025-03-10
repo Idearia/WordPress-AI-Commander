@@ -1,6 +1,6 @@
 # WPNL: WordPress Natural Language
 
-Issue commands in natural language to WordPress via voice, chatbot interface or REST API endpoint.  Integrates with OpenAI's API to process natural language commands and execute the appropriate WordPress actions.
+Control WordPress with natural language, via text, voice or API.  Uses OpenAI to process NL commands and execute the appropriate WordPress actions.
 
 ## Features
 
@@ -32,7 +32,6 @@ Run the following commands in the chatbot, one after the other:
 > Add a paragraph to the post discussing the role of NVIDIA in GPU manifacturing
 > Publish the post
 ```
-
 
 ## Available Tools
 
@@ -432,10 +431,33 @@ To use the collection:
    - `password`: Your WordPress application password
 3. You can now use the collection to test the REST API endpoints
 
+## Frequently Asked Questions
+
+### Does this plugin require an OpenAI API key?
+
+Yes, you need an OpenAI API key to use this plugin. You can get one from the [OpenAI website](https://platform.openai.com/).
+
+### Which OpenAI models are supported?
+
+The plugin works with GPT-4o by default, but you can configure it to use other models that support function calling.
+
+### Is my data secure?
+
+The plugin is entirely hosted on your own WordPress site. Your commands are sent to OpenAI's API for processing. Please review [OpenAI's privacy policy](https://openai.com/policies/privacy-policy) to understand how they handle your data.
+
+## Changelog
+
+### 1.0.0
+* Initial release
+
+## Upgrade Notice
+
+### 1.0.0
+Initial release of the WPNL plugin.
+
 ## License
 
 This plugin is licensed under the GNU General Public License version 2 (GPLv2) or, at your option, any later version. You should have received a copy of the GNU General Public License along with this plugin. If not, see <https://www.gnu.org/licenses/>.
-
 
 ## To do
 
@@ -449,3 +471,16 @@ Nice to have features:
 
 Bug fixes:
 - After a failed tool call it is impossible to send another command due to OpenAI error > Error: OpenAI API error (400): An assistant message with 'tool_calls' must be followed by tool messages responding to each 'tool_call_id'. The following tool_call_ids did not have response messages: call_c8lhBMxiUzRmAGywvfpl5ayH
+
+## WordPress Metadata
+
+```wordpress-metadata
+Contributors: ideariasrl, guidopettinari, coccoinomane 
+Tags: ai, chatbot, natural language, openai, ai-agent
+Requires at least: 6.0
+Tested up to: 6.7.2
+Requires PHP: 8.0
+Stable tag: 1.0.0
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+```

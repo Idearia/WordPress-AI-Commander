@@ -1,11 +1,13 @@
 <?php
 /**
- * Plugin Name: WPNL: WordPress Natural Language
+ * Plugin Name: WPNL
  * Plugin URI: https://github.com/Idearia/WPNL-WordPress-Natural-Language
  * Description: Issue commands in natural language to WordPress via voice, chatbot interface or REST API endpoint
  * Version: 1.0.0
- * Author: WordPress Developer
- * Author URI: https://github.com/Idearia
+ * Author: Idearia Web Agency
+ * Author URI: https://www.idearia.it
+ * Requires at least: 6.0
+ * Requires PHP: 8.0
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: wpnl
