@@ -2,10 +2,10 @@
 /**
  * Command Processor Class
  *
- * @package WPNL
+ * @package AICommander
  */
 
-namespace WPNL\Includes;
+namespace AICommander\Includes;
 
 if ( ! defined( 'WPINC' ) ) {
     die;

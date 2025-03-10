@@ -2,10 +2,10 @@
 /**
  * Admin Page Class
  *
- * @package WPNL
+ * @package AICommander
  */
 
-namespace WPNL\Admin;
+namespace AICommander\Admin;
 
 if ( ! defined( 'WPINC' ) ) {
     die;
@@ -23,7 +23,7 @@ class AdminPage {
      *
      * @var string
      */
-    protected $parent_slug = 'wpnl';
+    protected $parent_slug = 'ai-commander';
 
     /**
      * The capability required to access admin pages.
@@ -45,11 +45,11 @@ public function __construct() {
  */
 public function enqueue_overview_styles( $hook ) {
     // Only load on the main plugin page
-    if ( $hook !== 'toplevel_page_wpnl' ) {
+    if ( $hook !== 'toplevel_page_ai_commander' ) {
         return;
     }
     
-    wp_enqueue_style( 'wpnl-admin-overview', WPNL_PLUGIN_URL . 'assets/css/admin-overview.css', array(), WPNL_VERSION );
+    wp_enqueue_style( 'ai-commander-admin-overview', AI_COMMANDER_PLUGIN_URL . 'assets/css/admin-overview.css', array(), AI_COMMANDER_VERSION );
 }
 
     /**
@@ -58,8 +58,8 @@ public function enqueue_overview_styles( $hook ) {
     public function add_admin_menu() {
         // Add the top-level menu page
         add_menu_page(
-            __( 'WPNL', 'wpnl' ),
-            __( 'WPNL', 'wpnl' ),
+            'AI Commander',
+            'AI Commander',
             $this->capability,
             $this->parent_slug,
             array( $this, 'render_page' ),
@@ -70,8 +70,8 @@ public function enqueue_overview_styles( $hook ) {
         // Add the overview submenu page with a different name to avoid duplicates
         add_submenu_page(
             $this->parent_slug,
-            __( 'Overview', 'wpnl' ),
-            __( 'Overview', 'wpnl' ),
+            __( 'Overview', 'ai-commander' ),
+            __( 'Overview', 'ai-commander' ),
             $this->capability,
             $this->parent_slug,
             array( $this, 'render_page' )
@@ -83,45 +83,45 @@ public function enqueue_overview_styles( $hook ) {
      */
     public function render_page() {
         ?>
-        <div class="wrap wpnl-overview">
+        <div class="wrap ai-commander-overview">
             <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
-            <p><?php esc_html_e( 'Welcome to WPNL: WordPress Natural Language. Use the tabs below to navigate.', 'wpnl' ); ?></p>
+            <p><?php esc_html_e( 'Welcome to AI Commander! Use the tabs below to navigate.', 'ai-commander' ); ?></p>
             
             <h2 class="nav-tab-wrapper">
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $this->parent_slug ) ); ?>" class="nav-tab nav-tab-active">
-                    <?php esc_html_e( 'Overview', 'wpnl' ); ?>
+                    <?php esc_html_e( 'Overview', 'ai-commander' ); ?>
                 </a>
-                <a href="<?php echo esc_url( admin_url( 'admin.php?page=wpnl-chatbot' ) ); ?>" class="nav-tab">
-                    <?php esc_html_e( 'Chatbot', 'wpnl' ); ?>
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=ai-commander-chatbot' ) ); ?>" class="nav-tab">
+                    <?php esc_html_e( 'Chatbot', 'ai-commander' ); ?>
                 </a>
-                <a href="<?php echo esc_url( admin_url( 'admin.php?page=wpnl-settings' ) ); ?>" class="nav-tab">
-                    <?php esc_html_e( 'Settings', 'wpnl' ); ?>
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=ai-commander-settings' ) ); ?>" class="nav-tab">
+                    <?php esc_html_e( 'Settings', 'ai-commander' ); ?>
                 </a>
             </h2>
             
             <div class="tab-content">
                 <div class="card">
-                    <h2><?php esc_html_e( 'About WPNL: WordPress Natural Language', 'wpnl' ); ?></h2>
-                    <p><?php esc_html_e( 'This plugin allows you to issue commands to WordPress using natural language through a chatbot interface.', 'wpnl' ); ?></p>
-                    <p><?php esc_html_e( 'You can create and edit posts, manage categories and tags, and more, all using simple, conversational language.', 'wpnl' ); ?></p>
+                    <h2><?php esc_html_e( 'About AI Commander', 'ai-commander' ); ?></h2>
+                    <p><?php esc_html_e( 'This plugin allows you to issue commands to WordPress using natural language through a chatbot interface.', 'ai-commander' ); ?></p>
+                    <p><?php esc_html_e( 'You can create and edit posts, manage categories and tags, and more, all using simple, conversational language.', 'ai-commander' ); ?></p>
                 </div>
                 
                 <div class="card">
-                    <h2><?php esc_html_e( 'Getting Started', 'wpnl' ); ?></h2>
+                    <h2><?php esc_html_e( 'Getting Started', 'ai-commander' ); ?></h2>
                     <ol>
-                        <li><?php esc_html_e( 'Go to the Settings tab and enter your OpenAI API key.', 'wpnl' ); ?></li>
-                        <li><?php esc_html_e( 'Navigate to the Chatbot tab to start issuing commands.', 'wpnl' ); ?></li>
-                        <li><?php esc_html_e( 'Try saying something like "Create a post on the topic \'Best practices to index a website on Google\' and tag it as \'SEO\' and \'How-to\'.', 'wpnl' ); ?></li>
+                        <li><?php esc_html_e( 'Go to the Settings tab and enter your OpenAI API key.', 'ai-commander' ); ?></li>
+                        <li><?php esc_html_e( 'Navigate to the Chatbot tab to start issuing commands.', 'ai-commander' ); ?></li>
+                        <li><?php esc_html_e( 'Try saying something like "Create a post on the topic \'Best practices to index a website on Google\' and tag it as \'SEO\' and \'How-to\'.', 'ai-commander' ); ?></li>
                     </ol>
                 </div>
                 
                 <div class="card available-commands">
-                    <h2><?php esc_html_e( 'Available Commands', 'wpnl' ); ?></h2>
-                    <p><?php esc_html_e( 'You can use natural language to perform the following actions:', 'wpnl' ); ?></p>
+                    <h2><?php esc_html_e( 'Available Commands', 'ai-commander' ); ?></h2>
+                    <p><?php esc_html_e( 'You can use natural language to perform the following actions:', 'ai-commander' ); ?></p>
                     <ul>
                         <?php
                         // Get all registered tools from the ToolRegistry
-                        $tool_registry = \WPNL\Includes\ToolRegistry::get_instance();
+                        $tool_registry = \AICommander\Includes\ToolRegistry::get_instance();
                         $tools = $tool_registry->get_tools();
                         
                         // Loop through each tool and display its name and description
@@ -142,7 +142,7 @@ public function enqueue_overview_styles( $hook ) {
                         
                         // If no tools are registered, show a message
                         if ( empty( $tools ) ) {
-                            echo '<li>' . esc_html__( 'No commands available. Please check your plugin configuration.', 'wpnl' ) . '</li>';
+                            echo '<li>' . esc_html__( 'No commands available. Please check your plugin configuration.', 'ai-commander' ) . '</li>';
                         }
                         ?>
                     </ul>

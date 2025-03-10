@@ -1,11 +1,11 @@
 /**
  * Admin Overview Page Styles
  *
- * @package WPNL
+ * @package AICommander
  */
 
 /* Card styling */
-.wpnl-overview .card {
+.ai-commander-overview .card {
     background: #fff;
     border: 1px solid #ccd0d4;
     border-radius: 4px;
@@ -15,32 +15,32 @@
 }
 
 /* Available Commands section */
-.wpnl-overview .available-commands ul {
+.ai-commander-overview .available-commands ul {
     list-style-type: disc;
     margin-left: 20px;
 }
 
-.wpnl-overview .available-commands li {
+.ai-commander-overview .available-commands li {
     margin-bottom: 10px;
     padding-left: 5px;
 }
 
 /* Tool name styling */
-.wpnl-overview .available-commands li strong {
+.ai-commander-overview .available-commands li strong {
     display: inline-block;
     margin-right: 5px;
     font-weight: 600;
 }
 
 /* Disabled tool styling */
-.wpnl-overview .available-commands li.tool-disabled {
+.ai-commander-overview .available-commands li.tool-disabled {
     opacity: 0.6;
     text-decoration: line-through;
     color: #82878c;
 }
 
 /* Nested lists for examples */
-.wpnl-overview .available-commands ul ul {
+.ai-commander-overview .available-commands ul ul {
     margin-top: 5px;
     margin-left: 20px;
 }

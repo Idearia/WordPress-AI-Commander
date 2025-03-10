@@ -2,12 +2,12 @@
 /**
  * Tool Registry Class
  *
- * @package WPNL
+ * @package AICommander
  */
 
-namespace WPNL\Includes;
+namespace AICommander\Includes;
 
-use WPNL\Tools\BaseTool;
+use AICommander\Tools\BaseTool;
 
 if ( ! defined( 'WPINC' ) ) {
     die;
@@ -187,36 +187,5 @@ class ToolRegistry {
         }
         
         return $tool->execute_with_permission_check( $params );
-    }
-
-    /**
-     * Auto-discover and register tools from the tools directory.
-     */
-    public function discover_tools() {
-        $tools_dir = WPNL_PLUGIN_DIR . 'tools/';
-        $tool_files = glob( $tools_dir . 'class-*-tool.php' );
-        
-        foreach ( $tool_files as $file ) {
-            // Skip the base tool class
-            if ( basename( $file ) === 'class-base-tool.php' ) {
-                continue;
-            }
-            
-            // The file is already included in the main plugin file
-            // So we don't need to include it here
-            
-            // Extract the class name from the file name
-            $class_name = str_replace( 
-                array( 'class-', '-tool.php', '-' ), 
-                array( '', '', '_' ), 
-                basename( $file ) 
-            );
-            $class_name = 'WPNL_' . ucwords( $class_name, '_' ) . '_Tool';
-            
-            // Instantiate the tool
-            if ( class_exists( $class_name ) ) {
-                new $class_name();
-            }
-        }
     }
 }

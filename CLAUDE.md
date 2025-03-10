@@ -5,7 +5,7 @@
 - Manual Testing: Install plugin in a WordPress environment and use admin interface
 
 ## Code Style Guidelines
-- **Namespaces**: Use `WPNL` namespace with subnamespaces for components (`WPNL\Tools`, `WPNL\Includes`)
+- **Namespaces**: Use `AICommander` namespace with subnamespaces for components (`AICommander\Tools`, `AICommander\Includes`)
 - **Class Names**: PascalCase (e.g., `BaseTool`, `PostCreationTool`)
 - **Method Names**: camelCase (e.g., `execute()`, `validateParameters()`)
 - **Variables**: snake_case (e.g., `$post_id`, `$tool_name`)

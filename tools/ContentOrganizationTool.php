@@ -2,10 +2,10 @@
 /**
  * Content Organization Tool Class
  *
- * @package WPNL
+ * @package AICommander
  */
 
-namespace WPNL\Tools;
+namespace AICommander\Tools;
 
 if ( ! defined( 'WPINC' ) ) {
     die;

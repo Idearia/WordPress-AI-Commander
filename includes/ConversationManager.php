@@ -2,10 +2,10 @@
 /**
  * Conversation Manager Class
  *
- * @package WPNL
+ * @package AICommander
  */
 
-namespace WPNL\Includes;
+namespace AICommander\Includes;
 
 if ( ! defined( 'WPINC' ) ) {
     die;
@@ -36,14 +36,14 @@ class ConversationManager {
         $default_greeting = self::get_default_assistant_greeting();
 
         // Get the greeting from options, fallback to default if empty
-        $greeting = get_option( 'wpnl_assistant_greeting', $default_greeting );
+        $greeting = get_option( 'ai_commander_assistant_greeting', $default_greeting );
         
         if ( empty( $greeting ) ) {
             $greeting = $default_greeting;
         }
         
         // Apply filter to allow developers to modify the greeting
-        return apply_filters( 'wpnl_filter_assistant_greeting', $greeting );
+        return apply_filters( 'ai_commander_filter_assistant_greeting', $greeting );
     }
     
     /**
@@ -61,7 +61,7 @@ class ConversationManager {
         
         // Insert conversation record
         $wpdb->insert(
-            $wpdb->prefix . 'wpnl_conversations',
+            $wpdb->prefix . 'ai_commander_conversations',
             array(
                 'conversation_uuid' => $uuid,
                 'user_id' => $user_id,
@@ -92,7 +92,7 @@ class ConversationManager {
         
         return $wpdb->get_row(
             $wpdb->prepare(
-                "SELECT * FROM {$wpdb->prefix}wpnl_conversations WHERE conversation_uuid = %s",
+                "SELECT * FROM {$wpdb->prefix}ai_commander_conversations WHERE conversation_uuid = %s",
                 $conversation_uuid
             )
         );
@@ -109,7 +109,7 @@ class ConversationManager {
         
         return $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT * FROM {$wpdb->prefix}wpnl_conversations WHERE user_id = %d ORDER BY updated_at DESC",
+                "SELECT * FROM {$wpdb->prefix}ai_commander_conversations WHERE user_id = %d ORDER BY updated_at DESC",
                 $user_id
             )
         );
@@ -141,7 +141,7 @@ class ConversationManager {
         
         // Update conversation timestamp
         $wpdb->update(
-            $wpdb->prefix . 'wpnl_conversations',
+            $wpdb->prefix . 'ai_commander_conversations',
             array( 'updated_at' => current_time( 'mysql' ) ),
             array( 'id' => $conversation->id ),
             array( '%s' ),
@@ -150,7 +150,7 @@ class ConversationManager {
         
         // Insert message
         $wpdb->insert(
-            $wpdb->prefix . 'wpnl_messages',
+            $wpdb->prefix . 'ai_commander_messages',
             array(
                 'conversation_id' => $conversation->id,
                 'role' => $role,
@@ -181,7 +181,7 @@ class ConversationManager {
         
         $messages = $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT * FROM {$wpdb->prefix}wpnl_messages WHERE conversation_id = %d ORDER BY id ASC",
+                "SELECT * FROM {$wpdb->prefix}ai_commander_messages WHERE conversation_id = %d ORDER BY id ASC",
                 $conversation->id
             )
         );

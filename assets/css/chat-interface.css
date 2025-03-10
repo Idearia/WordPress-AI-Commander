@@ -5,7 +5,7 @@
  */
 
 /* Container */
-.wpnl-chat-container {
+.ai-commander-chat-container {
     min-height: 600px;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -16,7 +16,7 @@
 }
 
 /* Chat header */
-.wpnl-chat-header {
+.ai-commander-chat-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -25,13 +25,13 @@
     background-color: #f7f7f7;
 }
 
-.wpnl-chat-header h3 {
+.ai-commander-chat-header h3 {
     margin: 0;
     font-size: 16px;
     color: #333;
 }
 
-.wpnl-new-conversation-button {
+.ai-commander-new-conversation-button {
     background-color: #f0f0f0;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -41,17 +41,17 @@
     transition: background-color 0.2s;
 }
 
-.wpnl-new-conversation-button:hover {
+.ai-commander-new-conversation-button:hover {
     background-color: #e0e0e0;
 }
 
-.wpnl-new-conversation-button:disabled {
+.ai-commander-new-conversation-button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
 /* Message list */
-.wpnl-message-list {
+.ai-commander-message-list {
     flex: 1;
     overflow-y: auto;
     padding: 20px;
@@ -59,16 +59,16 @@
 }
 
 /* Message item */
-.wpnl-message {
+.ai-commander-message {
     margin-bottom: 15px;
     display: flex;
 }
 
-.wpnl-message.user {
+.ai-commander-message.user {
     justify-content: flex-end;
 }
 
-.wpnl-message-content {
+.ai-commander-message-content {
     max-width: 80%;
     padding: 10px 15px;
     border-radius: 18px;
@@ -76,39 +76,39 @@
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.wpnl-message.user .wpnl-message-content {
+.ai-commander-message.user .ai-commander-message-content {
     background-color: #0073aa;
     color: white;
 }
 
-.wpnl-message.assistant .wpnl-message-content {
+.ai-commander-message.assistant .ai-commander-message-content {
     background-color: #fff;
     border: 1px solid #ddd;
 }
 
 /* Message line */
-.wpnl-message-line {
+.ai-commander-message-line {
     min-height: 1.2em;
     line-height: 1.4;
 }
 
-.wpnl-message-line:empty {
+.ai-commander-message-line:empty {
     display: none;
 }
 
-.wpnl-message-line:empty + .wpnl-message-line:empty {
+.ai-commander-message-line:empty + .ai-commander-message-line:empty {
     display: none;
 }
 
 /* Input area */
-.wpnl-input-container {
+.ai-commander-input-container {
     display: flex;
     padding: 15px;
     background-color: white;
     border-top: 1px solid #ddd;
 }
 
-.wpnl-message-input {
+.ai-commander-message-input {
     flex: 1;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -119,7 +119,7 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
-.wpnl-send-button {
+.ai-commander-send-button {
     margin-left: 10px;
     background-color: #0073aa;
     color: white;
@@ -130,17 +130,17 @@
     height: 40px;
 }
 
-.wpnl-send-button:hover {
+.ai-commander-send-button:hover {
     background-color: #006291;
 }
 
-.wpnl-send-button:disabled {
+.ai-commander-send-button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
 }
 
 /* Microphone button */
-.wpnl-mic-button {
+.ai-commander-mic-button {
     margin-left: 10px;
     background-color: #f0f0f0;
     color: #333;
@@ -155,41 +155,41 @@
     transition: all 0.2s ease;
 }
 
-.wpnl-mic-button:hover {
+.ai-commander-mic-button:hover {
     background-color: #e0e0e0;
 }
 
-.wpnl-mic-button:disabled {
+.ai-commander-mic-button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
-.wpnl-mic-button.recording {
+.ai-commander-mic-button.recording {
     background-color: #ff5252;
     color: white;
     border-color: #ff5252;
     animation: pulse 1.5s infinite;
 }
 
-.wpnl-mic-button.recording:hover {
+.ai-commander-mic-button.recording:hover {
     background-color: #ff0000;
     border-color: #ff0000;
 }
 
 /* Transcribing state for mic button */
-.wpnl-mic-button.transcribing {
+.ai-commander-mic-button.transcribing {
     background-color: #2271b1;
     color: white;
     border-color: #2271b1;
     animation: fade 1.5s infinite;
 }
 
-.wpnl-mic-button.transcribing:hover {
+.ai-commander-mic-button.transcribing:hover {
     background-color: #135e96;
     border-color: #135e96;
 }
 
-.wpnl-mic-icon {
+.ai-commander-mic-icon {
     width: 18px;
     height: 18px;
     fill: currentColor;
@@ -222,7 +222,7 @@
 }
 
 /* Recording status */
-.wpnl-recording-status {
+.ai-commander-recording-status {
     position: absolute;
     bottom: 70px;
     left: 50%;
@@ -237,7 +237,7 @@
     z-index: 10;
 }
 
-.wpnl-recording-status-dot {
+.ai-commander-recording-status-dot {
     width: 10px;
     height: 10px;
     background-color: #ff5252;
@@ -247,7 +247,7 @@
 }
 
 /* Transcribing status */
-.wpnl-transcribing-status {
+.ai-commander-transcribing-status {
     position: absolute;
     bottom: 70px;
     left: 50%;
@@ -270,32 +270,32 @@
 }
 
 /* Tool Call Message */
-.wpnl-tool-call .wpnl-message-content {
+.ai-commander-tool-call .ai-commander-message-content {
     padding: 15px;
     border-left: 3px solid #0073aa;
 }
 
-.wpnl-tool-title {
+.ai-commander-tool-title {
     font-weight: bold;
     margin-bottom: 8px;
     color: #0073aa;
 }
 
-.wpnl-tool-summary {
+.ai-commander-tool-summary {
     margin-bottom: 12px;
     line-height: 1.5;
     white-space: pre-line;
 }
 
 /* Tool Action Buttons */
-.wpnl-tool-actions {
+.ai-commander-tool-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
     margin-top: 12px;
 }
 
-.wpnl-tool-action-button {
+.ai-commander-tool-action-button {
     background-color: #0073aa;
     color: white;
     border: none;
@@ -306,16 +306,16 @@
     transition: background-color 0.2s;
 }
 
-.wpnl-tool-action-button:hover {
+.ai-commander-tool-action-button:hover {
     background-color: #005a87;
 }
 
-.wpnl-tool-action-button:disabled {
+.ai-commander-tool-action-button:disabled {
     background-color: #80b9d2;
     cursor: not-allowed;
 }
 
-.wpnl-tool-details-button {
+.ai-commander-tool-details-button {
     background-color: #f0f0f0;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -325,28 +325,28 @@
     transition: background-color 0.2s;
 }
 
-.wpnl-tool-details-button:hover {
+.ai-commander-tool-details-button:hover {
     background-color: #e0e0e0;
 }
 
 /* Spinner for AJAX actions */
-.wpnl-spinner {
+.ai-commander-spinner {
     display: inline-block;
     width: 12px;
     height: 12px;
     border: 2px solid rgba(255,255,255,0.3);
     border-radius: 50%;
     border-top-color: #fff;
-    animation: wpnl-spin 1s ease-in-out infinite;
+    animation: ai-commander-spin 1s ease-in-out infinite;
     margin-right: 6px;
 }
 
-@keyframes wpnl-spin {
+@keyframes ai-commander-spin {
     to { transform: rotate(360deg); }
 }
 
 /* Tool Call Popup */
-.wpnl-popup-overlay {
+.ai-commander-popup-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -359,7 +359,7 @@
     justify-content: center;
 }
 
-.wpnl-popup-content {
+.ai-commander-popup-content {
     background-color: white;
     border-radius: 6px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -371,7 +371,7 @@
     flex-direction: column;
 }
 
-.wpnl-popup-header {
+.ai-commander-popup-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -379,13 +379,13 @@
     border-bottom: 1px solid #ddd;
 }
 
-.wpnl-popup-header h3 {
+.ai-commander-popup-header h3 {
     margin: 0;
     font-size: 18px;
     color: #0073aa;
 }
 
-.wpnl-popup-close {
+.ai-commander-popup-close {
     background: none;
     border: none;
     font-size: 24px;
@@ -393,22 +393,22 @@
     color: #666;
 }
 
-.wpnl-popup-close:hover {
+.ai-commander-popup-close:hover {
     color: #0073aa;
 }
 
-.wpnl-popup-body {
+.ai-commander-popup-body {
     padding: 20px;
     overflow-y: auto;
 }
 
-.wpnl-popup-body h4 {
+.ai-commander-popup-body h4 {
     margin: 0 0 10px 0;
     font-size: 14px;
     color: #333;
 }
 
-.wpnl-popup-body pre {
+.ai-commander-popup-body pre {
     background-color: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -419,12 +419,12 @@
 }
 
 /* Action results - keeping for backward compatibility but hidden */
-.wpnl-actions-container {
+.ai-commander-actions-container {
     display: none;
 }
 
 /* Loading indicator */
-.wpnl-loading {
+.ai-commander-loading {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -439,13 +439,13 @@
     z-index: 10;
 }
 
-.wpnl-loading .spinner {
+.ai-commander-loading .spinner {
     float: none;
     margin-right: 10px;
 }
 
 /* No API key message */
-.wpnl-no-api-key {
+.ai-commander-no-api-key {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -456,7 +456,7 @@
     background-color: #f9f9f9;
 }
 
-.wpnl-no-api-key p {
+.ai-commander-no-api-key p {
     font-size: 16px;
     color: #666;
 }
@@ -479,25 +479,25 @@
 }
 
 /* Message content lists */
-.wpnl-message-content ul {
+.ai-commander-message-content ul {
     list-style-type: disc;
     margin-left: 12px;
     padding-left: 9px;
 }
 
-.wpnl-message-content ul ul {
+.ai-commander-message-content ul ul {
     list-style-type: circle;
     margin-left: 9px;
     margin-top: 3px;
 }
 
-.wpnl-message-content li {
+.ai-commander-message-content li {
     margin-bottom: 3px;
 }
 
 /* Responsive adjustments */
 @media screen and (max-width: 782px) {
-    .wpnl-chat-container {
+    .ai-commander-chat-container {
         min-height: 400px;
     }
 }

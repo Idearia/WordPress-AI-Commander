@@ -26,18 +26,18 @@ const ToolCallDetailsPopup = ({ action, onClose }) => {
     
     return e(
         'div',
-        { className: 'wpnl-popup-overlay' },
+        { className: 'ai-commander-popup-overlay' },
         e(
             'div',
-            { className: 'wpnl-popup-content' },
-            e('div', { className: 'wpnl-popup-header' }, 
+            { className: 'ai-commander-popup-content' },
+            e('div', { className: 'ai-commander-popup-header' }, 
                 e('h3', null, `Tool: ${action.tool}`),
                 e('button', { 
-                    className: 'wpnl-popup-close',
+                    className: 'ai-commander-popup-close',
                     onClick: onClose
                 }, '×')
             ),
-            e('div', { className: 'wpnl-popup-body' },
+            e('div', { className: 'ai-commander-popup-body' },
                 e('h4', null, 'Tool call ID:'),
                 e('pre', null, action.tool_call_id),
                 e('h4', null, 'Arguments:'),
@@ -77,22 +77,22 @@ const ToolCallMessage = ({ action }) => {
                 
                 // Create and append modal to the DOM
                 const modalOverlay = document.createElement('div');
-                modalOverlay.className = 'wpnl-popup-overlay';
+                modalOverlay.className = 'ai-commander-popup-overlay';
                 
                 modalOverlay.innerHTML = `
-                    <div class="wpnl-popup-content">
-                        <div class="wpnl-popup-header">
+                    <div class="ai-commander-popup-content">
+                        <div class="ai-commander-popup-header">
                             <h3>${button.title || 'Details'}</h3>
-                            <button class="wpnl-popup-close">×</button>
+                            <button class="ai-commander-popup-close">×</button>
                         </div>
-                        <div class="wpnl-popup-body">
+                        <div class="ai-commander-popup-body">
                             ${modalContent}
                         </div>
                     </div>
                 `;
                 
                 // Add close button functionality
-                modalOverlay.querySelector('.wpnl-popup-close').addEventListener('click', () => {
+                modalOverlay.querySelector('.ai-commander-popup-close').addEventListener('click', () => {
                     document.body.removeChild(modalOverlay);
                 });
                 
@@ -111,7 +111,7 @@ const ToolCallMessage = ({ action }) => {
                 // Disable the button and show spinner
                 const originalText = buttonElement.textContent;
                 buttonElement.disabled = true;
-                buttonElement.innerHTML = '<span class="wpnl-spinner"></span> ' + (button.loadingText || 'Processing...');
+                buttonElement.innerHTML = '<span class="ai-commander-spinner"></span> ' + (button.loadingText || 'Processing...');
                 
                 // Confirm if needed
                 if (button.confirmMessage && !window.confirm(button.confirmMessage)) {
@@ -201,22 +201,22 @@ const ToolCallMessage = ({ action }) => {
                 
                 // Create modal with the response content
                 const modalOverlay = document.createElement('div');
-                modalOverlay.className = 'wpnl-popup-overlay';
+                modalOverlay.className = 'ai-commander-popup-overlay';
                 
                 modalOverlay.innerHTML = `
-                    <div class="wpnl-popup-content">
-                        <div class="wpnl-popup-header">
+                    <div class="ai-commander-popup-content">
+                        <div class="ai-commander-popup-header">
                             <h3>${modalTitle}</h3>
-                            <button class="wpnl-popup-close">×</button>
+                            <button class="ai-commander-popup-close">×</button>
                         </div>
-                        <div class="wpnl-popup-body">
+                        <div class="ai-commander-popup-body">
                             ${modalContent}
                         </div>
                     </div>
                 `;
                 
                 // Add close button functionality
-                modalOverlay.querySelector('.wpnl-popup-close').addEventListener('click', () => {
+                modalOverlay.querySelector('.ai-commander-popup-close').addEventListener('click', () => {
                     document.body.removeChild(modalOverlay);
                 });
                 
@@ -251,26 +251,26 @@ const ToolCallMessage = ({ action }) => {
     
     return e(
         'div',
-        { className: 'wpnl-message assistant wpnl-tool-call' },
+        { className: 'ai-commander-message assistant ai-commander-tool-call' },
         e('div', 
-            { className: 'wpnl-message-content' },
-            e('div', { className: 'wpnl-tool-title' }, action.title),
+            { className: 'ai-commander-message-content' },
+            e('div', { className: 'ai-commander-tool-title' }, action.title),
             e('div', { 
-                className: 'wpnl-tool-summary',
+                className: 'ai-commander-tool-summary',
                 dangerouslySetInnerHTML: { __html: action.summary }
             }),
-            e('div', { className: 'wpnl-tool-actions' },
+            e('div', { className: 'ai-commander-tool-actions' },
                 // Render custom action buttons if available
                 action.action_buttons && action.action_buttons.map((button, index) => 
                     e('button', {
                         key: index,
-                        className: 'wpnl-tool-action-button',
+                        className: 'ai-commander-tool-action-button',
                         onClick: (event) => handleActionButtonClick(button, event)
                     }, button.label)
                 ),
                 // Always include the debug button
                 e('button', {
-                    className: 'wpnl-tool-details-button',
+                    className: 'ai-commander-tool-details-button',
                     onClick: toggleDetails
                 }, 'Debug')
             )
@@ -301,15 +301,15 @@ const MessageItem = ({ message }) => {
         
         // Split by newlines and create an array of text elements
         return text.split('\n').map((line, i) => 
-            e('div', { key: i, className: 'wpnl-message-line' }, line)
+            e('div', { key: i, className: 'ai-commander-message-line' }, line)
         );
     };
     
     return e(
         'div',
-        { className: `wpnl-message ${role}` },
+        { className: `ai-commander-message ${role}` },
         e('div', 
-            { className: 'wpnl-message-content' },
+            { className: 'ai-commander-message-content' },
             formatContent(content)
         )
     );
@@ -350,7 +350,7 @@ const MessageItem = ({ message }) => {
             return e(
                 'div',
                 { 
-                    className: 'wpnl-message-list',
+                    className: 'ai-commander-message-list',
                     ref: messageListRef
                 },
                 messages.map((message, index) => 
@@ -369,7 +369,7 @@ const MessageItem = ({ message }) => {
             return e(
                 'svg',
                 {
-                    className: 'wpnl-mic-icon',
+                    className: 'ai-commander-mic-icon',
                     xmlns: 'http://www.w3.org/2000/svg',
                     viewBox: '0 0 24 24',
                     fill: 'currentColor'
@@ -391,8 +391,8 @@ const MessageItem = ({ message }) => {
         const RecordingStatus = () => {
             return e(
                 'div',
-                { className: 'wpnl-recording-status' },
-                e('div', { className: 'wpnl-recording-status-dot' }),
+                { className: 'ai-commander-recording-status' },
+                e('div', { className: 'ai-commander-recording-status-dot' }),
                 'Recording...'
             );
         };
@@ -413,8 +413,8 @@ const MessageItem = ({ message }) => {
             // Check if speech-to-text is enabled in settings
             useEffect(() => {
                 // This value is set in the localized script data
-                if (typeof wpnlData !== 'undefined' && wpnlData.enable_speech_to_text !== undefined) {
-                    setIsSpeechEnabled(wpnlData.enable_speech_to_text === '1');
+                if (typeof aiCommanderData !== 'undefined' && aiCommanderData.enable_speech_to_text !== undefined) {
+                    setIsSpeechEnabled(aiCommanderData.enable_speech_to_text === '1');
                 }
             }, []);
             
@@ -543,14 +543,14 @@ const MessageItem = ({ message }) => {
             const sendAudioToServer = (audioBlob) => {
                 const formData = new FormData();
                 formData.append('audio', audioBlob, 'recording.webm');
-                formData.append('action', 'wpnl_transcribe_audio');
-                formData.append('nonce', wpnlData.nonce);
+                formData.append('action', 'ai_commander_transcribe_audio');
+                formData.append('nonce', aiCommanderData.nonce);
                 
                 // Show transcription loading state
                 setIsTranscribing(true);
                 
                 $.ajax({
-                    url: wpnlData.ajax_url,
+                    url: aiCommanderData.ajax_url,
                     method: 'POST',
                     data: formData,
                     processData: false,
@@ -580,9 +580,9 @@ const MessageItem = ({ message }) => {
             
             return e(
                 'div',
-                { className: 'wpnl-input-container' },
+                { className: 'ai-commander-input-container' },
                 e('textarea', {
-                    className: 'wpnl-message-input',
+                    className: 'ai-commander-message-input',
                     placeholder: 'Type your command here...',
                     value: inputValue,
                     onChange: handleInputChange,
@@ -593,7 +593,7 @@ const MessageItem = ({ message }) => {
                 isSpeechEnabled && e(
                     'button',
                     {
-                        className: `wpnl-mic-button ${isRecording ? 'recording' : ''} ${isTranscribing ? 'transcribing' : ''}`,
+                        className: `ai-commander-mic-button ${isRecording ? 'recording' : ''} ${isTranscribing ? 'transcribing' : ''}`,
                         onClick: toggleRecording,
                         disabled: isProcessing || isTranscribing,
                         title: isRecording ? 'Stop recording' : (isTranscribing ? 'Transcribing...' : 'Start recording'),
@@ -604,7 +604,7 @@ const MessageItem = ({ message }) => {
                 e(
                     'button',
                     {
-                        className: 'wpnl-send-button',
+                        className: 'ai-commander-send-button',
                         onClick: handleSendMessage,
                         disabled: isProcessing || isTranscribing || !inputValue.trim(),
                         type: 'button'
@@ -614,7 +614,7 @@ const MessageItem = ({ message }) => {
                 isRecording && e(RecordingStatus),
                 isTranscribing && e(
                     'div',
-                    { className: 'wpnl-transcribing-status' },
+                    { className: 'ai-commander-transcribing-status' },
                     'Transcribing audio...'
                 )
             );
@@ -650,7 +650,7 @@ const ActionResults = ({ actions }) => {
                     url: config.ajaxUrl,
                     method: 'POST',
                     data: {
-                        action: 'wpnl_create_conversation',
+                        action: 'ai_commander_create_conversation',
                         nonce: config.nonce
                     },
                     success: function(response) {
@@ -662,7 +662,7 @@ const ActionResults = ({ actions }) => {
                             setConversationId(newConversationId);
                             
                             // Save the conversation ID to localStorage
-                            localStorage.setItem('wp_wpnl_conversation_id', newConversationId);
+                            localStorage.setItem('wp_ai_commander_conversation_id', newConversationId);
                             
                             // Set the initial messages
                             setMessages(response.data.messages || []);
@@ -695,7 +695,7 @@ const ActionResults = ({ actions }) => {
                     url: config.ajaxUrl,
                     method: 'POST',
                     data: {
-                        action: 'wpnl_get_conversation',
+                        action: 'ai_commander_get_conversation',
                         nonce: config.nonce,
                         conversation_uuid: conversationUuid
                     },
@@ -714,7 +714,7 @@ const ActionResults = ({ actions }) => {
                         } else {
                             // If there's an error loading the conversation, create a new one
                             console.error('Failed to load conversation:', response.data.message);
-                            localStorage.removeItem('wp_wpnl_conversation_id');
+                            localStorage.removeItem('wp_ai_commander_conversation_id');
                             startNewConversation();
                         }
                     },
@@ -723,7 +723,7 @@ const ActionResults = ({ actions }) => {
                         console.error('Error loading conversation:', error);
                         
                         // If there's an error, create a new conversation
-                        localStorage.removeItem('wp_wpnl_conversation_id');
+                        localStorage.removeItem('wp_ai_commander_conversation_id');
                         startNewConversation();
                     }
                 });
@@ -731,7 +731,7 @@ const ActionResults = ({ actions }) => {
             
             // When component mounts, check for existing conversation ID
             useEffect(() => {
-                const savedConversationId = localStorage.getItem('wp_wpnl_conversation_id');
+                const savedConversationId = localStorage.getItem('wp_ai_commander_conversation_id');
                 
                 if (savedConversationId) {
                     // Load the existing conversation
@@ -760,7 +760,7 @@ const ActionResults = ({ actions }) => {
                     url: config.ajaxUrl,
                     method: 'POST',
                     data: {
-                        action: 'wpnl_process_command',
+                        action: 'ai_commander_process_command',
                         nonce: config.nonce,
                         command: message,
                         conversation_uuid: conversationId
@@ -806,7 +806,7 @@ const ActionResults = ({ actions }) => {
                     url: config.ajaxUrl,
                     method: 'POST',
                     data: {
-                        action: 'wpnl_get_conversation',
+                        action: 'ai_commander_get_conversation',
                         nonce: config.nonce,
                         conversation_uuid: convId
                     },
@@ -837,15 +837,15 @@ const ActionResults = ({ actions }) => {
             
             return e(
                 'div',
-                { className: 'wpnl-chat-container' },
+                { className: 'ai-commander-chat-container' },
                 e(
                     'div',
-                    { className: 'wpnl-chat-header' },
+                    { className: 'ai-commander-chat-header' },
                     e('h3', null, 'WordPress Assistant'),
                     e(
                         'button',
                         {
-                            className: 'wpnl-new-conversation-button',
+                            className: 'ai-commander-new-conversation-button',
                             onClick: startNewConversation,
                             disabled: isProcessing
                         },
@@ -860,7 +860,7 @@ const ActionResults = ({ actions }) => {
                 }),
                 isProcessing && e(
                     'div',
-                    { className: 'wpnl-loading' },
+                    { className: 'ai-commander-loading' },
                     e('span', { className: 'spinner is-active' }),
                     'Processing your command...'
                 )
@@ -871,7 +871,7 @@ const ActionResults = ({ actions }) => {
          * Initialize the chat interface.
          */
         function init() {
-            const container = document.getElementById('wpnl-chat-interface');
+            const container = document.getElementById('ai-commander-chat-interface');
             if (!container) {
                 console.error('Chat interface container not found');
                 return;
@@ -879,11 +879,11 @@ const ActionResults = ({ actions }) => {
             
             // Get configuration from global variable
             const config = {
-                ajaxUrl: wpnlData.ajax_url,
-                nonce: wpnlData.nonce,
-                apiKey: wpnlData.api_key,
-                model: wpnlData.model,
-                enableSpeechToText: wpnlData.enable_speech_to_text
+                ajaxUrl: aiCommanderData.ajax_url,
+                nonce: aiCommanderData.nonce,
+                apiKey: aiCommanderData.api_key,
+                model: aiCommanderData.model,
+                enableSpeechToText: aiCommanderData.enable_speech_to_text
             };
             
             // Render the chat interface

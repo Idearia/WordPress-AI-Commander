@@ -24,7 +24,7 @@ composer readme
 mv readme.txt build/
 
 # Copy all necessary plugin files to the build directory
-cp -R admin assets includes tools LICENSE wpnl-wordpress-natural-language.php build/
+cp -R admin assets includes tools LICENSE ai-commander.php build/
 
 # Remove excluded files
 for pattern in "${EXCLUDED_PATTERNS[@]}"; do
@@ -37,7 +37,7 @@ VERSION=$(jq -r '.version' composer.json)
 
 # Create zip file
 cd build || { echo "Failed to enter build directory"; exit 1; }
-zip -r "../wpnl-${VERSION}.zip" *
+zip -r "../ai-commander-${VERSION}.zip" *
 cd ..
 
 # Clean up

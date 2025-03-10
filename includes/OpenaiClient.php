@@ -2,10 +2,10 @@
 /**
  * OpenAI Client Class
  *
- * @package WPNL
+ * @package AICommander
  */
 
-namespace WPNL\Includes;
+namespace AICommander\Includes;
 
 if ( ! defined( 'WPINC' ) ) {
     die;
@@ -57,9 +57,9 @@ class OpenaiClient {
      * Constructor.
      */
     public function __construct() {
-        $this->api_key = get_option( 'wpnl_openai_api_key', '' );
-        $this->model = get_option( 'wpnl_openai_model', 'gpt-4o' );
-        $this->debug_mode = get_option( 'wpnl_debug_mode', false );
+        $this->api_key = get_option( 'ai_commander_openai_api_key', '' );
+        $this->model = get_option( 'ai_commander_openai_model', 'gpt-4o' );
+        $this->debug_mode = get_option( 'ai_commander_debug_mode', false );
     }
     
     /**
@@ -252,14 +252,14 @@ class OpenaiClient {
         $default_prompt = $this->get_default_system_prompt();
 
         // Get the system prompt from options, fallback to default if empty
-        $system_prompt = get_option( 'wpnl_system_prompt', $default_prompt );
+        $system_prompt = get_option( 'ai_commander_system_prompt', $default_prompt );
         
         if ( empty( $system_prompt ) ) {
             $system_prompt = $default_prompt;
         }
         
         // Apply filter to allow developers to modify the system prompt
-        return apply_filters( 'wpnl_filter_system_prompt', $system_prompt );
+        return apply_filters( 'ai_commander_filter_system_prompt', $system_prompt );
     }
 
     /**

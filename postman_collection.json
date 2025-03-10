@@ -1,8 +1,8 @@
 {
 	"info": {
 		"_postman_id": "0908d285-68af-49f1-bbc6-fd7ffd8dc986",
-		"name": "WPNL",
-		"description": "REST API endpoints for the 'WPNL: WordPress Natural Language' plugin. This collection allows you to interact with the chatbot programmatically.",
+		"name": "AI Commander",
+		"description": "REST API endpoints for the AI Commander WordPress plugin. This collection allows you to interact with the chatbot programmatically.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "23235610",
 		"_collection_link": "https://idearia.postman.co/workspace/Team-Workspace~edc573c5-a95c-47c6-8bb8-e782f313cbdb/collection/23235610-0908d285-68af-49f1-bbc6-fd7ffd8dc986?action=share&source=collection_link&creator=23235610"
@@ -14,13 +14,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/wp-json/wpnl/v1/conversations",
+					"raw": "{{baseUrl}}/wp-json/ai-commander/v1/conversations",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"wp-json",
-						"wpnl",
+						"ai-commander",
 						"v1",
 						"conversations"
 					]
@@ -34,13 +34,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/wp-json/wpnl/v1/conversations",
+							"raw": "{{baseUrl}}/wp-json/ai-commander/v1/conversations",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"wp-json",
-								"wpnl",
+								"ai-commander",
 								"v1",
 								"conversations"
 							]
@@ -84,7 +84,7 @@
 						},
 						{
 							"key": "Link",
-							"value": "<http://test-wpnl-plugin.mylocal/wp-json/>; rel=\"https://api.w.org/\""
+							"value": "<http://test-ai-commander-plugin.mylocal/wp-json/>; rel=\"https://api.w.org/\""
 						},
 						{
 							"key": "X-Content-Type-Options",
@@ -135,13 +135,13 @@
 					"raw": "{\n  \"command\": \"Create a new draft titled 'Hello World'\",\n  \"conversation_uuid\": \"dff7ffb1-aaca-4d56-8804-4654d9ef4aa0\"\n}"
 				},
 				"url": {
-					"raw": "{{baseUrl}}/wp-json/wpnl/v1/command",
+					"raw": "{{baseUrl}}/wp-json/ai-commander/v1/command",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"wp-json",
-						"wpnl",
+						"ai-commander",
 						"v1",
 						"command"
 					]
@@ -164,13 +164,13 @@
 							"raw": "{\n  \"command\": \"Create a new draft titled 'Hello World'\",\n  \"conversation_uuid\": \"dff7ffb1-aaca-4d56-8804-4654d9ef4aa0\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/wp-json/wpnl/v1/command",
+							"raw": "{{baseUrl}}/wp-json/ai-commander/v1/command",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"wp-json",
-								"wpnl",
+								"ai-commander",
 								"v1",
 								"command"
 							]
@@ -214,7 +214,7 @@
 						},
 						{
 							"key": "Link",
-							"value": "<http://test-wpnl-plugin.mylocal/wp-json/>; rel=\"https://api.w.org/\""
+							"value": "<http://test-ai-commander-plugin.mylocal/wp-json/>; rel=\"https://api.w.org/\""
 						},
 						{
 							"key": "X-Content-Type-Options",
@@ -246,7 +246,7 @@
 						}
 					],
 					"cookie": [],
-					"body": "{\n    \"success\": true,\n    \"message\": \"\",\n    \"actions\": [\n        {\n            \"tool\": \"create_post\",\n            \"tool_call_id\": \"call_8Z7lMMdlKKFCHeTEjESPceab\",\n            \"arguments\": {\n                \"title\": \"Hello World\",\n                \"content\": null,\n                \"excerpt\": null,\n                \"status\": \"draft\",\n                \"post_type\": null,\n                \"categories\": null,\n                \"tags\": null,\n                \"date\": null\n            },\n            \"result\": {\n                \"success\": true,\n                \"post_id\": 229,\n                \"post_title\": \"Hello World\",\n                \"post_type\": \"post\",\n                \"post_url\": \"http://test-wpnl-plugin.mylocal/?p=229\",\n                \"edit_url\": \"http://test-wpnl-plugin.mylocal/wp-admin/post.php?post=229&action=edit\"\n            },\n            \"title\": \"Executed create_post successfully.\",\n            \"summary\": \"Post \\\"Hello World\\\" created successfully with ID 229.\"\n        }\n    ],\n    \"conversation_uuid\": \"dff7ffb1-aaca-4d56-8804-4654d9ef4aa0\"\n}"
+					"body": "{\n    \"success\": true,\n    \"message\": \"\",\n    \"actions\": [\n        {\n            \"tool\": \"create_post\",\n            \"tool_call_id\": \"call_8Z7lMMdlKKFCHeTEjESPceab\",\n            \"arguments\": {\n                \"title\": \"Hello World\",\n                \"content\": null,\n                \"excerpt\": null,\n                \"status\": \"draft\",\n                \"post_type\": null,\n                \"categories\": null,\n                \"tags\": null,\n                \"date\": null\n            },\n            \"result\": {\n                \"success\": true,\n                \"post_id\": 229,\n                \"post_title\": \"Hello World\",\n                \"post_type\": \"post\",\n                \"post_url\": \"http://test-ai-commander-plugin.mylocal/?p=229\",\n                \"edit_url\": \"http://test-ai-commander-plugin.mylocal/wp-admin/post.php?post=229&action=edit\"\n            },\n            \"title\": \"Executed create_post successfully.\",\n            \"summary\": \"Post \\\"Hello World\\\" created successfully with ID 229.\"\n        }\n    ],\n    \"conversation_uuid\": \"dff7ffb1-aaca-4d56-8804-4654d9ef4aa0\"\n}"
 				},
 				{
 					"name": "Add a command to a conversation",
@@ -263,13 +263,13 @@
 							"raw": "{\n  \"command\": \"Publish the post you just created\",\n  \"conversation_uuid\": \"dff7ffb1-aaca-4d56-8804-4654d9ef4aa0\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/wp-json/wpnl/v1/command",
+							"raw": "{{baseUrl}}/wp-json/ai-commander/v1/command",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"wp-json",
-								"wpnl",
+								"ai-commander",
 								"v1",
 								"command"
 							]
@@ -313,7 +313,7 @@
 						},
 						{
 							"key": "Link",
-							"value": "<http://test-wpnl-plugin.mylocal/wp-json/>; rel=\"https://api.w.org/\""
+							"value": "<http://test-ai-commander-plugin.mylocal/wp-json/>; rel=\"https://api.w.org/\""
 						},
 						{
 							"key": "X-Content-Type-Options",
@@ -345,7 +345,7 @@
 						}
 					],
 					"cookie": [],
-					"body": "{\n    \"success\": true,\n    \"message\": \"\",\n    \"actions\": [\n        {\n            \"tool\": \"edit_post\",\n            \"tool_call_id\": \"call_LyHgnXVVlit7QRREApfkdaeO\",\n            \"arguments\": {\n                \"post_id\": 229,\n                \"post_title\": null,\n                \"title\": null,\n                \"content\": null,\n                \"excerpt\": null,\n                \"status\": \"publish\",\n                \"categories\": null,\n                \"tags\": null,\n                \"date\": null\n            },\n            \"result\": {\n                \"success\": true,\n                \"post_id\": 229,\n                \"post_title\": \"Hello World\",\n                \"post_type\": \"post\",\n                \"post_url\": \"http://test-wpnl-plugin.mylocal/hello-world/\",\n                \"edit_url\": \"http://test-wpnl-plugin.mylocal/wp-admin/post.php?post=229&action=edit\"\n            },\n            \"title\": \"Executed edit_post successfully.\",\n            \"summary\": \"Post \\\"Hello World\\\" updated successfully with ID 229.\"\n        }\n    ],\n    \"conversation_uuid\": \"dff7ffb1-aaca-4d56-8804-4654d9ef4aa0\"\n}"
+					"body": "{\n    \"success\": true,\n    \"message\": \"\",\n    \"actions\": [\n        {\n            \"tool\": \"edit_post\",\n            \"tool_call_id\": \"call_LyHgnXVVlit7QRREApfkdaeO\",\n            \"arguments\": {\n                \"post_id\": 229,\n                \"post_title\": null,\n                \"title\": null,\n                \"content\": null,\n                \"excerpt\": null,\n                \"status\": \"publish\",\n                \"categories\": null,\n                \"tags\": null,\n                \"date\": null\n            },\n            \"result\": {\n                \"success\": true,\n                \"post_id\": 229,\n                \"post_title\": \"Hello World\",\n                \"post_type\": \"post\",\n                \"post_url\": \"http://test-ai-commander-plugin.mylocal/hello-world/\",\n                \"edit_url\": \"http://test-ai-commander-plugin.mylocal/wp-admin/post.php?post=229&action=edit\"\n            },\n            \"title\": \"Executed edit_post successfully.\",\n            \"summary\": \"Post \\\"Hello World\\\" updated successfully with ID 229.\"\n        }\n    ],\n    \"conversation_uuid\": \"dff7ffb1-aaca-4d56-8804-4654d9ef4aa0\"\n}"
 				}
 			]
 		},
@@ -355,13 +355,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/wp-json/wpnl/v1/conversations/:uuid",
+					"raw": "{{baseUrl}}/wp-json/ai-commander/v1/conversations/:uuid",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"wp-json",
-						"wpnl",
+						"ai-commander",
 						"v1",
 						"conversations",
 						":uuid"
@@ -383,13 +383,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/wp-json/wpnl/v1/conversations/:uuid",
+							"raw": "{{baseUrl}}/wp-json/ai-commander/v1/conversations/:uuid",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"wp-json",
-								"wpnl",
+								"ai-commander",
 								"v1",
 								"conversations",
 								":uuid"
@@ -441,7 +441,7 @@
 						},
 						{
 							"key": "Link",
-							"value": "<http://test-wpnl-plugin.mylocal/wp-json/>; rel=\"https://api.w.org/\""
+							"value": "<http://test-ai-commander-plugin.mylocal/wp-json/>; rel=\"https://api.w.org/\""
 						},
 						{
 							"key": "X-Content-Type-Options",
@@ -473,7 +473,7 @@
 						}
 					],
 					"cookie": [],
-					"body": "{\n    \"conversation_uuid\": \"21f9749c-3670-457c-909b-b0a1754f2063\",\n    \"messages\": [\n        {\n            \"role\": \"assistant\",\n            \"content\": \"Hello! I'm your WordPress assistant. How can I help you today?\"\n        },\n        {\n            \"role\": \"user\",\n            \"content\": \"Create a new draft titled 'Hello World'\"\n        },\n        {\n            \"role\": \"assistant\",\n            \"content\": \"\",\n            \"tool_calls\": [\n                {\n                    \"id\": \"call_kZ0ETUhO5tFrDIThzJLkrTpW\",\n                    \"type\": \"function\",\n                    \"function\": {\n                        \"name\": \"create_post\",\n                        \"arguments\": \"{\\\"title\\\":\\\"Hello World\\\",\\\"content\\\":null,\\\"excerpt\\\":null,\\\"status\\\":\\\"draft\\\",\\\"post_type\\\":\\\"post\\\",\\\"categories\\\":null,\\\"tags\\\":null,\\\"date\\\":null}\"\n                    }\n                }\n            ]\n        },\n        {\n            \"role\": \"tool\",\n            \"content\": \"{\\\"success\\\":true,\\\"post_id\\\":197,\\\"post_title\\\":\\\"Hello World\\\",\\\"post_type\\\":\\\"post\\\",\\\"post_url\\\":\\\"http://test-wpnl-plugin.mylocal/?p=197\\\",\\\"edit_url\\\":\\\"http://test-wpnl-plugin.mylocal/wp-admin/post.php?post=197&action=edit\\\"}\",\n            \"tool_call_id\": \"call_kZ0ETUhO5tFrDIThzJLkrTpW\"\n        }\n    ],\n    \"messages_for_frontend\": [\n        {\n            \"role\": \"assistant\",\n            \"content\": \"Hello! I'm your WordPress assistant. How can I help you today?\"\n        },\n        {\n            \"role\": \"user\",\n            \"content\": \"Create a new draft titled 'Hello World'\"\n        },\n        {\n            \"role\": \"tool\",\n            \"content\": \"{\\\"success\\\":true,\\\"post_id\\\":197,\\\"post_title\\\":\\\"Hello World\\\",\\\"post_type\\\":\\\"post\\\",\\\"post_url\\\":\\\"http://test-wpnl-plugin.mylocal/?p=197\\\",\\\"edit_url\\\":\\\"http://test-wpnl-plugin.mylocal/wp-admin/post.php?post=197&action=edit\\\"}\",\n            \"isToolCall\": true,\n            \"action\": {\n                \"tool\": \"create_post\",\n                \"tool_call_id\": \"call_kZ0ETUhO5tFrDIThzJLkrTpW\",\n                \"arguments\": {\n                    \"title\": \"Hello World\",\n                    \"content\": null,\n                    \"excerpt\": null,\n                    \"status\": \"draft\",\n                    \"post_type\": \"post\",\n                    \"categories\": null,\n                    \"tags\": null,\n                    \"date\": null\n                },\n                \"result\": {\n                    \"success\": true,\n                    \"post_id\": 197,\n                    \"post_title\": \"Hello World\",\n                    \"post_type\": \"post\",\n                    \"post_url\": \"http://test-wpnl-plugin.mylocal/?p=197\",\n                    \"edit_url\": \"http://test-wpnl-plugin.mylocal/wp-admin/post.php?post=197&action=edit\"\n                },\n                \"title\": \"Executed create_post successfully.\",\n                \"summary\": \"Post \\\"Hello World\\\" created successfully with ID 197.\"\n            }\n        }\n    ]\n}"
+					"body": "{\n    \"conversation_uuid\": \"21f9749c-3670-457c-909b-b0a1754f2063\",\n    \"messages\": [\n        {\n            \"role\": \"assistant\",\n            \"content\": \"Hello! I'm your WordPress assistant. How can I help you today?\"\n        },\n        {\n            \"role\": \"user\",\n            \"content\": \"Create a new draft titled 'Hello World'\"\n        },\n        {\n            \"role\": \"assistant\",\n            \"content\": \"\",\n            \"tool_calls\": [\n                {\n                    \"id\": \"call_kZ0ETUhO5tFrDIThzJLkrTpW\",\n                    \"type\": \"function\",\n                    \"function\": {\n                        \"name\": \"create_post\",\n                        \"arguments\": \"{\\\"title\\\":\\\"Hello World\\\",\\\"content\\\":null,\\\"excerpt\\\":null,\\\"status\\\":\\\"draft\\\",\\\"post_type\\\":\\\"post\\\",\\\"categories\\\":null,\\\"tags\\\":null,\\\"date\\\":null}\"\n                    }\n                }\n            ]\n        },\n        {\n            \"role\": \"tool\",\n            \"content\": \"{\\\"success\\\":true,\\\"post_id\\\":197,\\\"post_title\\\":\\\"Hello World\\\",\\\"post_type\\\":\\\"post\\\",\\\"post_url\\\":\\\"http://test-ai-commander-plugin.mylocal/?p=197\\\",\\\"edit_url\\\":\\\"http://test-ai-commander-plugin.mylocal/wp-admin/post.php?post=197&action=edit\\\"}\",\n            \"tool_call_id\": \"call_kZ0ETUhO5tFrDIThzJLkrTpW\"\n        }\n    ],\n    \"messages_for_frontend\": [\n        {\n            \"role\": \"assistant\",\n            \"content\": \"Hello! I'm your WordPress assistant. How can I help you today?\"\n        },\n        {\n            \"role\": \"user\",\n            \"content\": \"Create a new draft titled 'Hello World'\"\n        },\n        {\n            \"role\": \"tool\",\n            \"content\": \"{\\\"success\\\":true,\\\"post_id\\\":197,\\\"post_title\\\":\\\"Hello World\\\",\\\"post_type\\\":\\\"post\\\",\\\"post_url\\\":\\\"http://test-ai-commander-plugin.mylocal/?p=197\\\",\\\"edit_url\\\":\\\"http://test-ai-commander-plugin.mylocal/wp-admin/post.php?post=197&action=edit\\\"}\",\n            \"isToolCall\": true,\n            \"action\": {\n                \"tool\": \"create_post\",\n                \"tool_call_id\": \"call_kZ0ETUhO5tFrDIThzJLkrTpW\",\n                \"arguments\": {\n                    \"title\": \"Hello World\",\n                    \"content\": null,\n                    \"excerpt\": null,\n                    \"status\": \"draft\",\n                    \"post_type\": \"post\",\n                    \"categories\": null,\n                    \"tags\": null,\n                    \"date\": null\n                },\n                \"result\": {\n                    \"success\": true,\n                    \"post_id\": 197,\n                    \"post_title\": \"Hello World\",\n                    \"post_type\": \"post\",\n                    \"post_url\": \"http://test-ai-commander-plugin.mylocal/?p=197\",\n                    \"edit_url\": \"http://test-ai-commander-plugin.mylocal/wp-admin/post.php?post=197&action=edit\"\n                },\n                \"title\": \"Executed create_post successfully.\",\n                \"summary\": \"Post \\\"Hello World\\\" created successfully with ID 197.\"\n            }\n        }\n    ]\n}"
 				}
 			]
 		},
@@ -501,13 +501,13 @@
 					]
 				},
 				"url": {
-					"raw": "{{baseUrl}}/wp-json/wpnl/v1/transcribe",
+					"raw": "{{baseUrl}}/wp-json/ai-commander/v1/transcribe",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"wp-json",
-						"wpnl",
+						"ai-commander",
 						"v1",
 						"transcribe"
 					]
@@ -547,13 +547,13 @@
 					]
 				},
 				"url": {
-					"raw": "{{baseUrl}}/wp-json/wpnl/v1/voice-command",
+					"raw": "{{baseUrl}}/wp-json/ai-commander/v1/voice-command",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"wp-json",
-						"wpnl",
+						"ai-commander",
 						"v1",
 						"voice-command"
 					]

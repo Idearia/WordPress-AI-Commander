@@ -1,6 +1,6 @@
-# WPNL: WordPress Natural Language
+# AI Commander
 
-Control WordPress with natural language, via text, voice or API.  Uses OpenAI to process NL commands and execute the appropriate WordPress actions.
+Control WordPress with natural language or voice, with API support.  Uses OpenAI to process commands and execute the appropriate WordPress actions.
 
 ## Features
 
@@ -13,10 +13,10 @@ Control WordPress with natural language, via text, voice or API.  Uses OpenAI to
 
 ## Installation
 
-1. Upload the `wpnl-wordpress-natural-language` directory to the `/wp-content/plugins/` directory
+1. Upload the `ai-commander` directory to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Go to 'WPNL > Settings' and insert your OpenAI API key
-4. Go to the 'WPNL > Chatbot' and try a test command, e.g. create a "Hello world" post with tag "Testing".
+3. Go to 'AI Commander > Settings' and insert your OpenAI API key
+4. Go to the 'AI Commander > Chatbot' and try a test command, e.g. create a "Hello world" post with tag "Testing".
 
 ## Demo video
 
@@ -73,11 +73,11 @@ You can extend the plugin's functionality by adding new tools from your own them
 
 ### 1. Create a New Tool Class
 
-Create a new PHP file in your theme or plugin, for example `SimplePageCreationTool.php`. Your tool class should extend the `BaseTool` class from the WP Natural Language Commands plugin:
+Create a new PHP file in your theme or plugin, for example `SimplePageCreationTool.php`. Your tool class should extend the `BaseTool` class from the AI Commander plugin:
 
 ```php
 <?php
-use WPNL\Tools\BaseTool;
+use AICommander\Tools\BaseTool;
 
 /**
  * Tool to create an empty WordPress page with just a title.
@@ -161,11 +161,11 @@ In your theme's `functions.php` file or your plugin file, add code to register y
 
 ```php
 /**
- * Register custom tools with WP Natural Language Commands
+ * Register custom tools for AI Commander
  */
-function register_custom_wpnl_tools() {
-    // Make sure WP Natural Language Commands plugin is active
-    if (!class_exists('WPNL\\Includes\\ToolRegistry')) {
+function register_custom_ai_commander_tools() {
+    // Make sure AI Commander plugin is active
+    if (!class_exists('AICommander\\Includes\\ToolRegistry')) {
         return;
     }
     
@@ -175,7 +175,7 @@ function register_custom_wpnl_tools() {
     // Instantiate your tool (this will automatically register it)
     new SimplePageCreationTool();
 }
-add_action('init', 'register_custom_wpnl_tools', 10);
+add_action('init', 'register_custom_ai_commander_tools', 10);
 ```
 
 ### 3. Best Practices
@@ -354,13 +354,13 @@ Authorization: Basic base64encode(username:application_password)
 #### Get all conversations
 
 ```
-GET /wp-json/wpnl/v1/conversations
+GET /wp-json/ai-commander/v1/conversations
 ```
 
 #### Process a command
 
 ```
-POST /wp-json/wpnl/v1/commands
+POST /wp-json/ai-commander/v1/commands
 ```
 
 Request body:
@@ -377,13 +377,13 @@ This endpoint handles both creating a new conversation (when `conversation_uuid`
 #### Get an existing conversation
 
 ```
-GET /wp-json/wpnl/v1/conversations/{uuid}
+GET /wp-json/ai-commander/v1/conversations/{uuid}
 ```
 
 #### Transcribe audio
 
 ```
-POST /wp-json/wpnl/v1/transcribe
+POST /wp-json/ai-commander/v1/transcribe
 ```
 
 Request body (multipart/form-data):
@@ -404,7 +404,7 @@ Response:
 #### Process voice command
 
 ```
-POST /wp-json/wpnl/v1/voice-command
+POST /wp-json/ai-commander/v1/voice-command
 ```
 
 Request body (multipart/form-data):
@@ -453,7 +453,7 @@ The plugin is entirely hosted on your own WordPress site. Your commands are sent
 ## Upgrade Notice
 
 ### 1.0.0
-Initial release of the WPNL plugin.
+Initial release of the AI Commander plugin.
 
 ## License
 

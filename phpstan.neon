@@ -7,7 +7,7 @@ parameters:
     
     # Paths to analyze
     paths:
-        - wpnl-wordpress-natural-language.php
+        - ai-commander.php
         - admin/
         - includes/
         - tools/
@@ -19,11 +19,14 @@ parameters:
     # Ignore some common WordPress patterns and project-specific issues
     ignoreErrors:
         # Project-specific constants
-        - '#Constant WPNL_PLUGIN_URL not found\.#'
-        - '#Constant WPNL_PLUGIN_DIR not found\.#'
+        - '#Constant AI_COMMANDER_PLUGIN_URL not found\.#'
+        - '#Constant AI_COMMANDER_PLUGIN_DIR not found\.#'
         
         # WordPress admin includes
         - '#Path in require_once\(\) ".\/wp-admin\/includes\/.*" is not a file or it does not exist\.#'
         
         # Undefined variable in ContentOrganizationTool.php
         - '#Variable \$result might not be defined\.#'
+
+    # Do not report unmatched ignored errors
+    reportUnmatchedIgnoredErrors: false

@@ -2,12 +2,12 @@
 /**
  * REST API Class
  *
- * @package WPNL
+ * @package AICommander
  */
 
-namespace WPNL\Includes;
+namespace AICommander\Includes;
 
-use WPNL\Includes\Services\ConversationService;
+use AICommander\Includes\Services\ConversationService;
 
 if ( ! defined( 'WPINC' ) ) {
     die;
@@ -42,7 +42,7 @@ class RestApi {
      */
     public function register_routes() {
         // Register route for processing commands (creating a new conversation or adding to an existing one)
-        register_rest_route( 'wpnl/v1', '/command', array(
+        register_rest_route( 'ai-commander/v1', '/command', array(
             'methods' => 'POST',
             'callback' => array( $this, 'process_command' ),
             'permission_callback' => array( $this, 'check_permission' ),
@@ -63,14 +63,14 @@ class RestApi {
         ) );
         
         // Register route for transcribing audio
-        register_rest_route( 'wpnl/v1', '/transcribe', array(
+        register_rest_route( 'ai-commander/v1', '/transcribe', array(
             'methods' => 'POST',
             'callback' => array( $this, 'transcribe_audio' ),
             'permission_callback' => array( $this, 'check_permission' ),
         ) );
         
         // Register route for processing voice commands (transcribe + process in one request)
-        register_rest_route( 'wpnl/v1', '/voice-command', array(
+        register_rest_route( 'ai-commander/v1', '/voice-command', array(
             'methods' => 'POST',
             'callback' => array( $this, 'process_voice_command' ),
             'permission_callback' => array( $this, 'check_permission' ),
@@ -85,14 +85,14 @@ class RestApi {
         ) );
 
         // Register route for getting all conversations for the current user
-        register_rest_route( 'wpnl/v1', '/conversations', array(
+        register_rest_route( 'ai-commander/v1', '/conversations', array(
             'methods' => 'GET',
             'callback' => array( $this, 'get_all_conversations' ),
             'permission_callback' => array( $this, 'check_permission' ),
         ) );
         
         // Register route for getting a conversation
-        register_rest_route( 'wpnl/v1', '/conversations/(?P<uuid>[a-zA-Z0-9-]+)', array(
+        register_rest_route( 'ai-commander/v1', '/conversations/(?P<uuid>[a-zA-Z0-9-]+)', array(
             'methods' => 'GET',
             'callback' => array( $this, 'get_conversation' ),
             'permission_callback' => array( $this, 'check_permission' ),
@@ -119,7 +119,7 @@ class RestApi {
         if ( ! current_user_can( 'edit_posts' ) ) {
             return new \WP_Error(
                 'rest_forbidden',
-                __( 'You do not have permission to use this API.', 'wpnl' ),
+                __( 'You do not have permission to use this API.', 'ai-commander' ),
                 array( 'status' => 403 )
             );
         }
@@ -163,7 +163,7 @@ class RestApi {
         if ( ! $result ) {
             return new \WP_Error(
                 'rest_not_found',
-                __( 'Conversation not found or you do not have permission to access it.', 'wpnl' ),
+                __( 'Conversation not found or you do not have permission to access it.', 'ai-commander' ),
                 array( 'status' => 404 )
             );
         }
@@ -205,11 +205,11 @@ class RestApi {
      */
     public function transcribe_audio( $request ) {
         // Check if speech-to-text is enabled
-        $enable_speech = get_option( 'wpnl_enable_speech_to_text', true );
+        $enable_speech = get_option( 'ai_commander_enable_speech_to_text', true );
         if ( ! $enable_speech ) {
             return new \WP_Error(
                 'speech_disabled',
-                __( 'Speech-to-text is disabled in settings.', 'wpnl' ),
+                __( 'Speech-to-text is disabled in settings.', 'ai-commander' ),
                 array( 'status' => 400 )
             );
         }
@@ -222,7 +222,7 @@ class RestApi {
         if ( empty( $files['audio'] ) ) {
             return new \WP_Error(
                 'missing_audio',
-                __( 'No audio file provided.', 'wpnl' ),
+                __( 'No audio file provided.', 'ai-commander' ),
                 array( 'status' => 400 )
             );
         }
@@ -279,11 +279,11 @@ class RestApi {
      */
     public function process_voice_command( $request ) {
         // Check if speech-to-text is enabled
-        $enable_speech = get_option( 'wpnl_enable_speech_to_text', true );
+        $enable_speech = get_option( 'ai_commander_enable_speech_to_text', true );
         if ( ! $enable_speech ) {
             return new \WP_Error(
                 'speech_disabled',
-                __( 'Speech-to-text is disabled in settings.', 'wpnl' ),
+                __( 'Speech-to-text is disabled in settings.', 'ai-commander' ),
                 array( 'status' => 400 )
             );
         }
@@ -299,7 +299,7 @@ class RestApi {
         if ( empty( $files['audio'] ) ) {
             return new \WP_Error(
                 'missing_audio',
-                __( 'No audio file provided.', 'wpnl' ),
+                __( 'No audio file provided.', 'ai-commander' ),
                 array( 'status' => 400 )
             );
         }

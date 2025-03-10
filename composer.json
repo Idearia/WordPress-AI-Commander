@@ -1,6 +1,6 @@
 {
-    "name": "wpnl/plugin",
-    "description": "WPNL: WordPress Natural Language",
+    "name": "idearia/ai-commander",
+    "description": "AI Commander",
     "type": "wordpress-plugin",
     "version": "1.0.0",
     "require-dev": {

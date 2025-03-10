@@ -2,12 +2,12 @@
 /**
  * Base Tool Class
  *
- * @package WPNL
+ * @package AICommander
  */
 
-namespace WPNL\Tools;
+namespace AICommander\Tools;
 
-use WPNL\Includes\ToolRegistry;
+use AICommander\Includes\ToolRegistry;
 
 if ( ! defined( 'WPINC' ) ) {
     die;

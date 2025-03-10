@@ -2,14 +2,14 @@
 /**
  * Conversation Service Class
  *
- * @package WPNL
+ * @package AICommander
  */
 
-namespace WPNL\Includes\Services;
+namespace AICommander\Includes\Services;
 
-use WPNL\Includes\ConversationManager;
-use WPNL\Includes\CommandProcessor;
-use WPNL\Includes\OpenaiClient;
+use AICommander\Includes\ConversationManager;
+use AICommander\Includes\CommandProcessor;
+use AICommander\Includes\OpenaiClient;
 use Exception;
 
 if ( ! defined( 'WPINC' ) ) {
@@ -245,7 +245,7 @@ class ConversationService {
      * @return array The modified array of upload directory data.
      */
     public static function get_audio_upload_dir( $uploads ) {
-        $uploads['subdir'] = '/wpnl/audio';
+        $uploads['subdir'] = '/ai-commander/audio';
         $uploads['path'] = $uploads['basedir'] . $uploads['subdir'];
         $uploads['url'] = $uploads['baseurl'] . $uploads['subdir'];
         
@@ -267,7 +267,7 @@ class ConversationService {
      */
     public function transcribe_audio( $audio_file_path, $language = null ) {
         // Check if speech-to-text is enabled
-        $enable_speech = get_option( 'wpnl_enable_speech_to_text', true );
+        $enable_speech = get_option( 'ai_commander_enable_speech_to_text', true );
         if ( ! $enable_speech ) {
             return new \WP_Error(
                 'speech_disabled',

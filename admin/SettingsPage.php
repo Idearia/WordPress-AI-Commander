@@ -2,12 +2,12 @@
 /**
  * Settings Page Class
  *
- * @package WPNL
+ * @package AICommander
  */
 
-namespace WPNL\Admin;
+namespace AICommander\Admin;
 
-use WPNL\Includes\OpenaiClient;
+use AICommander\Includes\OpenaiClient;
 
 if ( ! defined( 'WPINC' ) ) {
     die;
@@ -37,10 +37,10 @@ class SettingsPage extends AdminPage {
         // Add the settings submenu page
         add_submenu_page(
             $this->parent_slug,
-            __( 'Settings', 'wpnl' ),
-            __( 'Settings', 'wpnl' ),
+            __( 'Settings', 'ai-commander' ),
+            __( 'Settings', 'ai-commander' ),
             'manage_options', // Only administrators can access settings
-            'wpnl-settings',
+            'ai-commander-settings',
             array( $this, 'render_settings_page' )
         );
     }
@@ -51,8 +51,8 @@ class SettingsPage extends AdminPage {
     public function register_settings() {
         // Register the settings
         register_setting(
-            'wpnl_settings',
-            'wpnl_openai_api_key',
+            'ai_commander_settings',
+            'ai_commander_openai_api_key',
             array(
                 'type' => 'string',
                 'sanitize_callback' => 'sanitize_text_field',
@@ -61,8 +61,8 @@ class SettingsPage extends AdminPage {
         );
         
         register_setting(
-            'wpnl_settings',
-            'wpnl_openai_model',
+            'ai_commander_settings',
+            'ai_commander_openai_model',
             array(
                 'type' => 'string',
                 'sanitize_callback' => 'sanitize_text_field',
@@ -71,8 +71,8 @@ class SettingsPage extends AdminPage {
         );
         
         register_setting(
-            'wpnl_settings',
-            'wpnl_debug_mode',
+            'ai_commander_settings',
+            'ai_commander_debug_mode',
             array(
                 'type' => 'boolean',
                 'sanitize_callback' => 'rest_sanitize_boolean',
@@ -82,8 +82,8 @@ class SettingsPage extends AdminPage {
         
         // System prompt setting
         register_setting(
-            'wpnl_settings',
-            'wpnl_system_prompt',
+            'ai_commander_settings',
+            'ai_commander_system_prompt',
             array(
                 'type' => 'string',
                 'sanitize_callback' => 'sanitize_textarea_field',
@@ -97,19 +97,19 @@ class SettingsPage extends AdminPage {
         
         // Assistant greeting setting
         register_setting(
-            'wpnl_settings',
-            'wpnl_assistant_greeting',
+            'ai_commander_settings',
+            'ai_commander_assistant_greeting',
             array(
                 'type' => 'string',
                 'sanitize_callback' => 'sanitize_textarea_field',
-                'default' => \WPNL\Includes\ConversationManager::get_default_assistant_greeting(),
+                'default' => \AICommander\Includes\ConversationManager::get_default_assistant_greeting(),
             )
         );
         
         // Speech-to-text settings
         register_setting(
-            'wpnl_settings',
-            'wpnl_enable_speech_to_text',
+            'ai_commander_settings',
+            'ai_commander_enable_speech_to_text',
             array(
                 'type' => 'boolean',
                 'sanitize_callback' => 'rest_sanitize_boolean',
@@ -118,8 +118,8 @@ class SettingsPage extends AdminPage {
         );
         
         register_setting(
-            'wpnl_settings',
-            'wpnl_speech_language',
+            'ai_commander_settings',
+            'ai_commander_speech_language',
             array(
                 'type' => 'string',
                 'sanitize_callback' => 'sanitize_text_field',
@@ -129,75 +129,75 @@ class SettingsPage extends AdminPage {
         
         // Add settings sections
         add_settings_section(
-            'wpnl_openai_settings',
-            __( 'OpenAI API Settings', 'wpnl' ),
+            'ai_commander_openai_settings',
+            __( 'OpenAI API Settings', 'ai-commander' ),
             array( $this, 'render_openai_settings_section' ),
-            'wpnl_settings'
+            'ai_commander_settings'
         );
         
         add_settings_section(
-            'wpnl_speech_settings',
-            __( 'Speech-to-Text Settings', 'wpnl' ),
+            'ai_commander_speech_settings',
+            __( 'Speech-to-Text Settings', 'ai-commander' ),
             array( $this, 'render_speech_settings_section' ),
-            'wpnl_settings'
+            'ai_commander_settings'
         );
         
         // Add settings fields for OpenAI API
         add_settings_field(
-            'wpnl_openai_api_key',
-            __( 'API Key', 'wpnl' ),
+            'ai_commander_openai_api_key',
+            __( 'API Key', 'ai-commander' ),
             array( $this, 'render_api_key_field' ),
-            'wpnl_settings',
-            'wpnl_openai_settings'
+            'ai_commander_settings',
+            'ai_commander_openai_settings'
         );
         
         add_settings_field(
-            'wpnl_openai_model',
-            __( 'Model', 'wpnl' ),
+            'ai_commander_openai_model',
+            __( 'Model', 'ai-commander' ),
             array( $this, 'render_model_field' ),
-            'wpnl_settings',
-            'wpnl_openai_settings'
+            'ai_commander_settings',
+            'ai_commander_openai_settings'
         );
         
         add_settings_field(
-            'wpnl_debug_mode',
-            __( 'Debug Mode', 'wpnl' ),
+            'ai_commander_debug_mode',
+            __( 'Debug Mode', 'ai-commander' ),
             array( $this, 'render_debug_mode_field' ),
-            'wpnl_settings',
-            'wpnl_openai_settings'
+            'ai_commander_settings',
+            'ai_commander_openai_settings'
         );
         
         add_settings_field(
-            'wpnl_system_prompt',
-            __( 'System Prompt', 'wpnl' ),
+            'ai_commander_system_prompt',
+            __( 'System Prompt', 'ai-commander' ),
             array( $this, 'render_system_prompt_field' ),
-            'wpnl_settings',
-            'wpnl_openai_settings'
+            'ai_commander_settings',
+            'ai_commander_openai_settings'
         );
         
         add_settings_field(
-            'wpnl_assistant_greeting',
-            __( 'Assistant Greeting', 'wpnl' ),
+            'ai_commander_assistant_greeting',
+            __( 'Assistant Greeting', 'ai-commander' ),
             array( $this, 'render_assistant_greeting_field' ),
-            'wpnl_settings',
-            'wpnl_openai_settings'
+            'ai_commander_settings',
+            'ai_commander_openai_settings'
         );
         
         // Add settings fields for Speech-to-Text
         add_settings_field(
-            'wpnl_enable_speech_to_text',
-            __( 'Enable Speech-to-Text', 'wpnl' ),
+            'ai_commander_enable_speech_to_text',
+            __( 'Enable Speech-to-Text', 'ai-commander' ),
             array( $this, 'render_enable_speech_field' ),
-            'wpnl_settings',
-            'wpnl_speech_settings'
+            'ai_commander_settings',
+            'ai_commander_speech_settings'
         );
         
         add_settings_field(
-            'wpnl_speech_language',
-            __( 'Language', 'wpnl' ),
+            'ai_commander_speech_language',
+            __( 'Language', 'ai-commander' ),
             array( $this, 'render_speech_language_field' ),
-            'wpnl_settings',
-            'wpnl_speech_settings'
+            'ai_commander_settings',
+            'ai_commander_speech_settings'
         );
     }
 
@@ -211,35 +211,35 @@ class SettingsPage extends AdminPage {
             
             <h2 class="nav-tab-wrapper">
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $this->parent_slug ) ); ?>" class="nav-tab">
-                    <?php esc_html_e( 'Overview', 'wpnl' ); ?>
+                    <?php esc_html_e( 'Overview', 'ai-commander' ); ?>
                 </a>
-                <a href="<?php echo esc_url( admin_url( 'admin.php?page=wpnl-chatbot' ) ); ?>" class="nav-tab">
-                    <?php esc_html_e( 'Chatbot', 'wpnl' ); ?>
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=ai-commander-chatbot' ) ); ?>" class="nav-tab">
+                    <?php esc_html_e( 'Chatbot', 'ai-commander' ); ?>
                 </a>
-                <a href="<?php echo esc_url( admin_url( 'admin.php?page=wpnl-settings' ) ); ?>" class="nav-tab nav-tab-active">
-                    <?php esc_html_e( 'Settings', 'wpnl' ); ?>
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=ai-commander-settings' ) ); ?>" class="nav-tab nav-tab-active">
+                    <?php esc_html_e( 'Settings', 'ai-commander' ); ?>
                 </a>
             </h2>
             
             <form method="post" action="options.php">
                 <?php
-                settings_fields( 'wpnl_settings' );
-                do_settings_sections( 'wpnl_settings' );
+                settings_fields( 'ai_commander_settings' );
+                do_settings_sections( 'ai_commander_settings' );
                 submit_button();
                 ?>
             </form>
             
             <div class="card">
-                <h2><?php esc_html_e( 'Getting an OpenAI API Key', 'wpnl' ); ?></h2>
+                <h2><?php esc_html_e( 'Getting an OpenAI API Key', 'ai-commander' ); ?></h2>
                 <ol>
-                    <li><?php esc_html_e( 'Go to the OpenAI website and sign up for an account if you don\'t already have one.', 'wpnl' ); ?></li>
-                    <li><?php esc_html_e( 'Navigate to the API section of your account.', 'wpnl' ); ?></li>
-                    <li><?php esc_html_e( 'Create a new API key and copy it.', 'wpnl' ); ?></li>
-                    <li><?php esc_html_e( 'Paste the API key into the field above and save your settings.', 'wpnl' ); ?></li>
+                    <li><?php esc_html_e( 'Go to the OpenAI website and sign up for an account if you don\'t already have one.', 'ai-commander' ); ?></li>
+                    <li><?php esc_html_e( 'Navigate to the API section of your account.', 'ai-commander' ); ?></li>
+                    <li><?php esc_html_e( 'Create a new API key and copy it.', 'ai-commander' ); ?></li>
+                    <li><?php esc_html_e( 'Paste the API key into the field above and save your settings.', 'ai-commander' ); ?></li>
                 </ol>
                 <p>
                     <a href="https://platform.openai.com/api-keys" target="_blank" class="button">
-                        <?php esc_html_e( 'Get API Key from OpenAI', 'wpnl' ); ?>
+                        <?php esc_html_e( 'Get API Key from OpenAI', 'ai-commander' ); ?>
                     </a>
                 </p>
             </div>
@@ -252,7 +252,7 @@ class SettingsPage extends AdminPage {
      */
     public function render_openai_settings_section() {
         ?>
-        <p><?php esc_html_e( 'Configure your OpenAI API settings below. An API key is required for the chatbot to function.', 'wpnl' ); ?></p>
+        <p><?php esc_html_e( 'Configure your OpenAI API settings below. An API key is required for the chatbot to function.', 'ai-commander' ); ?></p>
         <?php
     }
 
@@ -260,20 +260,20 @@ class SettingsPage extends AdminPage {
      * Render the API key field.
      */
     public function render_api_key_field() {
-        $api_key = get_option( 'wpnl_openai_api_key', '' );
+        $api_key = get_option( 'ai_commander_openai_api_key', '' );
         $masked_key = ! empty( $api_key ) ? substr( $api_key, 0, 4 ) . '...' . substr( $api_key, -4 ) : '';
         ?>
-        <input type="password" id="wpnl_openai_api_key" name="wpnl_openai_api_key" value="<?php echo esc_attr( $api_key ); ?>" class="regular-text" autocomplete="off" />
+        <input type="password" id="ai_commander_openai_api_key" name="ai_commander_openai_api_key" value="<?php echo esc_attr( $api_key ); ?>" class="regular-text" autocomplete="off" />
         <p class="description">
             <?php
             if ( ! empty( $api_key ) ) {
                 printf(
                     /* translators: %s: Masked API key */
-                    esc_html__( 'Current key: %s', 'wpnl' ),
+                    esc_html__( 'Current key: %s', 'ai-commander' ),
                     '<code>' . esc_html( $masked_key ) . '</code>'
                 );
             } else {
-                esc_html_e( 'Enter your OpenAI API key here.', 'wpnl' );
+                esc_html_e( 'Enter your OpenAI API key here.', 'ai-commander' );
             }
             ?>
         </p>
@@ -284,11 +284,11 @@ class SettingsPage extends AdminPage {
      * Render the model field.
      */
     public function render_model_field() {
-        $model = get_option( 'wpnl_openai_model', 'gpt-4o' );
+        $model = get_option( 'ai_commander_openai_model', 'gpt-4o' );
         ?>
-        <input type="text" id="wpnl_openai_model" name="wpnl_openai_model" value="<?php echo esc_attr( $model ); ?>" class="regular-text" />
+        <input type="text" id="ai_commander_openai_model" name="ai_commander_openai_model" value="<?php echo esc_attr( $model ); ?>" class="regular-text" />
         <p class="description">
-            <?php esc_html_e( 'Enter the OpenAI model to use (e.g., gpt-4o). GPT-4 models provide better results but may be more expensive.', 'wpnl' ); ?>
+            <?php esc_html_e( 'Enter the OpenAI model to use (e.g., gpt-4o). GPT-4 models provide better results but may be more expensive.', 'ai-commander' ); ?>
         </p>
         <?php
     }
@@ -297,14 +297,14 @@ class SettingsPage extends AdminPage {
      * Render the debug mode field.
      */
     public function render_debug_mode_field() {
-        $debug_mode = get_option( 'wpnl_debug_mode', false );
+        $debug_mode = get_option( 'ai_commander_debug_mode', false );
         ?>
-        <label for="wpnl_debug_mode">
-            <input type="checkbox" id="wpnl_debug_mode" name="wpnl_debug_mode" value="1" <?php checked( $debug_mode, true ); ?> />
-            <?php esc_html_e( 'Enable debug logging', 'wpnl' ); ?>
+        <label for="ai_commander_debug_mode">
+            <input type="checkbox" id="ai_commander_debug_mode" name="ai_commander_debug_mode" value="1" <?php checked( $debug_mode, true ); ?> />
+            <?php esc_html_e( 'Enable debug logging', 'ai-commander' ); ?>
         </label>
         <p class="description">
-            <?php esc_html_e( 'When enabled, detailed API request and response information will be logged to the WordPress debug log. This is useful for troubleshooting but should be disabled in production.', 'wpnl' ); ?>
+            <?php esc_html_e( 'When enabled, detailed API request and response information will be logged to the WordPress debug log. This is useful for troubleshooting but should be disabled in production.', 'ai-commander' ); ?>
         </p>
         <?php
     }
@@ -314,7 +314,7 @@ class SettingsPage extends AdminPage {
      */
     public function render_speech_settings_section() {
         ?>
-        <p><?php esc_html_e( 'Configure speech-to-text settings for the chatbot interface. This feature uses OpenAI\'s Whisper API to transcribe spoken messages.', 'wpnl' ); ?></p>
+        <p><?php esc_html_e( 'Configure speech-to-text settings for the chatbot interface. This feature uses OpenAI\'s Whisper API to transcribe spoken messages.', 'ai-commander' ); ?></p>
         <?php
     }
     
@@ -322,14 +322,14 @@ class SettingsPage extends AdminPage {
      * Render the enable speech field.
      */
     public function render_enable_speech_field() {
-        $enable_speech = get_option( 'wpnl_enable_speech_to_text', true );
+        $enable_speech = get_option( 'ai_commander_enable_speech_to_text', true );
         ?>
-        <label for="wpnl_enable_speech_to_text">
-            <input type="checkbox" id="wpnl_enable_speech_to_text" name="wpnl_enable_speech_to_text" value="1" <?php checked( $enable_speech, true ); ?> />
-            <?php esc_html_e( 'Enable speech-to-text functionality', 'wpnl' ); ?>
+        <label for="ai_commander_enable_speech_to_text">
+            <input type="checkbox" id="ai_commander_enable_speech_to_text" name="ai_commander_enable_speech_to_text" value="1" <?php checked( $enable_speech, true ); ?> />
+            <?php esc_html_e( 'Enable speech-to-text functionality', 'ai-commander' ); ?>
         </label>
         <p class="description">
-            <?php esc_html_e( 'When enabled, users can record voice messages using a microphone button in the chat interface.', 'wpnl' ); ?>
+            <?php esc_html_e( 'When enabled, users can record voice messages using a microphone button in the chat interface.', 'ai-commander' ); ?>
         </p>
         <?php
     }
@@ -338,14 +338,14 @@ class SettingsPage extends AdminPage {
      * Render the system prompt field.
      */
     public function render_system_prompt_field() {
-        $system_prompt = get_option( 'wpnl_system_prompt', '' );
-        $filtered_prompt = apply_filters( 'wpnl_filter_system_prompt', $system_prompt );
+        $system_prompt = get_option( 'ai_commander_system_prompt', '' );
+        $filtered_prompt = apply_filters( 'ai_commander_filter_system_prompt', $system_prompt );
         $is_filtered = $filtered_prompt !== $system_prompt;
         ?>
         <?php if ( ! $is_filtered ) : ?>
-            <textarea id="wpnl_system_prompt" name="wpnl_system_prompt" rows="6" class="large-text code"><?php echo esc_textarea( $system_prompt ); ?></textarea>
+            <textarea id="ai_commander_system_prompt" name="ai_commander_system_prompt" rows="6" class="large-text code"><?php echo esc_textarea( $system_prompt ); ?></textarea>
             <p class="description">
-            <?php esc_html_e( 'The system prompt sets the behavior and capabilities of the AI assistant. Customize this to change how the assistant responds to user requests.  If empty, the following default system prompt will be used:', 'wpnl' ); ?>
+            <?php esc_html_e( 'The system prompt sets the behavior and capabilities of the AI assistant. Customize this to change how the assistant responds to user requests.  If empty, the following default system prompt will be used:', 'ai-commander' ); ?>
             </p>
             <p>
                 <code>
@@ -355,8 +355,8 @@ class SettingsPage extends AdminPage {
         <?php else : ?>
             <div class="notice notice-warning inline">
                 <p>
-                    <strong><?php esc_html_e( 'Note:', 'wpnl' ); ?></strong>
-                    <?php esc_html_e( 'The system prompt is currently set by code using the `wpnl_filter_system_prompt` filter. This is the actual value used:', 'wpnl' ); ?>
+                    <strong><?php esc_html_e( 'Note:', 'ai-commander' ); ?></strong>
+                    <?php esc_html_e( 'The system prompt is currently set by code using the `ai_commander_filter_system_prompt` filter. This is the actual value used:', 'ai-commander' ); ?>
                     <code><?php echo esc_html( $filtered_prompt ); ?></code>
                 </p>
             </div>
@@ -368,25 +368,25 @@ class SettingsPage extends AdminPage {
      * Render the assistant greeting field.
      */
     public function render_assistant_greeting_field() {
-        $greeting = get_option( 'wpnl_assistant_greeting', '' );
-        $filtered_greeting = apply_filters( 'wpnl_filter_assistant_greeting', $greeting );
+        $greeting = get_option( 'ai_commander_assistant_greeting', '' );
+        $filtered_greeting = apply_filters( 'ai_commander_filter_assistant_greeting', $greeting );
         $is_filtered = $filtered_greeting !== $greeting;
         ?>
         <?php if ( ! $is_filtered ) : ?>
-            <textarea id="wpnl_assistant_greeting" name="wpnl_assistant_greeting" rows="3" class="large-text"><?php echo esc_textarea( $greeting ); ?></textarea>
+            <textarea id="ai_commander_assistant_greeting" name="ai_commander_assistant_greeting" rows="3" class="large-text"><?php echo esc_textarea( $greeting ); ?></textarea>
             <p class="description">
-            <?php esc_html_e( 'The initial greeting message shown to users when starting a new conversation. If empty, the default greeting will be used:', 'wpnl' ); ?>
+            <?php esc_html_e( 'The initial greeting message shown to users when starting a new conversation. If empty, the default greeting will be used:', 'ai-commander' ); ?>
             </p>
             <p>
                 <code>
-                    <?php echo esc_html( \WPNL\Includes\ConversationManager::get_default_assistant_greeting() ); ?>
+                    <?php echo esc_html( \AICommander\Includes\ConversationManager::get_default_assistant_greeting() ); ?>
                 </code>
             </p>
         <?php else : ?>
             <div class="notice notice-warning inline">
                 <p>
-                    <strong><?php esc_html_e( 'Note:', 'wpnl' ); ?></strong>
-                    <?php esc_html_e( 'The assistant greeting is currently set by code using the `wpnl_filter_assistant_greeting` filter. This is the actual value used:', 'wpnl' ); ?>
+                    <strong><?php esc_html_e( 'Note:', 'ai-commander' ); ?></strong>
+                    <?php esc_html_e( 'The assistant greeting is currently set by code using the `ai_commander_filter_assistant_greeting` filter. This is the actual value used:', 'ai-commander' ); ?>
                     <code><?php echo esc_html( $filtered_greeting ); ?></code>
                 </p>
             </div>
@@ -398,24 +398,24 @@ class SettingsPage extends AdminPage {
      * Render the speech language field.
      */
     public function render_speech_language_field() {
-        $language = get_option( 'wpnl_speech_language', '' );
+        $language = get_option( 'ai_commander_speech_language', '' );
         $languages = array(
-            '' => __( 'Auto-detect (recommended)', 'wpnl' ),
-            'en' => __( 'English', 'wpnl' ),
-            'es' => __( 'Spanish', 'wpnl' ),
-            'fr' => __( 'French', 'wpnl' ),
-            'de' => __( 'German', 'wpnl' ),
-            'it' => __( 'Italian', 'wpnl' ),
-            'pt' => __( 'Portuguese', 'wpnl' ),
-            'nl' => __( 'Dutch', 'wpnl' ),
-            'ja' => __( 'Japanese', 'wpnl' ),
-            'zh' => __( 'Chinese', 'wpnl' ),
-            'ru' => __( 'Russian', 'wpnl' ),
-            'ar' => __( 'Arabic', 'wpnl' ),
-            'hi' => __( 'Hindi', 'wpnl' ),
+            '' => __( 'Auto-detect (recommended)', 'ai-commander' ),
+            'en' => __( 'English', 'ai-commander' ),
+            'es' => __( 'Spanish', 'ai-commander' ),
+            'fr' => __( 'French', 'ai-commander' ),
+            'de' => __( 'German', 'ai-commander' ),
+            'it' => __( 'Italian', 'ai-commander' ),
+            'pt' => __( 'Portuguese', 'ai-commander' ),
+            'nl' => __( 'Dutch', 'ai-commander' ),
+            'ja' => __( 'Japanese', 'ai-commander' ),
+            'zh' => __( 'Chinese', 'ai-commander' ),
+            'ru' => __( 'Russian', 'ai-commander' ),
+            'ar' => __( 'Arabic', 'ai-commander' ),
+            'hi' => __( 'Hindi', 'ai-commander' ),
         );
         ?>
-        <select id="wpnl_speech_language" name="wpnl_speech_language">
+        <select id="ai_commander_speech_language" name="ai_commander_speech_language">
             <?php foreach ( $languages as $code => $name ) : ?>
                 <option value="<?php echo esc_attr( $code ); ?>" <?php selected( $language, $code ); ?>>
                     <?php echo esc_html( $name ); ?>
@@ -423,7 +423,7 @@ class SettingsPage extends AdminPage {
             <?php endforeach; ?>
         </select>
         <p class="description">
-            <?php esc_html_e( 'Select a language to improve transcription accuracy. Auto-detect works well for most cases, but specifying a language can improve accuracy and processing speed.', 'wpnl' ); ?>
+            <?php esc_html_e( 'Select a language to improve transcription accuracy. Auto-detect works well for most cases, but specifying a language can improve accuracy and processing speed.', 'ai-commander' ); ?>
         </p>
         <?php
     }
