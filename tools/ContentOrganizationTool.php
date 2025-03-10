@@ -221,6 +221,44 @@ class ContentOrganizationTool extends BaseTool {
     }
 
     /**
+     * Get action buttons for the tool execution result.
+     *
+     * @param array|\WP_Error $result The result of executing the tool.
+     * @param array $params The parameters used when executing the tool.
+     * @return array Array of action button definitions.
+     */
+    public function get_action_buttons( $result, $params ) {
+        if ( is_wp_error( $result ) ) {
+            return array();
+        }
+
+        $post_url = isset( $result['post_url'] ) ? $result['post_url'] : '';
+        $edit_url = isset( $result['edit_url'] ) ? $result['edit_url'] : '';
+
+        $buttons = array();
+
+        if ( !empty( $post_url ) ) {
+            $buttons[] = array(
+                'type' => 'link',
+                'label' => 'View post',
+                'url' => $post_url,
+                'target' => '_blank',
+            );
+        }
+        
+        if ( !empty( $edit_url ) ) {
+            $buttons[] = array(
+                'type' => 'link',
+                'label' => 'Edit post',
+                'url' => $edit_url,
+                'target' => '_blank',
+            );
+        }
+        
+        return $buttons;
+    }
+
+    /**
      * Find a post by ID or title.
      *
      * @param array $params The parameters to use when finding the post.
