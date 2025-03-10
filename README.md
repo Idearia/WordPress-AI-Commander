@@ -20,7 +20,7 @@ Control WordPress with natural language, via text, voice or API.  Uses OpenAI to
 
 ## Demo video
 
-https://github.com/user-attachments/assets/fe01dd48-9fea-44b2-9023-85291cc70ec2
+https://github.com/user-attachments/assets/824745f7-0bfe-4bb1-b7f8-c8b0c48eaeae
 
 ## Example conversation
 
