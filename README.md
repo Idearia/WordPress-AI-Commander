@@ -432,6 +432,11 @@ To use the collection:
    - `password`: Your WordPress application password
 3. You can now use the collection to test the REST API endpoints
 
+## License
+
+This plugin is licensed under the GNU General Public License version 2 (GPLv2) or, at your option, any later version. You should have received a copy of the GNU General Public License along with this plugin. If not, see <https://www.gnu.org/licenses/>.
+
+
 ## To do
 
 Important features to add:
