@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: WPNL
+ * Plugin Name: WPNL: WordPress Natural Language
  * Plugin URI: https://github.com/Idearia/WPNL-WordPress-Natural-Language
  * Description: Issue commands in natural language to WordPress via voice, chatbot interface or REST API endpoint
  * Version: 1.0.0

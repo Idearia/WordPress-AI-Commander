@@ -36,7 +36,7 @@ done
 VERSION=$(jq -r '.version' composer.json)
 
 # Create zip file
-cd build
+cd build || { echo "Failed to enter build directory"; exit 1; }
 zip -r "../wpnl-${VERSION}.zip" *
 cd ..
 

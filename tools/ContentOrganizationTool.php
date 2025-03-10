@@ -522,7 +522,7 @@ class ContentOrganizationTool extends BaseTool {
         
         // Clean up the temporary file
         if ( file_exists( $temp_file ) ) {
-            @unlink( $temp_file );
+            wp_delete_file( $temp_file );
         }
         
         return $attachment_id;

@@ -85,7 +85,7 @@ class AjaxHandlers {
         }
         
         // Get the conversation UUID from the request
-        $conversation_uuid = isset( $_POST['conversation_uuid'] ) ? sanitize_text_field( $_POST['conversation_uuid'] ) : '';
+        $conversation_uuid = sanitize_text_field( $_POST['conversation_uuid'] ?? '' );
         
         if ( empty( $conversation_uuid ) ) {
             wp_send_json_error( array( 'message' => 'No conversation UUID provided' ) );
@@ -118,8 +118,8 @@ class AjaxHandlers {
         }
         
         // Get the command from the request
-        $command = isset( $_POST['command'] ) ? sanitize_text_field( $_POST['command'] ) : '';
-        $conversation_uuid = isset( $_POST['conversation_uuid'] ) ? sanitize_text_field( $_POST['conversation_uuid'] ) : null;
+        $command = sanitize_text_field( $_POST['command'] ?? '' );
+        $conversation_uuid = sanitize_text_field( $_POST['conversation_uuid'] ?? null );
         
         if ( empty( $command ) ) {
             wp_send_json_error( array( 'message' => 'No command provided' ) );
@@ -152,8 +152,8 @@ class AjaxHandlers {
         }
         
         // Get the tool and parameters from the request
-        $tool = isset( $_POST['tool'] ) ? sanitize_text_field( $_POST['tool'] ) : '';
-        $params = isset( $_POST['params'] ) ? $_POST['params'] : array();
+        $tool = sanitize_text_field( $_POST['tool'] ?? '' );
+        $params = $_POST['params'] ?? array();
         
         if ( empty( $tool ) ) {
             wp_send_json_error( array( 'message' => 'No tool specified' ) );
@@ -213,7 +213,7 @@ class AjaxHandlers {
             $transcription = $this->conversation_service->transcribe_audio( $file_path, $language );
             
             // Delete the audio file after transcription
-            @unlink( $file_path );
+            wp_delete_file( $file_path );
             
             if ( is_wp_error( $transcription ) ) {
                 wp_send_json_error( array( 'message' => $transcription->get_error_message() ) );
@@ -223,7 +223,7 @@ class AjaxHandlers {
             wp_send_json_success( array( 'transcription' => $transcription ) );
         } catch ( Exception $e ) {
             // Delete the audio file if there was an error
-            @unlink( $file_path );
+            wp_delete_file( $file_path );
             
             wp_send_json_error( array( 'message' => $e->getMessage() ) );
         }

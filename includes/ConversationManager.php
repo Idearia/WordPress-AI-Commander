@@ -169,8 +169,7 @@ class ConversationManager {
      * Get all messages for a conversation with JSON fields decoded.
      *
      * @param string $conversation_uuid The conversation UUID.
-     * @return array The messages with JSON fields decoded.
-     * @throws \Exception If JSON fields contain invalid JSON.
+     * @return array|\WP_Error The messages with JSON fields decoded, or an error if the JSON is invalid.
      */
     public function get_messages( $conversation_uuid ) {
         global $wpdb;
@@ -197,7 +196,7 @@ class ConversationManager {
                     if ( json_last_error() === JSON_ERROR_NONE ) {
                         $message->$field = $decoded;
                     } else {
-                        throw new \Exception( 'Invalid JSON in ' . $field . ' field: ' . json_last_error_msg() );
+                        return new \WP_Error( 'invalid_json', 'Invalid JSON in ' . $field . ' field: ' . json_last_error_msg() );
                     }
                 }
             }
@@ -210,10 +209,14 @@ class ConversationManager {
      * Format conversation messages for OpenAI API.
      *
      * @param string $conversation_uuid The conversation UUID.
-     * @return array The formatted messages.
+     * @return array|\WP_Error The formatted messages, or an error if the messages could not be retrieved.
      */
     public function format_for_openai( $conversation_uuid ) {
         $messages = $this->get_messages( $conversation_uuid );
+        if ( is_wp_error( $messages ) ) {
+            return $messages;
+        }
+
         $formatted = array();
         
         foreach ( $messages as $message ) {
@@ -247,10 +250,14 @@ class ConversationManager {
      *
      * @param string $conversation_uuid The conversation UUID.
      * @param bool $hide_assistant_response_after_tool_calls Whether to hide the assistant response after a tool call.
-     * @return array The formatted messages.
+     * @return array|\WP_Error The formatted messages, or an error if the messages could not be retrieved.
      */
     public function format_for_frontend( $conversation_uuid, $hide_assistant_response_after_tool_calls = true ) {
         $messages = $this->get_messages( $conversation_uuid );
+        if ( is_wp_error( $messages ) ) {
+            return $messages;
+        }
+
         $formatted = array();
         
         // Track previous message for context-aware filtering

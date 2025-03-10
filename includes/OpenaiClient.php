@@ -103,17 +103,7 @@ class OpenaiClient {
         $content_type = 'audio/mpeg'; // Default
         
         // Map file extensions to MIME types
-        $mime_types = array(
-            'm4a' => 'audio/mp4',
-            'mp4' => 'video/mp4',
-            'mp3' => 'audio/mpeg',
-            'wav' => 'audio/wav',
-            'flac' => 'audio/flac',
-            'ogg' => 'audio/ogg',
-            'oga' => 'audio/ogg',
-            'webm' => 'audio/webm',
-            'mpga' => 'audio/mpeg',
-        );
+        $mime_types = $this->get_audio_mime_types();
         
         if (isset($mime_types[$file_extension])) {
             $content_type = $mime_types[$file_extension];
@@ -346,6 +336,25 @@ class OpenaiClient {
         return array(
             'content' => $content,
             'tool_calls' => $message['tool_calls'] ?? array(),
+        );
+    }
+
+    /**
+     * Get the MIME types for audio files.
+     *
+     * @return array The MIME types for audio files.
+     */
+    public static function get_audio_mime_types() {
+        return array(
+            'm4a' => 'audio/mp4',
+            'mp4' => 'video/mp4',
+            'mp3' => 'audio/mpeg',
+            'wav' => 'audio/wav',
+            'flac' => 'audio/flac',
+            'ogg' => 'audio/ogg',
+            'oga' => 'audio/ogg',
+            'webm' => 'audio/webm',
+            'mpga' => 'audio/mpeg',
         );
     }
 }

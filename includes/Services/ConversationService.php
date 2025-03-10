@@ -107,7 +107,7 @@ class ConversationService {
      * Get all conversations for a user.
      *
      * @param int $user_id The WordPress user ID.
-     * @return array The array of conversation data.
+     * @return array|\WP_Error The array of conversation data, or an error if the conversations could not be retrieved.
      */
     public function get_user_conversations( $user_id ) {
         $conversations = $this->conversation_manager->get_user_conversations( $user_id );
@@ -116,6 +116,10 @@ class ConversationService {
         foreach ( $conversations as $conversation ) {
             // Get the first user message to use as a preview
             $messages = $this->conversation_manager->get_messages( $conversation->conversation_uuid );
+            if ( is_wp_error( $messages ) ) {
+                return $messages;
+            }
+            
             $preview = '';
             
             foreach ( $messages as $message ) {
@@ -188,37 +192,23 @@ class ConversationService {
             );
         }
         
-        // Create uploads directory if it doesn't exist
-        $upload_dir = wp_upload_dir();
-        $audio_dir = $upload_dir['basedir'] . '/wpnl-audio';
+        add_filter('upload_dir', [ static::class, 'get_audio_upload_dir' ]);
+        $movefile = wp_handle_upload($file, array( 'test_form' => false ) );
+        remove_filter('upload_dir', [ static::class, 'get_audio_upload_dir' ]);
         
-        if ( ! file_exists( $audio_dir ) ) {
-            wp_mkdir_p( $audio_dir );
-            
-            // Create an index.php file to prevent directory listing
-            file_put_contents( $audio_dir . '/index.php', '<?php // Silence is golden' );
-        }
-        
-        // Get the original file extension
-        $file_info = pathinfo( $file['name'] );
-        $extension = isset( $file_info['extension'] ) ? strtolower( $file_info['extension'] ) : 'tmp';
-        
-        // Generate a unique filename while preserving the original extension
-        $filename = 'audio-' . uniqid() . '.' . $extension;
-        $file_path = $audio_dir . '/' . $filename;
-        
-        // Move the uploaded file to our directory
-        if ( ! move_uploaded_file( $file['tmp_name'], $file_path ) ) {
+        if ( $movefile && ! isset( $movefile['error'] ) ) {
+            $file_info = pathinfo( $movefile['file'] );
+            $extension = isset( $file_info['extension'] ) ? strtolower( $file_info['extension'] ) : 'tmp';            
+            return array(
+                'file_path' => $movefile['file'],
+                'extension' => $extension
+            );
+        } else {
             return new \WP_Error(
                 'file_save_error',
-                'Failed to save audio file'
+                isset( $movefile['error'] ) ? $movefile['error'] : 'Failed to save audio file'
             );
         }
-        
-        return array(
-            'file_path' => $file_path,
-            'extension' => $extension
-        );
     }
     
     /**
@@ -248,6 +238,26 @@ class ConversationService {
         }
     }
     
+    /**
+     * Filter callback to modify the upload directory for audio files.
+     *
+     * @param array $uploads The array of upload directory data.
+     * @return array The modified array of upload directory data.
+     */
+    public static function get_audio_upload_dir( $uploads ) {
+        $uploads['subdir'] = '/wpnl/audio';
+        $uploads['path'] = $uploads['basedir'] . $uploads['subdir'];
+        $uploads['url'] = $uploads['baseurl'] . $uploads['subdir'];
+        
+        // Create directory if it doesn't exist
+        if ( ! file_exists( $uploads['path'] ) ) {
+            wp_mkdir_p( $uploads['path'] );
+            file_put_contents( $uploads['path'] . '/index.php', '<?php // Silence is golden' );
+        }
+        
+        return $uploads;
+    }
+
     /**
      * Transcribe audio file using OpenAI Whisper API.
      *

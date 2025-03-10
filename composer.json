@@ -1,6 +1,6 @@
 {
     "name": "wpnl/plugin",
-    "description": "WPNL: WordPress Natural Language Plugin",
+    "description": "WPNL: WordPress Natural Language",
     "type": "wordpress-plugin",
     "version": "1.0.0",
     "require-dev": {

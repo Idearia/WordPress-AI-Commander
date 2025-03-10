@@ -139,7 +139,7 @@ class RestApi {
         
         // Get all conversations for the user
         $result = $this->conversation_service->get_user_conversations( $user_id );
-        
+
         // Return the response
         return rest_ensure_response( $result );
     }
@@ -245,7 +245,7 @@ class RestApi {
             $transcription = $this->conversation_service->transcribe_audio( $file_path, $language );
             
             // Delete the audio file after transcription
-            @unlink( $file_path );
+            wp_delete_file( $file_path );
             
             if ( is_wp_error( $transcription ) ) {
                 return new \WP_Error(
@@ -261,7 +261,7 @@ class RestApi {
             ) );
         } catch ( \Exception $e ) {
             // Delete the audio file if there was an error
-            @unlink( $file_path );
+            wp_delete_file( $file_path );
             
             return new \WP_Error(
                 'transcription_error',
@@ -325,7 +325,7 @@ class RestApi {
             $result = $this->conversation_service->process_voice_command( $file_path, $conversation_uuid, $user_id, $language );
             
             // Delete the audio file after processing
-            @unlink( $file_path );
+            wp_delete_file( $file_path );
             
             if ( ! $result || isset( $result['success'] ) && $result['success'] === false ) {
                 $message = isset( $result['message'] ) ? $result['message'] : 'Unknown error';
@@ -340,7 +340,7 @@ class RestApi {
             return rest_ensure_response( $result );
         } catch ( \Exception $e ) {
             // Delete the audio file if there was an error
-            @unlink( $file_path );
+            wp_delete_file( $file_path );
             
             return new \WP_Error(
                 'voice_command_error',
