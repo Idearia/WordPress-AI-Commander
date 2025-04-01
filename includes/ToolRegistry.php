@@ -96,6 +96,25 @@ class ToolRegistry {
     }
 
     /**
+     * Remove all tools from the registry.
+     *
+     * @param array $exceptions Array of tool names to keep in the registry.
+     * @return int Number of tools removed.
+     */
+    public function unregister_all_tools( $exceptions = array() ) {
+        $removed_count = 0;
+        
+        foreach ( array_keys( $this->tools ) as $tool_name ) {
+            if ( ! in_array( $tool_name, $exceptions ) ) {
+                unset( $this->tools[ $tool_name ] );
+                $removed_count++;
+            }
+        }
+        
+        return $removed_count;
+    }
+
+    /**
      * Get a registered tool by name.
      *
      * @param string $name The name of the tool to get.
