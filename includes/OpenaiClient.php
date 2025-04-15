@@ -421,9 +421,13 @@ class OpenaiClient {
     /**
      * Create a Realtime API session and get an ephemeral token.
      *
+     * Accepted parameters by the endpoint:
+     * https://platform.openai.com/docs/api-reference/realtime-sessions/create
+     *
+     * @param array $params Optional parameters for the session.
      * @return array|\WP_Error Session details including client_secret or WP_Error on failure.
      */
-    public function create_realtime_session() {
+    public function create_realtime_session($params = array()) {
         if ( empty( $this->api_key ) ) {
             return new \WP_Error(
                 'missing_api_key',
@@ -436,7 +440,7 @@ class OpenaiClient {
             'model' => $this->realtime_model,
             'voice' => $this->realtime_voice,
             'instructions' => $this->realtime_system_prompt,
-            // Add other session parameters if needed, e.g., tools, initial context
+            ...$params,
         );
 
         if ($this->debug_mode) {

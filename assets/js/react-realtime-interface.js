@@ -56,32 +56,6 @@
         const toolCallQueueRef = useRef([]); // Queue for pending tool calls
         const currentToolCallIdRef = useRef(null); // Track the ID of the tool call being processed
 
-        // Fetch tool definitions on mount
-        const [toolDefinitions, setToolDefinitions] = useState([]);
-        useEffect(() => {
-            const fetchTools = async () => {
-                try {
-                    const response = await $.ajax({
-                        url: config.ajaxUrl,
-                        method: 'POST',
-                        data: {
-                            action: 'ai_commander_get_realtime_tool_definitions',
-                            nonce: config.nonce,
-                        },
-                    });
-                    if (response.success && response.data.tool_definitions) {
-                        console.log('Fetched Tool Definitions:', response.data.tool_definitions);
-                        setToolDefinitions(response.data.tool_definitions);
-                    } else {
-                        console.error('Failed to fetch tool definitions:', response.data?.message);
-                    }
-                } catch (error) {
-                    console.error('AJAX error fetching tool definitions:', error);
-                }
-            };
-            fetchTools();
-        }, [config.ajaxUrl, config.nonce]);
-
         // --- WebRTC and Session Management ---
 
         const establishSession = useCallback(async () => {
@@ -98,19 +72,19 @@
                     url: config.ajaxUrl,
                     method: 'POST',
                     data: {
-                        action: 'ai_commander_get_realtime_token',
+                        action: 'ai_commander_create_realtime_session',
                         nonce: config.nonce,
                     },
                 });
 
                 if (!tokenResponse.success || !tokenResponse.data.client_secret.value) {
-                    throw new Error(tokenResponse.data.message || 'Failed to get ephemeral token.');
+                    throw new Error(tokenResponse.data.message || 'Failed to create realtime session.');
                 }
+                console.log('Realtime Session created:', tokenResponse.data);
 
                 setEphemeralKey(tokenResponse.data.client_secret.value);
                 setEphemeralKeyExpiration(tokenResponse.data.client_secret.expires_at);
                 setSessionId(tokenResponse.data.id);
-                console.log('Realtime Session ID:', tokenResponse.data.id);
 
                 // 2. Create RTCPeerConnection
                 const pc = new RTCPeerConnection();
@@ -139,12 +113,12 @@
                     }
                 };
                 
-                 pc.oniceconnectionstatechange = () => {
+                pc.oniceconnectionstatechange = () => {
                     console.log('ICE Connection State:', pc.iceConnectionState);
                     if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'closed') {
                         handleDisconnect('ICE connection failed.');
                     }
-                 };
+                };
 
                 // 4. Create Data Channel
                 const dc = pc.createDataChannel('oai-events', { ordered: true });
@@ -153,8 +127,6 @@
                 dc.onopen = () => {
                     console.log('Data Channel opened.');
                     setStatus('connected'); // Fully connected and ready
-                    // Optionally send initial session.update here (e.g., to set tools)
-                    sendInitialSessionUpdate(); 
                 };
 
                 dc.onclose = () => {
@@ -202,37 +174,7 @@
                 console.error('Session establishment error:', error);
                 handleError(error.message || 'Failed to establish session.');
             }
-        }, [config, toolDefinitions]);
-
-        // Initial connection attempt on mount
-        // useEffect(() => {
-        //     establishSession();
-        //
-        //     // Cleanup on unmount
-        //     return () => {
-        //         closeSession();
-        //     };
-        // }, [establishSession]);
-        
-        // Send initial session update (e.g., for tools) after connection
-        const sendInitialSessionUpdate = () => {
-            if (dataChannelRef.current && dataChannelRef.current.readyState === 'open') {
-                // Use the fetched tool definitions
-                if (toolDefinitions && toolDefinitions.length > 0) { 
-                    const updateEvent = {
-                        type: "session.update",
-                        session: {
-                            tools: toolDefinitions,
-                            tool_choice: "auto", 
-                        },
-                    };
-                    console.log('Sending session.update with tools:', updateEvent);
-                    dataChannelRef.current.send(JSON.stringify(updateEvent));
-                } else {
-                    console.warn('No tool definitions found to send in session.update');
-                }
-            }
-        };
+        }, [config]);
 
         // --- Audio Handling ---
 
@@ -312,7 +254,6 @@
                 switch (serverEvent.type) {
                     case 'session.created':
                     case 'session.updated':
-                        // Session state updated, maybe log or update UI if needed
                         console.log('Server event: Session state updated:', serverEvent.session);
                         break;
                     

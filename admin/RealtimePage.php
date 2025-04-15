@@ -72,7 +72,7 @@ class RealtimePage extends AdminPage {
             'aiCommanderRealtimeData', // Use a different name from the chatbot's data
             array(
                 'ajax_url' => admin_url( 'admin-ajax.php' ),
-                'nonce'    => wp_create_nonce( 'ai_commander_realtime_nonce' ),
+                'nonce'    => wp_create_nonce( 'ai_commander_nonce' ),
                 'realtime_api_base_url' => 'https://api.openai.com/v1/realtime',
                 'realtime_model' => get_option( 'ai_commander_realtime_model', 'gpt-4o-realtime-preview-2024-12-17' ),
                 'realtime_voice' => get_option( 'ai_commander_realtime_voice', 'verse' ),

@@ -49,9 +49,8 @@ class AjaxHandlers {
         add_action( 'wp_ajax_ai_commander_transcribe_audio', array( $this, 'transcribe_audio' ) );
         
         // Realtime AJAX handlers
-        add_action( 'wp_ajax_ai_commander_get_realtime_token', array( $this, 'get_realtime_token' ) );
+        add_action( 'wp_ajax_ai_commander_create_realtime_session', array( $this, 'create_realtime_session' ) );
         add_action( 'wp_ajax_ai_commander_execute_realtime_tool', array( $this, 'execute_realtime_tool' ) );
-        add_action( 'wp_ajax_ai_commander_get_realtime_tool_definitions', array( $this, 'get_realtime_tool_definitions' ) );
     }
 
     /**
@@ -202,11 +201,14 @@ class AjaxHandlers {
     // --- Realtime AJAX Handlers ---
 
     /**
-     * AJAX handler for getting an ephemeral token for a new Realtime session.
+     * AJAX handler to create a realtime session, with tool usage.
+     *
+     * The returned session data includes an ephemeral token in client_secret.value
+     * which is used to authenticate further browser calls to the realtime endpoint.
      */
-    public function get_realtime_token() {
+    public function create_realtime_session() {
         // Check nonce for security - use a specific nonce for realtime operations
-        check_ajax_referer( 'ai_commander_realtime_nonce', 'nonce' );
+        check_ajax_referer( 'ai_commander_nonce', 'nonce' );
 
         // Check user capabilities - Ensure the user can interact with the chatbot features
         if ( ! current_user_can( 'edit_posts' ) ) {
@@ -217,7 +219,11 @@ class AjaxHandlers {
         $openai_client = new OpenaiClient();
 
         // Create the Realtime session
-        $session_data = $openai_client->create_realtime_session();
+        $session_data = $openai_client->create_realtime_session([
+            'tools' => $this->tool_registry->get_tool_definitions( 'realtime' ),
+            'tool_choice' => 'auto',
+            'max_response_output_tokens' => 4096,
+        ]);
 
         // Check for errors during session creation
         if ( is_wp_error( $session_data ) ) {
@@ -248,7 +254,7 @@ class AjaxHandlers {
      */
     public function execute_realtime_tool() {
         // Check nonce for security
-        check_ajax_referer( 'ai_commander_realtime_nonce', 'nonce' );
+        check_ajax_referer( 'ai_commander_nonce', 'nonce' );
 
         // Initial capability check - more specific check happens in execute_tool
         if ( ! current_user_can( 'edit_posts' ) ) {
@@ -257,6 +263,7 @@ class AjaxHandlers {
 
         // Get tool name and arguments from the request
         $tool_name = isset( $_POST['tool_name'] ) ? sanitize_text_field( $_POST['tool_name'] ) : '';
+
         // Important: Arguments from OpenAI are expected to be a JSON string
         $arguments_json = isset( $_POST['arguments'] ) ? wp_unslash( $_POST['arguments'] ) : ''; 
         
@@ -298,29 +305,7 @@ class AjaxHandlers {
                 'data' => $result->get_error_data(),
             ) );
         } else {
-            // Send the successful result directly
-            // Ensure the result is serializable (likely already is)
             wp_send_json_success( $result );
         }
-    }
-
-    /**
-     * AJAX handler for getting tool definitions formatted for OpenAI
-     * Realtime API.
-     */
-    public function get_realtime_tool_definitions() {
-        // Use the same nonce as realtime token retrieval for consistency
-        check_ajax_referer( 'ai_commander_realtime_nonce', 'nonce' );
-
-        // Check user capabilities
-        if ( ! current_user_can( 'edit_posts' ) ) {
-            wp_send_json_error( array( 'message' => 'Insufficient permissions to get tool definitions.' ), 403 );
-        }
-
-        // Get tool definitions from the registry
-        $definitions = $this->tool_registry->get_tool_definitions( 'realtime' );
-
-        // Return the definitions
-        wp_send_json_success( array( 'tool_definitions' => $definitions ) );
     }
 }
