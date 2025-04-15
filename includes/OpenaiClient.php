@@ -40,12 +40,48 @@ class OpenaiClient {
     private $whisper_api_endpoint = 'https://api.openai.com/v1/audio/transcriptions';
 
     /**
-     * The OpenAI model to use.
+     * The OpenAI Realtime API endpoint for creating sessions.
      *
      * @var string
      */
-    private $model;
+    private $realtime_session_endpoint = 'https://api.openai.com/v1/realtime/sessions';
+
+    /**
+     * The OpenAI model to use for chat completions.
+     *
+     * @var string
+     */
+    private $chat_model;
     
+    /**
+     * The OpenAI model to use for realtime sessions.
+     *
+     * @var string
+     */
+    private $realtime_model;
+
+    /**
+     * The OpenAI voice to use for realtime sessions.
+     *
+     * @var string
+     */
+    private $realtime_voice;
+
+    /**
+     * System prompt common to all LLM requests.
+     *
+     * @var string
+     */
+    private $system_prompt;
+
+    /**
+     * System prompt that will be added to $this->system_prompt specifically
+     * for realtime sessions.
+     *
+     * @var string
+     */
+    private $realtime_system_prompt;
+
     /**
      * Debug mode flag.
      *
@@ -58,7 +94,11 @@ class OpenaiClient {
      */
     public function __construct() {
         $this->api_key = get_option( 'ai_commander_openai_api_key', '' );
-        $this->model = get_option( 'ai_commander_openai_model', 'gpt-4o' );
+        $this->chat_model = get_option( 'ai_commander_openai_model', 'gpt-4o' );
+        $this->realtime_model = get_option( 'ai_commander_realtime_model', 'gpt-4o-realtime-preview-2024-12-17' );
+        $this->realtime_voice = get_option( 'ai_commander_realtime_voice', 'verse' );
+        $this->system_prompt = $this->get_system_prompt();
+        $this->realtime_system_prompt = $this->get_realtime_system_prompt();
         $this->debug_mode = get_option( 'ai_commander_debug_mode', false );
     }
     
@@ -184,7 +224,7 @@ class OpenaiClient {
         $messages = array(
             array(
                 'role' => 'system',
-                'content' => $this->get_system_prompt(),
+                'content' => $this->system_prompt,
             ),
             array(
                 'role' => 'user',
@@ -192,7 +232,7 @@ class OpenaiClient {
             ),
         );
 
-        $response = $this->send_request( $messages, $tools );
+        $response = $this->send_chat_completion_request( $messages, $tools );
 
         if ( $response instanceof \WP_Error ) {
             return $response;
@@ -220,11 +260,11 @@ class OpenaiClient {
         if ( empty( $messages ) || $messages[0]['role'] !== 'system' ) {
             array_unshift( $messages, array(
                 'role' => 'system',
-                'content' => $this->get_system_prompt(),
+                'content' => $this->system_prompt,
             ) );
         }
 
-        $response = $this->send_request( $messages, $tools );
+        $response = $this->send_chat_completion_request( $messages, $tools );
 
         if ( $response instanceof \WP_Error ) {
             return $response;
@@ -269,10 +309,10 @@ class OpenaiClient {
      * @param array $tools The tools to make available to the API.
      * @return array|\WP_Error The API response, or \WP_Error on failure.
      */
-    private function send_request( $messages, $tools ) {
+    private function send_chat_completion_request( $messages, $tools ) {
         if ($this->debug_mode) {
             error_log('OpenAI API Request: ' . wp_json_encode(array(
-                'model' => $this->model,
+                'model' => $this->chat_model,
                 'messages' => $messages,
                 // 'tools' => $tools,
                 'tool_choice' => 'auto',
@@ -285,7 +325,7 @@ class OpenaiClient {
                 'Content-Type' => 'application/json',
             ),
             'body' => wp_json_encode( array(
-                'model' => $this->model,
+                'model' => $this->chat_model,
                 'messages' => $messages,
                 'tools' => $tools,
                 'tool_choice' => 'auto',
@@ -356,5 +396,102 @@ class OpenaiClient {
             'webm' => 'audio/webm',
             'mpga' => 'audio/mpeg',
         );
+    }
+
+    // --- Realtime AJAX Handlers ---
+
+    /**
+     * Get the system prompt for realtime sessions, which is the same as
+     * $this->system_prompt, but with the realtime-specific prompt appended.
+     *
+     * @return string The system prompt.
+     */
+    public function get_realtime_system_prompt() {
+        $main_prompt = $this->system_prompt;
+        $realtime_specific_prompt = get_option( 'ai_commander_realtime_system_prompt', '' );
+        $combined_instructions = $main_prompt;
+        if ( ! empty( $realtime_specific_prompt ) ) {
+            $combined_instructions .= "\n\n" . $realtime_specific_prompt;
+        }
+
+        // Apply filter to allow developers to modify the system prompt
+        return apply_filters( 'ai_commander_filter_realtime_system_prompt', $combined_instructions );
+    }
+
+    /**
+     * Create a Realtime API session and get an ephemeral token.
+     *
+     * @return array|\WP_Error Session details including client_secret or WP_Error on failure.
+     */
+    public function create_realtime_session() {
+        if ( empty( $this->api_key ) ) {
+            return new \WP_Error(
+                'missing_api_key',
+                'OpenAI API key is not configured. Please set it in the plugin settings.'
+            );
+        }
+        
+        // Prepare request body
+        $request_body = array(
+            'model' => $this->realtime_model,
+            'voice' => $this->realtime_voice,
+            'instructions' => $this->realtime_system_prompt,
+            // Add other session parameters if needed, e.g., tools, initial context
+        );
+
+        if ($this->debug_mode) {
+            error_log('OpenAI Realtime Session Request Body: ' . wp_json_encode($request_body, JSON_PRETTY_PRINT));
+        }
+
+        // Prepare request arguments for wp_remote_post
+        $args = array(
+            'headers' => array(
+                'Authorization' => 'Bearer ' . $this->api_key,
+                'Content-Type' => 'application/json',
+            ),
+            'body' => wp_json_encode( $request_body ),
+            'timeout' => 30,
+        );
+
+        // Make the POST request to OpenAI API
+        $response = wp_remote_post( $this->realtime_session_endpoint, $args );
+
+        // Handle potential WP_Error from wp_remote_post
+        if ( is_wp_error( $response ) ) {
+            error_log('WP_Error during OpenAI Realtime session creation: ' . $response->get_error_message());
+            return $response;
+        }
+
+        // Check response code
+        $response_code = wp_remote_retrieve_response_code( $response );
+        $response_body = wp_remote_retrieve_body( $response );
+        $result = json_decode( $response_body, true );
+
+        if ($this->debug_mode) {
+            error_log('OpenAI Realtime Session Response (Code: ' . $response_code . '): ' . wp_json_encode($result, JSON_PRETTY_PRINT));
+        }
+
+        if ( $response_code !== 200 ) {
+            $error_message = isset( $result['error']['message'] ) ? $result['error']['message'] : 'Unknown error during session creation';
+            error_log(sprintf('OpenAI Realtime Session API error (%d): %s', $response_code, $error_message));
+            return new \WP_Error(
+                'openai_realtime_api_error',
+                sprintf( 'OpenAI Realtime API error (%d): %s', $response_code, $error_message )
+            );
+        }
+
+        // Check if essential data is present
+        $session_id = $result['id'] ?? null;
+        $ephemeral_key = $result['client_secret']['value'] ?? null;
+        if ( ! $ephemeral_key || ! $session_id ) {
+            error_log('OpenAI Realtime Session response missing ephemeral key or id.');
+            return new \WP_Error(
+                'openai_realtime_invalid_response',
+                'Invalid response from OpenAI Realtime API: Missing required session details.'
+            );
+        }
+
+        // Return the full successful response data (includes client_secret, id, etc.)
+        return $result;
     }
 }

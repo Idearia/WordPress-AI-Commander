@@ -46,8 +46,12 @@ class AjaxHandlers {
         add_action( 'wp_ajax_ai_commander_create_conversation', array( $this, 'create_conversation' ) );
         add_action( 'wp_ajax_ai_commander_get_conversation', array( $this, 'get_conversation' ) );
         add_action( 'wp_ajax_ai_commander_process_command', array( $this, 'process_command' ) );
-        add_action( 'wp_ajax_ai_commander_execute_tool', array( $this, 'execute_tool' ) );
         add_action( 'wp_ajax_ai_commander_transcribe_audio', array( $this, 'transcribe_audio' ) );
+        
+        // Realtime AJAX handlers
+        add_action( 'wp_ajax_ai_commander_get_realtime_token', array( $this, 'get_realtime_token' ) );
+        add_action( 'wp_ajax_ai_commander_execute_realtime_tool', array( $this, 'execute_realtime_tool' ) );
+        add_action( 'wp_ajax_ai_commander_get_realtime_tool_definitions', array( $this, 'get_realtime_tool_definitions' ) );
     }
 
     /**
@@ -138,40 +142,6 @@ class AjaxHandlers {
         // Return the result
         wp_send_json_success( $result );
     }
-
-    /**
-     * AJAX handler for executing tools.
-     */
-    public function execute_tool() {
-        // Check nonce for security
-        check_ajax_referer( 'ai_commander_nonce', 'nonce' );
-        
-        // Check user capabilities
-        if ( ! current_user_can( 'edit_posts' ) ) {
-            wp_send_json_error( array( 'message' => 'Insufficient permissions' ) );
-        }
-        
-        // Get the tool and parameters from the request
-        $tool = sanitize_text_field( $_POST['tool'] ?? '' );
-        $params = $_POST['params'] ?? array();
-        
-        if ( empty( $tool ) ) {
-            wp_send_json_error( array( 'message' => 'No tool specified' ) );
-        }
-        
-        // Check if the tool exists
-        if ( ! $this->tool_registry->has_tool( $tool ) ) {
-            wp_send_json_error( array( 'message' => 'Tool not found: ' . $tool ) );
-        }
-        
-        // Execute the tool
-        try {
-            $result = $this->tool_registry->execute_tool( $tool, $params );
-            wp_send_json_success( $result );
-        } catch ( \Exception $e ) {
-            wp_send_json_error( array( 'message' => $e->getMessage() ) );
-        }
-    }
     
     /**
      * AJAX handler for transcribing audio using OpenAI Whisper API.
@@ -227,5 +197,130 @@ class AjaxHandlers {
             
             wp_send_json_error( array( 'message' => $e->getMessage() ) );
         }
+    }
+
+    // --- Realtime AJAX Handlers ---
+
+    /**
+     * AJAX handler for getting an ephemeral token for a new Realtime session.
+     */
+    public function get_realtime_token() {
+        // Check nonce for security - use a specific nonce for realtime operations
+        check_ajax_referer( 'ai_commander_realtime_nonce', 'nonce' );
+
+        // Check user capabilities - Ensure the user can interact with the chatbot features
+        if ( ! current_user_can( 'edit_posts' ) ) {
+            wp_send_json_error( array( 'message' => 'Insufficient permissions to start a Realtime session.' ), 403 );
+        }
+
+        // Instantiate the OpenAI client
+        $openai_client = new OpenaiClient();
+
+        // Create the Realtime session
+        $session_data = $openai_client->create_realtime_session();
+
+        // Check for errors during session creation
+        if ( is_wp_error( $session_data ) ) {
+            wp_send_json_error(
+                array(
+                    'message' => 'Failed to create Realtime session: ' . $session_data->get_error_message(),
+                    'code' => $session_data->get_error_code(),
+                ),
+                500 // Internal Server Error or specific error code if available
+            );
+        }
+
+        // Return the full session data, including the ephemeral token (client_secret)
+        wp_send_json_success( $session_data );
+    }
+
+    /**
+     * AJAX handler for executing a tool requested by the Realtime API.
+     *
+     * This is different than the process_command() handler, which is used for
+     * chatbot commands entered directly by the user, and returns also summaries
+     * and action buttons.
+     *
+     * Here, we simply execute the tool as requested by the OpenAI Realtime API.
+     *
+     * Please note that the tool definition must be provided by the browser
+     * beforehand, in the session.update event.
+     */
+    public function execute_realtime_tool() {
+        // Check nonce for security
+        check_ajax_referer( 'ai_commander_realtime_nonce', 'nonce' );
+
+        // Initial capability check - more specific check happens in execute_tool
+        if ( ! current_user_can( 'edit_posts' ) ) {
+            wp_send_json_error( array( 'message' => 'Insufficient permissions to execute tools.' ), 403 );
+        }
+
+        // Get tool name and arguments from the request
+        $tool_name = isset( $_POST['tool_name'] ) ? sanitize_text_field( $_POST['tool_name'] ) : '';
+        // Important: Arguments from OpenAI are expected to be a JSON string
+        $arguments_json = isset( $_POST['arguments'] ) ? wp_unslash( $_POST['arguments'] ) : ''; 
+        
+        if ( empty( $tool_name ) ) {
+            wp_send_json_error( array( 'message' => 'No tool name specified.' ), 400 );
+        }
+
+        if ( empty( $arguments_json ) ) {
+            wp_send_json_error( array( 'message' => 'No tool arguments specified.' ), 400 );
+        }
+
+        // Decode the JSON arguments into a PHP array
+        $params = json_decode( $arguments_json, true );
+        if ( json_last_error() !== JSON_ERROR_NONE ) {
+             wp_send_json_error( array( 'message' => 'Invalid tool arguments JSON: ' . json_last_error_msg() ), 400 );
+        }
+        
+        // Ensure $params is an array after decoding
+        if (!is_array($params)) {
+            $params = array(); // Default to empty array if decoding results in non-array
+        }
+
+        // Check if the tool exists using the already instantiated ToolRegistry
+        if ( ! $this->tool_registry->has_tool( $tool_name ) ) {
+            wp_send_json_error( array( 'message' => 'Tool not found: ' . $tool_name ), 404 );
+        }
+
+        // Execute the tool - This method includes the capability check based on the tool's requirement
+        $result = $this->tool_registry->execute_tool( $tool_name, $params );
+
+        // The Realtime API expects the function result (even errors) back.
+        // We send the raw result. If it's a WP_Error, we format it into a structured error.
+        if ( is_wp_error( $result ) ) {
+            // Send back a structured error message that the frontend can pass to OpenAI
+            wp_send_json_success( array(
+                'error' => true,
+                'message' => $result->get_error_message(),
+                'code' => $result->get_error_code(),
+                'data' => $result->get_error_data(),
+            ) );
+        } else {
+            // Send the successful result directly
+            // Ensure the result is serializable (likely already is)
+            wp_send_json_success( $result );
+        }
+    }
+
+    /**
+     * AJAX handler for getting tool definitions formatted for OpenAI
+     * Realtime API.
+     */
+    public function get_realtime_tool_definitions() {
+        // Use the same nonce as realtime token retrieval for consistency
+        check_ajax_referer( 'ai_commander_realtime_nonce', 'nonce' );
+
+        // Check user capabilities
+        if ( ! current_user_can( 'edit_posts' ) ) {
+            wp_send_json_error( array( 'message' => 'Insufficient permissions to get tool definitions.' ), 403 );
+        }
+
+        // Get tool definitions from the registry
+        $definitions = $this->tool_registry->get_tool_definitions( 'realtime' );
+
+        // Return the definitions
+        wp_send_json_success( array( 'tool_definitions' => $definitions ) );
     }
 }

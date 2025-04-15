@@ -21,6 +21,7 @@ if ( ! defined( 'WPINC' ) ) {
 use AICommander\Admin\AdminPage;
 use AICommander\Admin\ChatbotPage;
 use AICommander\Admin\SettingsPage;
+use AICommander\Admin\RealtimePage;
 use AICommander\Includes\RestApi;
 use AICommander\Includes\ToolRegistry;
 use AICommander\Tools\PostCreationTool;
@@ -118,8 +119,9 @@ function ai_commander_load_dependencies() {
     // Include admin classes
     require_once AI_COMMANDER_PLUGIN_DIR . 'admin/AdminPage.php';
     require_once AI_COMMANDER_PLUGIN_DIR . 'admin/ChatbotPage.php';
+    require_once AI_COMMANDER_PLUGIN_DIR . 'admin/RealtimePage.php';
     require_once AI_COMMANDER_PLUGIN_DIR . 'admin/SettingsPage.php';
-    
+
     // Include base tool class
     require_once AI_COMMANDER_PLUGIN_DIR . 'tools/BaseTool.php';
     
@@ -172,6 +174,7 @@ function ai_commander_init() {
         
         // Create instances of the child classes
         $chatbot_page = new ChatbotPage();
+        $realtime_page = new RealtimePage();
         $settings_page = new SettingsPage();
     }
 }

@@ -1,0 +1,135 @@
+/**
+ * Styles for AI Commander Realtime Interface
+ */
+
+.ai-commander-realtime-wrap {
+    /* Add wrapper styles if needed */
+}
+
+.ai-commander-realtime-interface {
+    border: 1px solid #ccd0d4;
+    padding: 20px;
+    margin-top: 15px;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
+}
+
+.ai-commander-realtime-controls {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.ai-commander-realtime-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    border: 1px solid transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.ai-commander-realtime-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.ai-commander-realtime-button.status-idle,
+.ai-commander-realtime-button.status-error,
+.ai-commander-realtime-button.status-connected {
+    background-color: #2271b1; /* WordPress Blue */
+    border-color: #2271b1;
+    color: #fff;
+}
+.ai-commander-realtime-button.status-idle:hover:not(:disabled),
+.ai-commander-realtime-button.status-error:hover:not(:disabled),
+.ai-commander-realtime-button.status-connected:hover:not(:disabled) {
+    background-color: #1e639a;
+    border-color: #1e639a;
+}
+
+.ai-commander-realtime-button.status-connecting {
+    background-color: #f0f0f1;
+    border-color: #dcdcde;
+    color: #50575e;
+}
+
+.ai-commander-realtime-button.status-recording {
+    background-color: #d63638; /* WordPress Red */
+    border-color: #d63638;
+    color: #fff;
+}
+.ai-commander-realtime-button.status-recording:hover:not(:disabled) {
+    background-color: #b4282a;
+    border-color: #b4282a;
+}
+
+
+.ai-commander-realtime-button.status-processing,
+.ai-commander-realtime-button.status-speaking {
+    background-color: #f0f0f1;
+    border-color: #dcdcde;
+    color: #50575e;
+}
+
+.ai-commander-realtime-button-icon svg {
+    display: block; /* Ensure SVG aligns well */
+}
+
+/* Spinner animation */
+.ai-commander-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: ai-commander-spinner-spin 0.6s linear infinite;
+    vertical-align: middle;
+}
+
+@keyframes ai-commander-spinner-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.ai-commander-realtime-status {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-left: 4px solid #72aee6;
+    background-color: #f6f7f7;
+}
+
+.ai-commander-realtime-status .error-message {
+    color: #d63638;
+    font-weight: bold;
+    border-left-color: #d63638;
+}
+
+.ai-commander-realtime-transcript {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #e5e5e5;
+    min-height: 100px;
+    border-radius: 3px;
+}
+
+.ai-commander-realtime-transcript h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #555;
+}
+
+#ai-commander-transcript-output {
+    font-family: monospace;
+    white-space: pre-wrap; /* Keep line breaks */
+    word-wrap: break-word;
+    color: #333;
+    font-size: 13px;
+} 

@@ -127,6 +127,37 @@ class SettingsPage extends AdminPage {
             )
         );
         
+        // Realtime API settings
+        register_setting(
+            'ai_commander_settings',
+            'ai_commander_realtime_model',
+            array(
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+                'default' => 'gpt-4o-realtime-preview-2024-12-17', // Default realtime model
+            )
+        );
+
+        register_setting(
+            'ai_commander_settings',
+            'ai_commander_realtime_voice',
+            array(
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+                'default' => 'verse', // Default realtime voice
+            )
+        );
+
+        register_setting(
+            'ai_commander_settings',
+            'ai_commander_realtime_system_prompt',
+            array(
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_textarea_field',
+                'default' => '', // Default empty
+            )
+        );
+        
         // Add settings sections
         add_settings_section(
             'ai_commander_openai_settings',
@@ -199,6 +230,39 @@ class SettingsPage extends AdminPage {
             'ai_commander_settings',
             'ai_commander_speech_settings'
         );
+
+        // Add settings section for Realtime API
+        add_settings_section(
+            'ai_commander_realtime_settings',
+            __( 'Realtime API Settings', 'ai-commander' ),
+            array( $this, 'render_realtime_settings_section' ),
+            'ai_commander_settings' // Add to the main settings page group
+        );
+
+        // Add settings fields for Realtime API
+        add_settings_field(
+            'ai_commander_realtime_model',
+            __( 'Realtime Model', 'ai-commander' ),
+            array( $this, 'render_realtime_model_field' ),
+            'ai_commander_settings',
+            'ai_commander_realtime_settings'
+        );
+
+        add_settings_field(
+            'ai_commander_realtime_voice',
+            __( 'Realtime Voice', 'ai-commander' ),
+            array( $this, 'render_realtime_voice_field' ),
+            'ai_commander_settings',
+            'ai_commander_realtime_settings'
+        );
+
+        add_settings_field(
+            'ai_commander_realtime_system_prompt',
+            __( 'Realtime System Prompt', 'ai-commander' ),
+            array( $this, 'render_realtime_system_prompt_field' ),
+            'ai_commander_settings',
+            'ai_commander_realtime_settings'
+        );
     }
 
     /**
@@ -215,6 +279,9 @@ class SettingsPage extends AdminPage {
                 </a>
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=ai-commander-chatbot' ) ); ?>" class="nav-tab">
                     <?php esc_html_e( 'Chatbot', 'ai-commander' ); ?>
+                </a>
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=ai-commander-realtime' ) ); ?>" class="nav-tab">
+                    <?php esc_html_e( 'Realtime', 'ai-commander' ); ?>
                 </a>
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=ai-commander-settings' ) ); ?>" class="nav-tab nav-tab-active">
                     <?php esc_html_e( 'Settings', 'ai-commander' ); ?>
@@ -424,6 +491,61 @@ class SettingsPage extends AdminPage {
         </select>
         <p class="description">
             <?php esc_html_e( 'Select a language to improve transcription accuracy. Auto-detect works well for most cases, but specifying a language can improve accuracy and processing speed.', 'ai-commander' ); ?>
+        </p>
+        <?php
+    }
+
+    /**
+     * Render the Realtime settings section.
+     */
+    public function render_realtime_settings_section() {
+        ?>
+        <p><?php esc_html_e( 'Configure settings specific to the Realtime voice conversation feature.', 'ai-commander' ); ?></p>
+        <?php
+    }
+
+    /**
+     * Render the Realtime model field.
+     */
+    public function render_realtime_model_field() {
+        $model = get_option( 'ai_commander_realtime_model', 'gpt-4o-realtime-preview-2024-12-17' );
+        ?>
+        <input type="text" id="ai_commander_realtime_model" name="ai_commander_realtime_model" value="<?php echo esc_attr( $model ); ?>" class="regular-text" />
+        <p class="description">
+            <?php esc_html_e( 'Enter the OpenAI Realtime model to use (e.g., gpt-4o-realtime-preview-2024-12-17).', 'ai-commander' ); ?>
+        </p>
+        <?php
+    }
+
+    /**
+     * Render the Realtime voice field.
+     */
+    public function render_realtime_voice_field() {
+        $voice = get_option( 'ai_commander_realtime_voice', 'verse' );
+        $available_voices = array( 'alloy', 'ash', 'ballad', 'coral', 'echo', 'sage', 'shimmer', 'verse' ); // From OpenAI docs
+        ?>
+        <select id="ai_commander_realtime_voice" name="ai_commander_realtime_voice">
+            <?php foreach ( $available_voices as $v ) : ?>
+                <option value="<?php echo esc_attr( $v ); ?>" <?php selected( $voice, $v ); ?>>
+                    <?php echo esc_html( ucfirst( $v ) ); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <p class="description">
+            <?php esc_html_e( 'Select the voice for the AI assistant\'s audio responses.', 'ai-commander' ); ?>
+        </p>
+        <?php
+    }
+
+    /**
+     * Render the Realtime system prompt field.
+     */
+    public function render_realtime_system_prompt_field() {
+        $realtime_prompt = get_option( 'ai_commander_realtime_system_prompt', '' );
+        ?>
+        <textarea id="ai_commander_realtime_system_prompt" name="ai_commander_realtime_system_prompt" rows="4" class="large-text code"><?php echo esc_textarea( $realtime_prompt ); ?></textarea>
+        <p class="description">
+            <?php esc_html_e( 'Optional: Add specific instructions for the Realtime voice assistant. This will be appended to the main System Prompt.', 'ai-commander' ); ?>
         </p>
         <?php
     }

@@ -57,7 +57,7 @@ class CommandProcessor {
      */
     public function process( $command, $conversation_uuid = null ) {
         // Get the tool definitions for OpenAI function calling
-        $tool_definitions = $this->tool_registry->get_tool_definitions();
+        $tool_definitions = $this->tool_registry->get_tool_definitions( 'chat_completion' );
         
         // If no conversation UUID is provided, create a new conversation
         if ( empty( $conversation_uuid ) ) {

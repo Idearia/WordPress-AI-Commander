@@ -149,9 +149,16 @@ class ToolRegistry {
      * This array will be converted to JSON and included in all calls
      * to the OpenAI API.
      *
+     * Documentation:
+     * - Chat completion API: https://platform.openai.com/docs/guides/function-calling
+     * - Realtime API: https://platform.openai.com/docs/guides/realtime-conversations#configure-callable-functions
+     *
+     * @param string $format The format of the tool definitions, possible values:
+     * - 'chat_completion': for chat completion API
+     * - 'realtime': for Realtime API
      * @return array The tool definitions.
      */
-    public function get_tool_definitions() {
+    public function get_tool_definitions( $format = 'chat_completion' ) {
         $definitions = array();
         
         foreach ( $this->tools as $name => $tool ) {
@@ -169,20 +176,34 @@ class ToolRegistry {
                 return $param;
             }, $tool->get_parameters() );
 
-            $definitions[] = array(
-                'strict' => true,
-                'type' => 'function',
-                'function' => array(
+            $parameters = array(
+                'type' => 'object',
+                // In strict mode, all parameters must be listed in the 'required' property.
+                'required' => array_keys( $tool->get_parameters() ),
+                'properties' => $properties,
+            );
+
+            if ( $format === 'chat_completion' ) {
+                $definitions[] = array(
+                    'strict' => true,
+                    'type' => 'function',
+                    'function' => array(
+                        'name' => $name,
+                        'description' => $tool->get_description(),
+                        'parameters' => $parameters,
+                    ),
+                );
+            } else if ( $format === 'realtime' ) {
+                $definitions[] = array(
+                    'type' => 'function',
                     'name' => $name,
                     'description' => $tool->get_description(),
-                    'parameters' => array(
-                        'type' => 'object',
-                        // In strict mode, all parameters must be listed in the 'required' property.
-                        'required' => array_keys( $tool->get_parameters() ),
-                        'properties' => $properties,
-                    ),
-                ),
-            );
+                    'parameters' => $parameters,
+                );
+            }
+            else {
+                throw new \Exception( 'Invalid format for generating tool definitions' );
+            }
         }
         
         return $definitions;
