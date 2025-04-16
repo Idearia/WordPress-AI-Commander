@@ -41,7 +41,7 @@
 
     // --- Main Realtime Interface Component ---
     const RealtimeInterface = ({ config }) => {
-        const [status, setStatus] = useState('idle'); // idle, connecting, connected, recording, processing, speaking, tool_wait, error
+        const [status, setStatus] = useState('idle'); // idle, connecting, recording, processing, speaking, tool_wait, error
         const [ephemeralKey, setEphemeralKey] = useState(null);
         const [ephemeralKeyExpiration, setEphemeralKeyExpiration] = useState(null);
         const [sessionId, setSessionId] = useState(null);
@@ -58,16 +58,20 @@
 
         // --- WebRTC and Session Management ---
 
-        const establishSession = useCallback(async () => {
+        const startRecordingSession = useCallback(async () => {
+            if (status === 'connecting' || status === 'recording') return; // Prevent double clicks
+
             setStatus('connecting');
             setErrorMessage('');
             setTranscript('');
             setCurrentTurnTranscript('');
             toolCallQueueRef.current = [];
             currentToolCallIdRef.current = null;
+            closeSession(false); // Clean up any previous connections first
 
             try {
                 // 1. Get ephemeral token from backend
+                console.log('Requesting ephemeral token...');
                 const tokenResponse = await $.ajax({
                     url: config.ajaxUrl,
                     method: 'POST',
@@ -80,23 +84,30 @@
                 if (!tokenResponse.success || !tokenResponse.data.client_secret.value) {
                     throw new Error(tokenResponse.data.message || 'Failed to create realtime session.');
                 }
-                console.log('Realtime Session created successfully');
+                console.log('Realtime Session created successfully. Token received.');
 
-                setEphemeralKey(tokenResponse.data.client_secret.value);
+                const key = tokenResponse.data.client_secret.value;
+                setEphemeralKey(key);
                 setEphemeralKeyExpiration(tokenResponse.data.client_secret.expires_at);
                 setSessionId(tokenResponse.data.id);
 
                 // 2. Create RTCPeerConnection
+                console.log('Creating Peer Connection...');
                 const pc = new RTCPeerConnection();
                 peerConnectionRef.current = pc;
 
                 // 3. Setup remote audio playback
                 pc.ontrack = (event) => {
-                    console.log(`Remote ${event.track.kind} received`);
+                    console.log(`Remote ${event.track.kind} track received.`);
                     if (remoteAudioRef.current && event.streams && event.streams[0]) {
-                        remoteAudioRef.current.srcObject = event.streams[0];
-                        remoteAudioRef.current.play().catch(e => console.error('Audio play error:', e));
-                        setStatus('speaking'); // AI starts speaking
+                        if (remoteAudioRef.current.srcObject !== event.streams[0]) {
+                            remoteAudioRef.current.srcObject = event.streams[0];
+                            console.log('Remote stream attached to audio element.');
+                            remoteAudioRef.current.play().catch(e => console.error('Audio play error:', e));
+                        } else {
+                            console.log('Remote stream already attached.');
+                        }
+                        // Don't set status to speaking here, wait for audio/text deltas
                     } else {
                         console.warn('Could not attach remote stream to audio element.');
                     }
@@ -108,9 +119,6 @@
                     if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected' || pc.connectionState === 'closed') {
                         handleDisconnect('Connection lost.');
                     }
-                    if (pc.connectionState === 'connected') {
-                        // Initial connection is good, but wait for data channel
-                    }
                 };
 
                 pc.oniceconnectionstatechange = () => {
@@ -120,18 +128,38 @@
                     }
                 };
 
-                // 4. Create Data Channel
+                // 4. Get User Media (Microphone)
+                console.log('Requesting microphone access...');
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error('Browser does not support audio recording.');
+                }
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                localStreamRef.current = stream;
+                console.log('Microphone access granted.');
+
+                // 5. Add local audio track *before* creating offer
+                stream.getTracks().forEach(track => {
+                    pc.addTrack(track, stream);
+                    console.log('Local audio track added to Peer Connection.');
+                });
+
+                // 6. Create Data Channel
+                console.log('Creating Data Channel...');
                 const dc = pc.createDataChannel('oai-events', { ordered: true });
                 dataChannelRef.current = dc;
 
                 dc.onopen = () => {
                     console.log('Data Channel opened.');
-                    setStatus('connected'); // Fully connected and ready
+                    // Now that data channel is open and mic is ready, set status to recording
+                    setStatus('recording');
                 };
 
                 dc.onclose = () => {
                     console.log('Data Channel closed.');
-                    handleDisconnect('Data channel closed.');
+                    // Only handle disconnect if not initiated by user stop
+                    if (status !== 'idle') {
+                        handleDisconnect('Data channel closed unexpectedly.');
+                    }
                 };
 
                 dc.onerror = (error) => {
@@ -141,22 +169,20 @@
 
                 dc.onmessage = handleServerEvent;
 
-                // 4.5 Add Audio Transceiver *before* creating offer
-                // This signals the intent to send/receive audio, fixing the "no audio media section" error.
-                pc.addTransceiver('audio', { direction: 'sendrecv' });
-                console.log('Audio transceiver added.');
-
-                // 5. Start SDP negotiation
+                // 7. Start SDP negotiation (Offer will include audio track info)
+                console.log('Creating SDP Offer...');
                 const offer = await pc.createOffer();
                 await pc.setLocalDescription(offer);
+                console.log('Local description (Offer) set.');
 
-                // 6. Send offer to OpenAI Realtime API
+                // 8. Send offer to OpenAI Realtime API
+                console.log('Sending SDP Offer to OpenAI...');
                 const sdpResponse = await fetch(`${config.realtimeApiBaseUrl}?model=${config.realtimeModel}`, {
                     method: 'POST',
                     body: offer.sdp, // Send SDP offer as text
                     headers: {
-                        'Authorization': `Bearer ${tokenResponse.data.client_secret.value}`,
-                        'Content-Type': 'application/sdp', // Correct content type
+                        'Authorization': `Bearer ${key}`,
+                        'Content-Type': 'application/sdp',
                     },
                 });
 
@@ -164,84 +190,50 @@
                     const errorText = await sdpResponse.text();
                     throw new Error(`SDP negotiation failed: ${sdpResponse.status} ${errorText}`);
                 }
+                console.log('SDP Offer sent successfully.');
 
                 const answerSdp = await sdpResponse.text();
+                console.log('Received SDP Answer.');
                 await pc.setRemoteDescription({ type: 'answer', sdp: answerSdp });
+                console.log('Remote description (Answer) set. WebRTC connection ready.');
 
-                console.log('WebRTC connection established.');
+                // Status is set to 'recording' in dc.onopen
 
             } catch (error) {
-                console.error('Session establishment error:', error);
-                handleError(error.message || 'Failed to establish session.');
-            }
-        }, [config]);
-
-        // --- Audio Handling ---
-
-        const startRecording = async () => {
-            if (!peerConnectionRef.current || status !== 'connected') {
-                handleError('Not connected. Cannot start recording.');
-                return;
-            }
-
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                handleError('Your browser does not support audio recording.');
-                return;
-            }
-
-            // Clear previous turn transcript
-            setCurrentTurnTranscript('');
-
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                localStreamRef.current = stream;
-
-                // Remove existing audio track if any
-                peerConnectionRef.current.getSenders().forEach(sender => {
-                    if (sender.track && sender.track.kind === 'audio') {
-                        peerConnectionRef.current.removeTrack(sender);
-                    }
-                });
-
-                // Add new audio track
-                stream.getTracks().forEach(track => {
-                    peerConnectionRef.current.addTrack(track, stream);
-                });
-
-                console.log('Microphone access granted and track added.');
-                setStatus('recording');
-            } catch (error) {
-                console.error('Microphone access error:', error);
+                console.error('Session start/recording error:', error);
                 if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
                     handleError('Microphone permission denied. Please allow access in your browser settings.');
                 } else {
-                    handleError('Could not access microphone: ' + error.message);
+                    handleError(error.message || 'Failed to start session and recording.');
                 }
+                closeSession(); // Ensure cleanup on error
             }
-        };
+        }, [config, status]); // Include status in dependencies
 
-        const stopRecording = () => {
+        const stopRecordingSession = useCallback(() => {
+            console.log('Stopping session and recording...');
+            // Stop microphone first
             if (localStreamRef.current) {
                 localStreamRef.current.getTracks().forEach(track => track.stop());
                 localStreamRef.current = null;
-                console.log('Recording stopped, tracks released.');
+                console.log('Microphone tracks stopped.');
             }
-            // Let VAD handle the transition to processing/speaking
-            if (status === 'recording') {
-                setStatus('processing'); // Assume processing starts after stopping recording
-            }
-        };
+            // Close WebRTC connection and data channel
+            closeSession();
+            setStatus('idle'); // Return to idle state
+            setCurrentTurnTranscript(''); // Clear any partial transcript
+        }, []); // No dependencies needed as it uses refs and closeSession
 
-        const toggleRecording = () => {
-            if (status === 'recording') {
-                stopRecording();
-            } else if (status === 'connected' || status === 'speaking' || status === 'processing') {
-                // Allow starting recording if connected or even if AI is speaking (for interruption)
-                startRecording();
+        // --- Audio Handling (Simplified, logic moved to start/stop session) ---
+
+        // --- Main Action Button Logic ---
+        const handleToggleButtonClick = () => {
+            if (status === 'recording' || status === 'processing' || status === 'speaking' || status === 'tool_wait') {
+                stopRecordingSession();
             } else if (status === 'idle' || status === 'error') {
-                // Establish session if idle or error when button is clicked
-                establishSession();
+                startRecordingSession();
             }
+            // Do nothing if connecting
         };
 
         // --- Event Handling ---
@@ -340,6 +332,7 @@
             } catch (error) {
                 console.error('Error parsing server event:', error, 'Raw data:', event.data);
                 // Avoid setting error status here unless it's critical
+                // Consider setting error status if parsing fails consistently
             }
         };
 
@@ -444,55 +437,70 @@
 
         const handleDisconnect = (message) => {
             console.warn('Disconnected:', message);
-            // Don't immediately set to error, allow potential reconnection attempts or user action
+            // Only transition to idle if not already in error or idle
             if (status !== 'error' && status !== 'idle') {
-                setErrorMessage(message || 'Connection closed.');
-                setStatus('idle'); // Go back to idle, user can try reconnecting
-                closeSession(false);
+                setErrorMessage(message || 'Connection closed unexpectedly.');
+                setStatus('idle'); // Go back to idle
+                closeSession(false); // Clean up refs without resetting state again
             }
         };
 
         const closeSession = (cleanupRefs = true) => {
-            console.log('Closing session...');
+            console.log('Closing session resources...');
+            // Stop mic tracks just in case they are still running during an error cleanup
             if (localStreamRef.current) {
                 localStreamRef.current.getTracks().forEach(track => track.stop());
-                localStreamRef.current = null;
+                if (cleanupRefs) localStreamRef.current = null;
             }
             if (dataChannelRef.current) {
-                dataChannelRef.current.close();
+                // Check readyState before closing
+                if (dataChannelRef.current.readyState === 'open' || dataChannelRef.current.readyState === 'connecting') {
+                    dataChannelRef.current.close();
+                    console.log('Data channel closed.');
+                } else {
+                    console.log('Data channel already closed or closing.');
+                }
                 if (cleanupRefs) dataChannelRef.current = null;
             }
             if (peerConnectionRef.current) {
-                peerConnectionRef.current.close();
+                // Check connectionState before closing
+                if (peerConnectionRef.current.connectionState !== 'closed') {
+                    peerConnectionRef.current.close();
+                    console.log('Peer connection closed.');
+                } else {
+                    console.log('Peer connection already closed.');
+                }
                 if (cleanupRefs) peerConnectionRef.current = null;
             }
             if (remoteAudioRef.current) {
                 remoteAudioRef.current.srcObject = null;
+                console.log('Remote audio source cleared.');
             }
-            // Don't reset status here, let the caller decide (e.g., handleError sets 'error')
+            // Note: Setting status to idle is now handled by stopRecordingSession or handleDisconnect
         };
 
         // --- UI Rendering ---
 
         const getButtonTextAndIcon = () => {
             switch (status) {
-                case 'idle': return { text: 'Connect Session', icon: null };
+                case 'idle': return { text: 'Start Recording', icon: e(MicrophoneIcon) };
                 case 'connecting': return { text: 'Connecting...', icon: e(Spinner) };
-                case 'connected': return { text: 'Start Recording', icon: e(MicrophoneIcon) };
+                // case 'connected': // This state is removed
                 case 'recording': return { text: 'Stop Recording', icon: e(MicrophoneIcon) };
-                case 'processing': return { text: 'Processing...', icon: e(Spinner) };
-                case 'speaking': return { text: 'AI Speaking...', icon: e(Spinner) }; // Maybe allow interrupting?
+                case 'processing': return { text: 'Processing...', icon: e(Spinner) }; // Still need processing/speaking states
+                case 'speaking': return { text: 'AI Speaking...', icon: e(Spinner) };
                 case 'tool_wait': return { text: 'Executing Tool...', icon: e(Spinner) };
-                case 'error': return { text: 'Retry Connection', icon: null };
+                case 'error': return { text: 'Retry Session', icon: e(MicrophoneIcon) };
                 default: return { text: 'Unknown State', icon: null };
             }
         };
 
         const { text: buttonText, icon: buttonIcon } = getButtonTextAndIcon();
-        const isButtonDisabled = status === 'connecting' || status === 'processing' || status === 'tool_wait';
+        // Disable button only during the connection phase
+        const isButtonDisabled = status === 'connecting';
 
-        // Adjust initial button title/text based on idle state meaning "Connect"
-        const buttonTitle = status === 'recording' ? 'Stop recording' : (status === 'connected' ? 'Start recording' : 'Connect Session / Retry');
+        // Adjust title based on action
+        const buttonTitle = status === 'recording' ? 'Stop session and recording' : 'Start a new session and record';
 
         return e(
             'div', { className: 'ai-commander-realtime-interface' },
@@ -501,9 +509,9 @@
                 e('button',
                     {
                         className: `ai-commander-realtime-button status-${status}`,
-                        onClick: toggleRecording,
+                        onClick: handleToggleButtonClick, // Updated handler
                         disabled: isButtonDisabled,
-                        title: buttonTitle // Use dynamic title
+                        title: buttonTitle
                     },
                     buttonIcon,
                     buttonText
