@@ -483,26 +483,30 @@
 
         // --- UI Rendering ---
 
-        const getButtonTextAndIcon = () => {
+        const getButton = () => {
             switch (status) {
-                case 'disconnected': return { text: 'Start Recording', icon: e(MicrophoneIcon) };
-                case 'connecting': return { text: 'Connecting...', icon: e(Spinner) };
-                case 'recording': return { text: 'Stop Recording', icon: e(MicrophoneIcon) };
-                case 'processing': return { text: 'Processing...', icon: e(Spinner) }; // Still need processing/speaking states
-                case 'speaking': return { text: 'AI Speaking...', icon: e(Spinner) };
-                case 'tool_wait': return { text: 'Executing Tool...', icon: e(Spinner) };
-                case 'idle': return { text: 'Waiting for input...', icon: e(Spinner) };
-                case 'error': return { text: 'Retry Session', icon: e(MicrophoneIcon) };
-                default: return { text: 'Unknown State', icon: null };
+                case 'disconnected':
+                    return { text: 'Start Conversation', icon: e(MicrophoneIcon), disabled: false };
+
+                case 'connecting':
+                    return { text: 'Start Conversation', icon: e(Spinner), disabled: true };
+
+                case 'recording':
+                case 'processing':
+                case 'speaking':
+                case 'tool_wait':
+                case 'idle':
+                    return { text: 'Stop Conversation', icon: e(MicrophoneIcon), disabled: false };
+
+                case 'error':
+                    return { text: 'Please refresh page', icon: null, disabled: true };
+
+                default:
+                    return { text: 'Please refresh page', icon: null, disabled: true };
             }
         };
 
-        const { text: buttonText, icon: buttonIcon } = getButtonTextAndIcon();
-        // Disable button only during the connection phase
-        const isButtonDisabled = status === 'connecting';
-
-        // Adjust title based on action
-        const buttonTitle = status === 'recording' ? 'Stop session and recording' : 'Start a new session and record';
+        const { text: buttonText, icon: buttonIcon, disabled: isButtonDisabled } = getButton();
 
         return e(
             'div', { className: 'ai-commander-realtime-interface' },
@@ -513,15 +517,13 @@
                         className: `ai-commander-realtime-button status-${status}`,
                         onClick: handleToggleButtonClick, // Updated handler
                         disabled: isButtonDisabled,
-                        title: buttonTitle
                     },
                     buttonIcon,
-                    buttonText
+                    buttonText,
                 )
             ),
 
-            (status !== 'disconnected' && status !== 'connecting') && errorMessage && e(StatusIndicator, { status: 'error', message: errorMessage }),
-            (status === 'processing' || status === 'speaking' || status === 'tool_wait') && !errorMessage && e(StatusIndicator, { status: status }),
+            errorMessage ? e(StatusIndicator, { status: 'error', message: errorMessage }) : e(StatusIndicator, { status: status }),
 
             e('div', { className: 'ai-commander-realtime-transcript' },
                 e('h3', null, 'Conversation Transcript:'),

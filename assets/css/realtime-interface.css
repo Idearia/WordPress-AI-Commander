@@ -37,42 +37,35 @@
     opacity: 0.6;
 }
 
-.ai-commander-realtime-button.status-idle,
-.ai-commander-realtime-button.status-error,
-.ai-commander-realtime-button.status-connected {
-    background-color: #2271b1; /* WordPress Blue */
+.ai-commander-realtime-button.status-disconnected,
+.ai-commander-realtime-button.status-connecting {
+    background-color: #2271b1;
     border-color: #2271b1;
     color: #fff;
 }
-.ai-commander-realtime-button.status-idle:hover:not(:disabled),
-.ai-commander-realtime-button.status-error:hover:not(:disabled),
-.ai-commander-realtime-button.status-connected:hover:not(:disabled) {
+
+.ai-commander-realtime-button.status-disconnected:hover:not(:disabled) {
     background-color: #1e639a;
     border-color: #1e639a;
 }
 
-.ai-commander-realtime-button.status-connecting {
-    background-color: #f0f0f1;
-    border-color: #dcdcde;
-    color: #50575e;
-}
-
-.ai-commander-realtime-button.status-recording {
-    background-color: #d63638; /* WordPress Red */
+.ai-commander-realtime-button.status-recording,
+.ai-commander-realtime-button.status-processing,
+.ai-commander-realtime-button.status-speaking,
+.ai-commander-realtime-button.status-tool_wait,
+.ai-commander-realtime-button.status-idle {
+    background-color: #d63638;
     border-color: #d63638;
     color: #fff;
 }
-.ai-commander-realtime-button.status-recording:hover:not(:disabled) {
+
+.ai-commander-realtime-button.status-recording:hover:not(:disabled),
+.ai-commander-realtime-button.status-processing:hover:not(:disabled),
+.ai-commander-realtime-button.status-speaking:hover:not(:disabled),
+.ai-commander-realtime-button.status-tool_wait:hover:not(:disabled),
+.ai-commander-realtime-button.status-idle:hover:not(:disabled) {
     background-color: #b4282a;
     border-color: #b4282a;
-}
-
-
-.ai-commander-realtime-button.status-processing,
-.ai-commander-realtime-button.status-speaking {
-    background-color: #f0f0f1;
-    border-color: #dcdcde;
-    color: #50575e;
 }
 
 .ai-commander-realtime-button-icon svg {
