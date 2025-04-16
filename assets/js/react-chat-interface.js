@@ -4,7 +4,7 @@
  * Implements a simple conversational interface using React.
  */
 
-(function($) {
+(function ($) {
     'use strict';
 
     // Access React and ReactDOM through wp.element
@@ -16,70 +16,70 @@
 
         const { useState, useEffect, useRef, createElement: e } = wp.element;
 
-/**
- * ToolCallDetailsPopup Component
- * 
- * Displays a popup with the full details of a tool call.
- */
-const ToolCallDetailsPopup = ({ action, onClose }) => {
-    if (!action) return null;
-    
-    return e(
-        'div',
-        { className: 'ai-commander-popup-overlay' },
-        e(
-            'div',
-            { className: 'ai-commander-popup-content' },
-            e('div', { className: 'ai-commander-popup-header' }, 
-                e('h3', null, `Tool: ${action.tool}`),
-                e('button', { 
-                    className: 'ai-commander-popup-close',
-                    onClick: onClose
-                }, '×')
-            ),
-            e('div', { className: 'ai-commander-popup-body' },
-                e('h4', null, 'Tool call ID:'),
-                e('pre', null, action.tool_call_id),
-                e('h4', null, 'Arguments:'),
-                e('pre', null, JSON.stringify(action.arguments, null, 2)),
-                e('h4', null, 'Result:'),
-                e('pre', null, JSON.stringify(action.result, null, 2))
-            )
-        )
-    );
-};
+        /**
+         * ToolCallDetailsPopup Component
+         * 
+         * Displays a popup with the full details of a tool call.
+         */
+        const ToolCallDetailsPopup = ({ action, onClose }) => {
+            if (!action) return null;
 
-/**
- * ToolCallMessage Component
- * 
- * Renders a tool call as a message in the chat.
- */
-const ToolCallMessage = ({ action }) => {
-    const [showDetails, setShowDetails] = useState(false);
-    
-    const toggleDetails = () => {
-        setShowDetails(!showDetails);
-    };
-    
-    // Function to handle action button clicks
-    const handleActionButtonClick = (button, event) => {
-        const buttonElement = event.target;
-        
-        switch (button.type) {
-            case 'link':
-                // Open link in new tab
-                window.open(button.url, button.target || '_blank');
-                break;
-                
-            case 'modal':
-                // Create modal with HTML content
-                const modalContent = button.content || '';
-                
-                // Create and append modal to the DOM
-                const modalOverlay = document.createElement('div');
-                modalOverlay.className = 'ai-commander-popup-overlay';
-                
-                modalOverlay.innerHTML = `
+            return e(
+                'div',
+                { className: 'ai-commander-popup-overlay' },
+                e(
+                    'div',
+                    { className: 'ai-commander-popup-content' },
+                    e('div', { className: 'ai-commander-popup-header' },
+                        e('h3', null, `Tool: ${action.tool}`),
+                        e('button', {
+                            className: 'ai-commander-popup-close',
+                            onClick: onClose
+                        }, '×')
+                    ),
+                    e('div', { className: 'ai-commander-popup-body' },
+                        e('h4', null, 'Tool call ID:'),
+                        e('pre', null, action.tool_call_id),
+                        e('h4', null, 'Arguments:'),
+                        e('pre', null, JSON.stringify(action.arguments, null, 2)),
+                        e('h4', null, 'Result:'),
+                        e('pre', null, JSON.stringify(action.result, null, 2))
+                    )
+                )
+            );
+        };
+
+        /**
+         * ToolCallMessage Component
+         * 
+         * Renders a tool call as a message in the chat.
+         */
+        const ToolCallMessage = ({ action }) => {
+            const [showDetails, setShowDetails] = useState(false);
+
+            const toggleDetails = () => {
+                setShowDetails(!showDetails);
+            };
+
+            // Function to handle action button clicks
+            const handleActionButtonClick = (button, event) => {
+                const buttonElement = event.target;
+
+                switch (button.type) {
+                    case 'link':
+                        // Open link in new tab
+                        window.open(button.url, button.target || '_blank');
+                        break;
+
+                    case 'modal':
+                        // Create modal with HTML content
+                        const modalContent = button.content || '';
+
+                        // Create and append modal to the DOM
+                        const modalOverlay = document.createElement('div');
+                        modalOverlay.className = 'ai-commander-popup-overlay';
+
+                        modalOverlay.innerHTML = `
                     <div class="ai-commander-popup-content">
                         <div class="ai-commander-popup-header">
                             <h3>${button.title || 'Details'}</h3>
@@ -90,120 +90,120 @@ const ToolCallMessage = ({ action }) => {
                         </div>
                     </div>
                 `;
-                
-                // Add close button functionality
-                modalOverlay.querySelector('.ai-commander-popup-close').addEventListener('click', () => {
-                    document.body.removeChild(modalOverlay);
-                });
-                
-                // Add click outside to close
-                modalOverlay.addEventListener('click', (e) => {
-                    if (e.target === modalOverlay) {
-                        document.body.removeChild(modalOverlay);
-                    }
-                });
-                
-                // Append to body
-                document.body.appendChild(modalOverlay);
-                break;
-                
-            case 'ajax':
-                // Disable the button and show spinner
-                const originalText = buttonElement.textContent;
-                buttonElement.disabled = true;
-                buttonElement.innerHTML = '<span class="ai-commander-spinner"></span> ' + (button.loadingText || 'Processing...');
-                
-                // Confirm if needed
-                if (button.confirmMessage && !window.confirm(button.confirmMessage)) {
-                    // Re-enable button if user cancels
-                    buttonElement.disabled = false;
-                    buttonElement.textContent = originalText;
+
+                        // Add close button functionality
+                        modalOverlay.querySelector('.ai-commander-popup-close').addEventListener('click', () => {
+                            document.body.removeChild(modalOverlay);
+                        });
+
+                        // Add click outside to close
+                        modalOverlay.addEventListener('click', (e) => {
+                            if (e.target === modalOverlay) {
+                                document.body.removeChild(modalOverlay);
+                            }
+                        });
+
+                        // Append to body
+                        document.body.appendChild(modalOverlay);
+                        break;
+
+                    case 'ajax':
+                        // Disable the button and show spinner
+                        const originalText = buttonElement.textContent;
+                        buttonElement.disabled = true;
+                        buttonElement.innerHTML = '<span class="ai-commander-spinner"></span> ' + (button.loadingText || 'Processing...');
+
+                        // Confirm if needed
+                        if (button.confirmMessage && !window.confirm(button.confirmMessage)) {
+                            // Re-enable button if user cancels
+                            buttonElement.disabled = false;
+                            buttonElement.textContent = originalText;
+                            return;
+                        }
+
+                        // Send AJAX request
+                        $.ajax({
+                            url: button.url,
+                            method: button.method || 'POST',
+                            data: button.data || {},
+                            success: function (response) {
+                                // Re-enable button
+                                buttonElement.disabled = false;
+                                buttonElement.textContent = originalText;
+
+                                // Handle success
+                                handleAjaxResponse(response, button);
+                            },
+                            error: function (xhr, status, error) {
+                                // Re-enable button
+                                buttonElement.disabled = false;
+                                buttonElement.textContent = originalText;
+
+                                // Show error message
+                                alert('Error: ' + (xhr.responseJSON?.message || error || 'Unknown error'));
+                                console.error('AJAX error:', error);
+                            }
+                        });
+                        break;
+
+                    default:
+                        console.warn('Unknown action button type:', button.type);
+                }
+            };
+
+            // Function to handle AJAX responses
+            const handleAjaxResponse = (response, button) => {
+                // Check if response is successful
+                if (!response.success) {
+                    alert('Error: ' + (response.data?.message || 'Unknown error'));
                     return;
                 }
-                
-                // Send AJAX request
-                $.ajax({
-                    url: button.url,
-                    method: button.method || 'POST',
-                    data: button.data || {},
-                    success: function(response) {
-                        // Re-enable button
-                        buttonElement.disabled = false;
-                        buttonElement.textContent = originalText;
-                        
-                        // Handle success
-                        handleAjaxResponse(response, button);
-                    },
-                    error: function(xhr, status, error) {
-                        // Re-enable button
-                        buttonElement.disabled = false;
-                        buttonElement.textContent = originalText;
-                        
-                        // Show error message
-                        alert('Error: ' + (xhr.responseJSON?.message || error || 'Unknown error'));
-                        console.error('AJAX error:', error);
-                    }
-                });
-                break;
-                
-            default:
-                console.warn('Unknown action button type:', button.type);
-        }
-    };
-    
-    // Function to handle AJAX responses
-    const handleAjaxResponse = (response, button) => {
-        // Check if response is successful
-        if (!response.success) {
-            alert('Error: ' + (response.data?.message || 'Unknown error'));
-            return;
-        }
-        
-        // Handle different response actions based on button configuration
-        switch (button.responseAction) {
-            case 'refresh':
-                // Refresh the current page
-                window.location.reload();
-                break;
-                
-            case 'redirect':
-                // Redirect to a URL from the response or button config
-                // with target=_blank
-                const redirectUrl = response.data?.redirect_url || button.redirectUrl;
-                const redirectTarget = response.data?.redirectTarget || button.redirectTarget || '_self';
-                if (redirectUrl) {
-                    window.open(redirectUrl, redirectTarget);
-                }
-                break;
-                
-            case 'message':
-                // Display a success message
-                const message = response.data?.message || button.successMessage || 'Operation completed successfully';
-                alert(message);
-                break;
-                
-            case 'update':
-                // Update specific elements on the page
-                if (response.data?.updates) {
-                    for (const [selector, content] of Object.entries(response.data.updates)) {
-                        const element = document.querySelector(selector);
-                        if (element) {
-                            element.innerHTML = content;
+
+                // Handle different response actions based on button configuration
+                switch (button.responseAction) {
+                    case 'refresh':
+                        // Refresh the current page
+                        window.location.reload();
+                        break;
+
+                    case 'redirect':
+                        // Redirect to a URL from the response or button config
+                        // with target=_blank
+                        const redirectUrl = response.data?.redirect_url || button.redirectUrl;
+                        const redirectTarget = response.data?.redirectTarget || button.redirectTarget || '_self';
+                        if (redirectUrl) {
+                            window.open(redirectUrl, redirectTarget);
                         }
-                    }
-                }
-                break;
-                
-            case 'modal':
-                // Show response in a modal
-                const modalContent = response.data?.content || JSON.stringify(response.data);
-                const modalTitle = response.data?.title || button.modalTitle || 'Response';
-                
-                // Create modal with the response content
-                const modalOverlay = document.createElement('div');
-                modalOverlay.className = 'ai-commander-popup-overlay';
-                
-                modalOverlay.innerHTML = `
+                        break;
+
+                    case 'message':
+                        // Display a success message
+                        const message = response.data?.message || button.successMessage || 'Operation completed successfully';
+                        alert(message);
+                        break;
+
+                    case 'update':
+                        // Update specific elements on the page
+                        if (response.data?.updates) {
+                            for (const [selector, content] of Object.entries(response.data.updates)) {
+                                const element = document.querySelector(selector);
+                                if (element) {
+                                    element.innerHTML = content;
+                                }
+                            }
+                        }
+                        break;
+
+                    case 'modal':
+                        // Show response in a modal
+                        const modalContent = response.data?.content || JSON.stringify(response.data);
+                        const modalTitle = response.data?.title || button.modalTitle || 'Response';
+
+                        // Create modal with the response content
+                        const modalOverlay = document.createElement('div');
+                        modalOverlay.className = 'ai-commander-popup-overlay';
+
+                        modalOverlay.innerHTML = `
                     <div class="ai-commander-popup-content">
                         <div class="ai-commander-popup-header">
                             <h3>${modalTitle}</h3>
@@ -214,106 +214,106 @@ const ToolCallMessage = ({ action }) => {
                         </div>
                     </div>
                 `;
-                
-                // Add close button functionality
-                modalOverlay.querySelector('.ai-commander-popup-close').addEventListener('click', () => {
-                    document.body.removeChild(modalOverlay);
-                });
-                
-                // Add click outside to close
-                modalOverlay.addEventListener('click', (e) => {
-                    if (e.target === modalOverlay) {
-                        document.body.removeChild(modalOverlay);
-                    }
-                });
-                
-                // Append to body
-                document.body.appendChild(modalOverlay);
-                break;
-                
-            case 'custom':
-                // Execute a custom callback if defined
-                if (typeof window[button.callback] === 'function') {
-                    window[button.callback](response, button);
-                }
-                break;
-                
-            default:
-                // If no specific action is defined, check for common response patterns
-                if (response.data?.message) {
-                    alert(response.data.message);
-                } else if (response.data?.redirect_url) {
-                    window.location.href = response.data.redirect_url;
-                }
-                break;
-        }
-    };
-    
-    return e(
-        'div',
-        { className: 'ai-commander-message assistant ai-commander-tool-call' },
-        e('div', 
-            { className: 'ai-commander-message-content' },
-            e('div', { className: 'ai-commander-tool-title' }, action.title),
-            e('div', { 
-                className: 'ai-commander-tool-summary',
-                dangerouslySetInnerHTML: { __html: action.summary }
-            }),
-            e('div', { className: 'ai-commander-tool-actions' },
-                // Render custom action buttons if available
-                action.action_buttons && action.action_buttons.map((button, index) => 
-                    e('button', {
-                        key: index,
-                        className: 'ai-commander-tool-action-button',
-                        onClick: (event) => handleActionButtonClick(button, event)
-                    }, button.label)
-                ),
-                // Always include the debug button
-                e('button', {
-                    className: 'ai-commander-tool-details-button',
-                    onClick: toggleDetails
-                }, 'Debug')
-            )
-        ),
-        showDetails && e(ToolCallDetailsPopup, {
-            action: action,
-            onClose: toggleDetails
-        })
-    );
-};
 
-/**
- * MessageItem Component
- * 
- * Renders a single message in the chat.
- */
-const MessageItem = ({ message }) => {
-    const { role, content, isToolCall, action } = message;
-    
-    // If this is a tool call message, render the ToolCallMessage component
-    if (isToolCall && action) {
-        return e(ToolCallMessage, { action: action });
-    }
-    
-    // Function to preserve line breaks in text
-    const formatContent = (text) => {
-        if (!text) return '';
-        
-        // Split by newlines and create an array of text elements
-        return text.split('\n').map((line, i) => 
-            e('div', { key: i, className: 'ai-commander-message-line' }, line)
-        );
-    };
-    
-    return e(
-        'div',
-        { className: `ai-commander-message ${role}` },
-        e('div', 
-            { className: 'ai-commander-message-content' },
-            formatContent(content)
-        )
-    );
-};
+                        // Add close button functionality
+                        modalOverlay.querySelector('.ai-commander-popup-close').addEventListener('click', () => {
+                            document.body.removeChild(modalOverlay);
+                        });
+
+                        // Add click outside to close
+                        modalOverlay.addEventListener('click', (e) => {
+                            if (e.target === modalOverlay) {
+                                document.body.removeChild(modalOverlay);
+                            }
+                        });
+
+                        // Append to body
+                        document.body.appendChild(modalOverlay);
+                        break;
+
+                    case 'custom':
+                        // Execute a custom callback if defined
+                        if (typeof window[button.callback] === 'function') {
+                            window[button.callback](response, button);
+                        }
+                        break;
+
+                    default:
+                        // If no specific action is defined, check for common response patterns
+                        if (response.data?.message) {
+                            alert(response.data.message);
+                        } else if (response.data?.redirect_url) {
+                            window.location.href = response.data.redirect_url;
+                        }
+                        break;
+                }
+            };
+
+            return e(
+                'div',
+                { className: 'ai-commander-message assistant ai-commander-tool-call' },
+                e('div',
+                    { className: 'ai-commander-message-content' },
+                    e('div', { className: 'ai-commander-tool-title' }, action.title),
+                    e('div', {
+                        className: 'ai-commander-tool-summary',
+                        dangerouslySetInnerHTML: { __html: action.summary }
+                    }),
+                    e('div', { className: 'ai-commander-tool-actions' },
+                        // Render custom action buttons if available
+                        action.action_buttons && action.action_buttons.map((button, index) =>
+                            e('button', {
+                                key: index,
+                                className: 'ai-commander-tool-action-button',
+                                onClick: (event) => handleActionButtonClick(button, event)
+                            }, button.label)
+                        ),
+                        // Always include the debug button
+                        e('button', {
+                            className: 'ai-commander-tool-details-button',
+                            onClick: toggleDetails
+                        }, 'Debug')
+                    )
+                ),
+                showDetails && e(ToolCallDetailsPopup, {
+                    action: action,
+                    onClose: toggleDetails
+                })
+            );
+        };
+
+        /**
+         * MessageItem Component
+         * 
+         * Renders a single message in the chat.
+         */
+        const MessageItem = ({ message }) => {
+            const { role, content, isToolCall, action } = message;
+
+            // If this is a tool call message, render the ToolCallMessage component
+            if (isToolCall && action) {
+                return e(ToolCallMessage, { action: action });
+            }
+
+            // Function to preserve line breaks in text
+            const formatContent = (text) => {
+                if (!text) return '';
+
+                // Split by newlines and create an array of text elements
+                return text.split('\n').map((line, i) =>
+                    e('div', { key: i, className: 'ai-commander-message-line' }, line)
+                );
+            };
+
+            return e(
+                'div',
+                { className: `ai-commander-message ${role}` },
+                e('div',
+                    { className: 'ai-commander-message-content' },
+                    formatContent(content)
+                )
+            );
+        };
 
         /**
          * MessageList Component
@@ -324,36 +324,36 @@ const MessageItem = ({ message }) => {
             const messagesEndRef = useRef(null);
             const messageListRef = useRef(null);
             const prevMessagesLengthRef = useRef(0);
-            
+
             // Improved scroll behavior to avoid excessive scrolling
             useEffect(() => {
                 if (!messagesEndRef.current || !messageListRef.current) return;
-                
+
                 const container = messageListRef.current;
                 const isScrolledToBottom = container.scrollHeight - container.clientHeight <= container.scrollTop + 50;
                 const hasNewMessages = messages.length > prevMessagesLengthRef.current;
-                
+
                 // Only auto-scroll if we're already near the bottom or if there are new messages
                 if (isScrolledToBottom || hasNewMessages) {
                     // Use a small timeout to ensure the DOM has updated
                     setTimeout(() => {
-                        messagesEndRef.current.scrollIntoView({ 
-                            behavior: 'smooth', 
+                        messagesEndRef.current.scrollIntoView({
+                            behavior: 'smooth',
                             block: 'nearest' // Only scroll the minimum amount needed
                         });
                     }, 10);
                 }
-                
+
                 prevMessagesLengthRef.current = messages.length;
             }, [messages]);
-            
+
             return e(
                 'div',
-                { 
+                {
                     className: 'ai-commander-message-list',
                     ref: messageListRef
                 },
-                messages.map((message, index) => 
+                messages.map((message, index) =>
                     e(MessageItem, { key: index, message: message })
                 ),
                 e('div', { ref: messagesEndRef })
@@ -382,7 +382,7 @@ const MessageItem = ({ message }) => {
                 })
             );
         };
-        
+
         /**
          * RecordingStatus Component
          * 
@@ -409,7 +409,7 @@ const MessageItem = ({ message }) => {
             const textareaRef = useRef(null);
             const mediaRecorderRef = useRef(null);
             const audioChunksRef = useRef([]);
-            
+
             // Check if speech-to-text is enabled in settings
             useEffect(() => {
                 // This value is set in the localized script data
@@ -417,39 +417,39 @@ const MessageItem = ({ message }) => {
                     setIsSpeechEnabled(aiCommanderData.enable_speech_to_text === '1');
                 }
             }, []);
-            
+
             const handleInputChange = (e) => {
                 setInputValue(e.target.value);
             };
-            
+
             const handleKeyDown = (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     handleSendMessage();
                 }
             };
-            
+
             const handleSendMessage = () => {
                 const message = inputValue.trim();
                 if (message && !isProcessing) {
                     onSendMessage(message);
                     setInputValue('');
-                    
+
                     // Focus the textarea after sending
                     if (textareaRef.current) {
                         textareaRef.current.focus();
                     }
                 }
             };
-            
+
             // Check if the browser supports the MediaRecorder API
             const checkMediaRecorderSupport = () => {
                 // Check if we're on HTTPS or localhost
-                const isSecureContext = window.isSecureContext || 
-                    window.location.protocol === 'https:' || 
-                    window.location.hostname === 'localhost' || 
+                const isSecureContext = window.isSecureContext ||
+                    window.location.protocol === 'https:' ||
+                    window.location.hostname === 'localhost' ||
                     window.location.hostname === '127.0.0.1';
-                
+
                 if (!isSecureContext) {
                     alert('Microphone access requires a secure connection (HTTPS). Please contact your administrator to enable HTTPS for this site.');
                     return false;
@@ -459,15 +459,15 @@ const MessageItem = ({ message }) => {
                     alert('Your browser does not support audio recording. Please use a modern browser like Chrome, Edge, or Firefox.');
                     return false;
                 }
-                
+
                 if (typeof MediaRecorder === 'undefined') {
                     alert('Your browser does not support the MediaRecorder API. Please use a modern browser like Chrome, Edge, or Firefox.');
                     return false;
                 }
-                                
+
                 return true;
             };
-            
+
             // Check for microphone support on component mount
             useEffect(() => {
                 if (isSpeechEnabled) {
@@ -477,41 +477,41 @@ const MessageItem = ({ message }) => {
                     }
                 }
             }, []);
-            
+
             const startRecording = async () => {
                 // Check if the browser supports recording
                 if (!checkMediaRecorderSupport()) {
                     return;
                 }
-                
+
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                     mediaRecorderRef.current = new MediaRecorder(stream);
                     audioChunksRef.current = [];
-                    
+
                     mediaRecorderRef.current.ondataavailable = (event) => {
                         if (event.data.size > 0) {
                             audioChunksRef.current.push(event.data);
                         }
                     };
-                    
+
                     mediaRecorderRef.current.onstop = () => {
                         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
                         sendAudioToServer(audioBlob);
-                        
+
                         // Stop all audio tracks
                         stream.getTracks().forEach(track => track.stop());
                     };
-                    
+
                     mediaRecorderRef.current.start();
                     setIsRecording(true);
                 } catch (error) {
                     console.error('Error accessing microphone:', error);
-                    
+
                     // Provide more specific error messages
                     if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
                         alert('Microphone access was denied. Please try again but this time allow microphone access.\n\n' +
-                              'In alternative, in most browsers, you can click on the camera/microphone icon in the address bar to change permissions.');
+                            'In alternative, in most browsers, you can click on the camera/microphone icon in the address bar to change permissions.');
                     } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
                         alert('No microphone was found. Please connect a microphone and try again.');
                     } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
@@ -521,14 +521,14 @@ const MessageItem = ({ message }) => {
                     }
                 }
             };
-            
+
             const stopRecording = () => {
                 if (mediaRecorderRef.current && isRecording) {
                     mediaRecorderRef.current.stop();
                     setIsRecording(false);
                 }
             };
-            
+
             const toggleRecording = () => {
                 if (isRecording) {
                     stopRecording();
@@ -536,31 +536,31 @@ const MessageItem = ({ message }) => {
                     startRecording();
                 }
             };
-            
+
             // State for transcription loading
             const [isTranscribing, setIsTranscribing] = useState(false);
-            
+
             const sendAudioToServer = (audioBlob) => {
                 const formData = new FormData();
                 formData.append('audio', audioBlob, 'recording.webm');
                 formData.append('action', 'ai_commander_transcribe_audio');
                 formData.append('nonce', aiCommanderData.nonce);
-                
+
                 // Show transcription loading state
                 setIsTranscribing(true);
-                
+
                 $.ajax({
                     url: aiCommanderData.ajax_url,
                     method: 'POST',
                     data: formData,
                     processData: false,
                     contentType: false,
-                    success: function(response) {
+                    success: function (response) {
                         setIsTranscribing(false);
-                        
+
                         if (response.success && response.data.transcription) {
                             setInputValue(response.data.transcription);
-                            
+
                             // Automatically send the message if it's not empty
                             if (response.data.transcription.trim()) {
                                 onSendMessage(response.data.transcription.trim());
@@ -570,14 +570,14 @@ const MessageItem = ({ message }) => {
                             alert('Error transcribing audio: ' + (response.data ? response.data.message : 'Unknown error'));
                         }
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         setIsTranscribing(false);
                         console.error('AJAX error:', error);
                         alert('Error sending audio: ' + error);
                     }
                 });
             };
-            
+
             return e(
                 'div',
                 { className: 'ai-commander-input-container' },
@@ -620,16 +620,16 @@ const MessageItem = ({ message }) => {
             );
         };
 
-/**
- * ActionResults Component
- * 
- * This component is no longer used to display actions in the UI,
- * but we're keeping it for backward compatibility.
- */
-const ActionResults = ({ actions }) => {
-    // Return null as we're now displaying actions as messages
-    return null;
-};
+        /**
+         * ActionResults Component
+         * 
+         * This component is no longer used to display actions in the UI,
+         * but we're keeping it for backward compatibility.
+         */
+        const ActionResults = ({ actions }) => {
+            // Return null as we're now displaying actions as messages
+            return null;
+        };
 
         /**
          * ChatInterface Component
@@ -641,11 +641,11 @@ const ActionResults = ({ actions }) => {
             const [actions, setActions] = useState([]);
             const [isProcessing, setIsProcessing] = useState(false);
             const [conversationId, setConversationId] = useState(null);
-            
+
             // Function to create a new conversation
             const startNewConversation = () => {
                 setIsProcessing(true);
-                
+
                 $.ajax({
                     url: config.ajaxUrl,
                     method: 'POST',
@@ -653,20 +653,20 @@ const ActionResults = ({ actions }) => {
                         action: 'ai_commander_create_conversation',
                         nonce: config.nonce
                     },
-                    success: function(response) {
+                    success: function (response) {
                         setIsProcessing(false);
-                        
+
                         if (response.success) {
                             // Set the new conversation ID
                             const newConversationId = response.data.conversation_uuid;
                             setConversationId(newConversationId);
-                            
+
                             // Save the conversation ID to localStorage
                             localStorage.setItem('wp_ai_commander_conversation_id', newConversationId);
-                            
+
                             // Set the initial messages
                             setMessages(response.data.messages || []);
-                            
+
                             // Clear any actions
                             setActions([]);
                         } else {
@@ -676,9 +676,9 @@ const ActionResults = ({ actions }) => {
                             ]);
                         }
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         setIsProcessing(false);
-                        
+
                         // Handle error
                         setMessages([
                             { role: 'assistant', content: `Error: ${error || 'Failed to create conversation'}` }
@@ -686,11 +686,11 @@ const ActionResults = ({ actions }) => {
                     }
                 });
             };
-            
+
             // Function to load an existing conversation
             const loadConversation = (conversationUuid) => {
                 setIsProcessing(true);
-                
+
                 $.ajax({
                     url: config.ajaxUrl,
                     method: 'POST',
@@ -699,16 +699,16 @@ const ActionResults = ({ actions }) => {
                         nonce: config.nonce,
                         conversation_uuid: conversationUuid
                     },
-                    success: function(response) {
+                    success: function (response) {
                         setIsProcessing(false);
-                        
+
                         if (response.success) {
                             // Set the conversation ID
                             setConversationId(response.data.conversation_uuid);
-                            
+
                             // Set the messages
                             setMessages(response.data.messages_for_frontend || []);
-                            
+
                             // Clear any actions
                             setActions([]);
                         } else {
@@ -718,21 +718,21 @@ const ActionResults = ({ actions }) => {
                             startNewConversation();
                         }
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         setIsProcessing(false);
                         console.error('Error loading conversation:', error);
-                        
+
                         // If there's an error, create a new conversation
                         localStorage.removeItem('wp_ai_commander_conversation_id');
                         startNewConversation();
                     }
                 });
             };
-            
+
             // When component mounts, check for existing conversation ID
             useEffect(() => {
                 const savedConversationId = localStorage.getItem('wp_ai_commander_conversation_id');
-                
+
                 if (savedConversationId) {
                     // Load the existing conversation
                     loadConversation(savedConversationId);
@@ -741,20 +741,20 @@ const ActionResults = ({ actions }) => {
                     startNewConversation();
                 }
             }, []);
-            
+
             const handleSendMessage = (message) => {
                 // Add user message to the chat
                 setMessages(prevMessages => [
                     ...prevMessages,
                     { role: 'user', content: message }
                 ]);
-                
+
                 // Clear previous actions
                 setActions([]);
-                
+
                 // Set processing state
                 setIsProcessing(true);
-                
+
                 // Send the message to the server
                 $.ajax({
                     url: config.ajaxUrl,
@@ -765,19 +765,19 @@ const ActionResults = ({ actions }) => {
                         command: message,
                         conversation_uuid: conversationId
                     },
-                    success: function(response) {
+                    success: function (response) {
                         if (response.success) {
                             // Update conversation ID if it changed
                             if (response.data.conversation_uuid) {
                                 setConversationId(response.data.conversation_uuid);
                             }
-                            
+
                             // Instead of processing messages here, refetch the entire conversation
                             // This ensures server-side filtering is consistently applied
                             refetchConversation(response.data.conversation_uuid || conversationId);
                         } else {
                             setIsProcessing(false);
-                            
+
                             // Add error message to the chat
                             setMessages(prevMessages => [
                                 ...prevMessages,
@@ -785,9 +785,9 @@ const ActionResults = ({ actions }) => {
                             ]);
                         }
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         setIsProcessing(false);
-                        
+
                         // Add error message to the chat
                         setMessages(prevMessages => [
                             ...prevMessages,
@@ -796,12 +796,12 @@ const ActionResults = ({ actions }) => {
                     }
                 });
             };
-            
+
             // Function to refetch the entire conversation
             const refetchConversation = (convId) => {
                 // Note: We don't set isProcessing to true here because it's already true
                 // from the handleSendMessage function
-                
+
                 $.ajax({
                     url: config.ajaxUrl,
                     method: 'POST',
@@ -810,14 +810,14 @@ const ActionResults = ({ actions }) => {
                         nonce: config.nonce,
                         conversation_uuid: convId
                     },
-                    success: function(response) {
+                    success: function (response) {
                         // Now we can set isProcessing to false after refetching
                         setIsProcessing(false);
-                        
+
                         if (response.success) {
                             // Replace all messages with the freshly filtered messages from the server
                             setMessages(response.data.messages_for_frontend || []);
-                            
+
                             // Update actions if needed
                             if (response.data.actions) {
                                 setActions(response.data.actions);
@@ -828,13 +828,13 @@ const ActionResults = ({ actions }) => {
                             console.error('Failed to refetch conversation:', response.data.message);
                         }
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         setIsProcessing(false);
                         console.error('Error refetching conversation:', error);
                     }
                 });
             };
-            
+
             return e(
                 'div',
                 { className: 'ai-commander-chat-container' },
@@ -854,7 +854,7 @@ const ActionResults = ({ actions }) => {
                 ),
                 e(MessageList, { messages: messages }),
                 e(ActionResults, { actions: actions }),
-                e(InputArea, { 
+                e(InputArea, {
                     onSendMessage: handleSendMessage,
                     isProcessing: isProcessing
                 }),
@@ -876,7 +876,7 @@ const ActionResults = ({ actions }) => {
                 console.error('Chat interface container not found');
                 return;
             }
-            
+
             // Get configuration from global variable
             const config = {
                 ajaxUrl: aiCommanderData.ajax_url,
@@ -885,7 +885,7 @@ const ActionResults = ({ actions }) => {
                 model: aiCommanderData.model,
                 enableSpeechToText: aiCommanderData.enable_speech_to_text
             };
-            
+
             // Render the chat interface
             wp.element.render(
                 e(ChatInterface, { config: config }),
@@ -902,8 +902,8 @@ const ActionResults = ({ actions }) => {
         console.error('wp.element not loaded. Make sure wp-element is enqueued properly.');
         return;
     }
-    
+
     // Initialize the chat interface
     initChatInterface();
-    
+
 })(jQuery);

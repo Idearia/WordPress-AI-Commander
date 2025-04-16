@@ -5,7 +5,7 @@
  * and tool calling for real-time voice interaction.
  */
 
-(function($) {
+(function ($) {
     'use strict';
 
     if (typeof wp === 'undefined' || typeof wp.element === 'undefined') {
@@ -13,7 +13,7 @@
         return;
     }
 
-    const { useState, useEffect, useRef, useCallback, createElement: e } = wp.element;
+    const { useState, useRef, useCallback, createElement: e } = wp.element;
 
     // --- Helper Components ---
 
@@ -109,10 +109,10 @@
                         handleDisconnect('Connection lost.');
                     }
                     if (pc.connectionState === 'connected') {
-                         // Initial connection is good, but wait for data channel
+                        // Initial connection is good, but wait for data channel
                     }
                 };
-                
+
                 pc.oniceconnectionstatechange = () => {
                     console.log('ICE Connection State:', pc.iceConnectionState);
                     if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'closed') {
@@ -188,7 +188,7 @@
                 handleError('Your browser does not support audio recording.');
                 return;
             }
-            
+
             // Clear previous turn transcript
             setCurrentTurnTranscript('');
 
@@ -236,11 +236,11 @@
             if (status === 'recording') {
                 stopRecording();
             } else if (status === 'connected' || status === 'speaking' || status === 'processing') {
-                 // Allow starting recording if connected or even if AI is speaking (for interruption)
+                // Allow starting recording if connected or even if AI is speaking (for interruption)
                 startRecording();
             } else if (status === 'idle' || status === 'error') {
-                 // Establish session if idle or error when button is clicked
-                 establishSession(); 
+                // Establish session if idle or error when button is clicked
+                establishSession();
             }
         };
 
@@ -254,23 +254,22 @@
                 switch (serverEvent.type) {
                     case 'session.created':
                     case 'session.updated':
-                        console.log('Server event: Session state updated:', serverEvent.session);
                         break;
-                    
+
                     case 'input_audio_buffer.speech_started':
                         console.log('Server event: Speech started detected.');
                         setCurrentTurnTranscript(''); // Clear transcript for new speech turn
                         if (status !== 'recording') setStatus('recording'); // Reflect VAD start
                         break;
-                        
+
                     case 'input_audio_buffer.speech_stopped':
                         console.log('Server event: Speech stopped detected.');
-                         if (status === 'recording') setStatus('processing'); // Move to processing after VAD stop
-                         // Append the final turn transcript to the main transcript
-                         if (currentTurnTranscript) {
-                             setTranscript(prev => prev + currentTurnTranscript + '\n\n');
-                             setCurrentTurnTranscript(''); // Clear for next turn
-                         }
+                        if (status === 'recording') setStatus('processing'); // Move to processing after VAD stop
+                        // Append the final turn transcript to the main transcript
+                        if (currentTurnTranscript) {
+                            setTranscript(prev => prev + currentTurnTranscript + '\n\n');
+                            setCurrentTurnTranscript(''); // Clear for next turn
+                        }
                         break;
 
                     case 'response.created':
@@ -282,17 +281,17 @@
                     case 'response.text.delta': // Handle both text and audio transcript deltas
                         setCurrentTurnTranscript(prev => prev + (serverEvent.delta || ''));
                         break;
-                        
+
                     case 'response.audio.delta':
                         // Audio data comes via WebRTC track, not typically needed here
-                         if (status !== 'speaking' && status !== 'tool_wait') setStatus('speaking');
+                        if (status !== 'speaking' && status !== 'tool_wait') setStatus('speaking');
                         break;
-                        
+
                     case 'response.audio.done':
-                         // Maybe transition status if needed, e.g., back to connected if no text follows
-                         console.log('Server event: AI audio finished.');
-                         // Don't reset status here, wait for response.done
-                         break;
+                        // Maybe transition status if needed, e.g., back to connected if no text follows
+                        console.log('Server event: AI audio finished.');
+                        // Don't reset status here, wait for response.done
+                        break;
 
                     case 'response.function_call_arguments.delta':
                         // Could potentially stream arguments, but waiting for `response.done` is usually simpler
@@ -302,12 +301,12 @@
 
                     case 'response.done':
                         console.log('Server event: Response cycle finished.', serverEvent.response);
-                         // Append the final turn transcript if any
-                         if (currentTurnTranscript) {
-                             setTranscript(prev => prev + currentTurnTranscript + '\n\n');
-                             setCurrentTurnTranscript('');
-                         }
-                         
+                        // Append the final turn transcript if any
+                        if (currentTurnTranscript) {
+                            setTranscript(prev => prev + currentTurnTranscript + '\n\n');
+                            setCurrentTurnTranscript('');
+                        }
+
                         // Check for function calls in the final response
                         if (serverEvent.response?.output?.length > 0) {
                             serverEvent.response.output.forEach(outputItem => {
@@ -326,7 +325,7 @@
                         if (toolCallQueueRef.current.length > 0) {
                             processNextToolCall();
                         } else {
-                             setStatus('connected'); // Ready for next user input
+                            setStatus('connected'); // Ready for next user input
                         }
                         break;
 
@@ -343,9 +342,9 @@
                 // Avoid setting error status here unless it's critical
             }
         };
-        
+
         // --- Tool Calling Logic ---
-        
+
         const processNextToolCall = () => {
             if (toolCallQueueRef.current.length === 0) {
                 setStatus('connected'); // No more tools, ready for input
@@ -368,7 +367,7 @@
                     tool_name: toolCall.name,
                     arguments: toolCall.arguments, // Send JSON string directly
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         console.log(`Tool ${toolCall.name} executed successfully. Result:`, response.data);
                         // Send the result back to OpenAI
@@ -376,38 +375,38 @@
                     } else {
                         // Handle backend execution error - Send structured error back to OpenAI
                         console.error(`Tool execution failed on backend for ${toolCall.name}:`, response.data.message);
-                         const errorResult = {
-                             error: true,
-                             message: `Backend Error: ${response.data.message || 'Unknown execution error'}`,
-                             code: response.data.code || 'tool_execution_failed'
-                         };
+                        const errorResult = {
+                            error: true,
+                            message: `Backend Error: ${response.data.message || 'Unknown execution error'}`,
+                            code: response.data.code || 'tool_execution_failed'
+                        };
                         sendFunctionResult(toolCall.call_id, errorResult);
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     // Handle AJAX error - Send structured error back to OpenAI
                     console.error(`AJAX error executing tool ${toolCall.name}:`, error);
-                     const errorResult = {
-                         error: true,
-                         message: `AJAX Error: ${error || 'Failed to contact backend'}`,
-                         code: 'ajax_error'
-                     };
+                    const errorResult = {
+                        error: true,
+                        message: `AJAX Error: ${error || 'Failed to contact backend'}`,
+                        code: 'ajax_error'
+                    };
                     sendFunctionResult(toolCall.call_id, errorResult);
                 }
             });
         };
-        
+
         const sendFunctionResult = (callId, result) => {
-             if (!dataChannelRef.current || dataChannelRef.current.readyState !== 'open') {
+            if (!dataChannelRef.current || dataChannelRef.current.readyState !== 'open') {
                 handleError('Data channel not open, cannot send function result.');
                 return;
             }
-            
+
             // The ID must match the call_id received from OpenAI
             if (callId !== currentToolCallIdRef.current) {
                 console.warn(`Mismatch in call IDs. Expected ${currentToolCallIdRef.current}, got ${callId}. Ignoring.`);
                 // Potentially handle this case more robustly if needed
-                return; 
+                return;
             }
 
             const resultEvent = {
@@ -428,7 +427,7 @@
             };
             console.log('Requesting response after function call.');
             dataChannelRef.current.send(JSON.stringify(responseEvent));
-            
+
             // Clear the current tool call ID after sending result
             currentToolCallIdRef.current = null;
             // Status will be updated by server events (response.created, etc.)
@@ -442,33 +441,33 @@
             setStatus('error');
             closeSession(false); // Close current session without trying to re-establish immediately
         };
-        
-         const handleDisconnect = (message) => {
+
+        const handleDisconnect = (message) => {
             console.warn('Disconnected:', message);
             // Don't immediately set to error, allow potential reconnection attempts or user action
-            if (status !== 'error' && status !== 'idle') { 
+            if (status !== 'error' && status !== 'idle') {
                 setErrorMessage(message || 'Connection closed.');
                 setStatus('idle'); // Go back to idle, user can try reconnecting
-                closeSession(false); 
+                closeSession(false);
             }
         };
 
         const closeSession = (cleanupRefs = true) => {
             console.log('Closing session...');
-             if (localStreamRef.current) {
+            if (localStreamRef.current) {
                 localStreamRef.current.getTracks().forEach(track => track.stop());
                 localStreamRef.current = null;
             }
             if (dataChannelRef.current) {
                 dataChannelRef.current.close();
-                 if (cleanupRefs) dataChannelRef.current = null;
+                if (cleanupRefs) dataChannelRef.current = null;
             }
             if (peerConnectionRef.current) {
                 peerConnectionRef.current.close();
-                 if (cleanupRefs) peerConnectionRef.current = null;
+                if (cleanupRefs) peerConnectionRef.current = null;
             }
             if (remoteAudioRef.current) {
-                 remoteAudioRef.current.srcObject = null; 
+                remoteAudioRef.current.srcObject = null;
             }
             // Don't reset status here, let the caller decide (e.g., handleError sets 'error')
         };
@@ -516,10 +515,10 @@
 
             e('div', { className: 'ai-commander-realtime-transcript' },
                 e('h3', null, 'Conversation Transcript:'),
-                e('div', { id: 'ai-commander-transcript-output' }, 
-                   transcript, 
-                   // Show current turn transcript separately while it's coming in
-                   currentTurnTranscript ? e('span', { style: { color: '#888' } }, currentTurnTranscript) : null 
+                e('div', { id: 'ai-commander-transcript-output' },
+                    transcript,
+                    // Show current turn transcript separately while it's coming in
+                    currentTurnTranscript ? e('span', { style: { color: '#888' } }, currentTurnTranscript) : null
                 )
             ),
 
@@ -539,9 +538,9 @@
 
         // Get configuration from localized script
         if (typeof aiCommanderRealtimeData === 'undefined') {
-             console.error('Realtime interface data (aiCommanderRealtimeData) not found.');
-             container.innerHTML = '<p>Error: Plugin configuration data is missing.</p>';
-             return;
+            console.error('Realtime interface data (aiCommanderRealtimeData) not found.');
+            container.innerHTML = '<p>Error: Plugin configuration data is missing.</p>';
+            return;
         }
 
         const config = {
@@ -553,7 +552,7 @@
         };
 
         console.log('Realtime config:', config);
-        
+
         // Render the chat interface
         wp.element.render(
             e(RealtimeInterface, { config: config }),

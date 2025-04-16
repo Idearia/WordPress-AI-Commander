@@ -72,5 +72,6 @@
         "zip",
         "zlib",
         "wordpress"
-    ]
+    ],
+    "editor.formatOnSave": true
 }
