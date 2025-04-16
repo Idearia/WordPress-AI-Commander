@@ -80,7 +80,7 @@
                 if (!tokenResponse.success || !tokenResponse.data.client_secret.value) {
                     throw new Error(tokenResponse.data.message || 'Failed to create realtime session.');
                 }
-                console.log('Realtime Session created:', tokenResponse.data);
+                console.log('Realtime Session created successfully');
 
                 setEphemeralKey(tokenResponse.data.client_secret.value);
                 setEphemeralKeyExpiration(tokenResponse.data.client_secret.expires_at);
@@ -92,7 +92,7 @@
 
                 // 3. Setup remote audio playback
                 pc.ontrack = (event) => {
-                    console.log('Remote track received:', event.track);
+                    console.log(`Remote ${event.track.kind} received`);
                     if (remoteAudioRef.current && event.streams && event.streams[0]) {
                         remoteAudioRef.current.srcObject = event.streams[0];
                         remoteAudioRef.current.play().catch(e => console.error('Audio play error:', e));
@@ -249,7 +249,7 @@
         const handleServerEvent = (event) => {
             try {
                 const serverEvent = JSON.parse(event.data);
-                console.log('Received Server Event:', serverEvent);
+                console.log(`Received Server Event: ${serverEvent.type}`);
 
                 switch (serverEvent.type) {
                     case 'session.created':
@@ -523,7 +523,7 @@
             ),
 
             // Hidden audio element for playback
-            e('audio', { ref: remoteAudioRef, style: { display: 'none' } })
+            e('audio', { ref: remoteAudioRef, style: { display: 'none' }, autoplay: true })
         );
     };
 
@@ -550,8 +550,6 @@
             realtimeModel: aiCommanderRealtimeData.realtime_model,
             realtimeVoice: aiCommanderRealtimeData.realtime_voice
         };
-
-        console.log('Realtime config:', config);
 
         // Render the chat interface
         wp.element.render(
