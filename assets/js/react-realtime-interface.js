@@ -34,14 +34,17 @@
     /**
      * StatusIndicator Component
      */
-    const StatusIndicator = ({ status, message }) => e(
-        'div', { className: `ai-commander-realtime-status ${status === 'error' ? 'error-message' : ''}` },
-        message || 'Status: ' + status.charAt(0).toUpperCase() + status.slice(1)
-    );
+    const StatusIndicator = ({ status, message }) => {
+        const niceStatus = status.charAt(0).toUpperCase() + status.replace(/[-_]/g, ' ').slice(1);
+        return e(
+            'div', { className: `ai-commander-realtime-status ${status === 'error' ? 'error-message' : ''}` },
+            message || 'Status: ' + niceStatus
+        );
+    };
 
     // --- Main Realtime Interface Component ---
     const RealtimeInterface = ({ config }) => {
-        const [status, setStatus] = useState('idle'); // idle, connecting, recording, processing, speaking, tool_wait, error
+        const [status, setStatus] = useState('disconnected'); // disconnected,i connecting, idle, recording, processing, speaking, tool_wait, error
         const [ephemeralKey, setEphemeralKey] = useState(null);
         const [ephemeralKeyExpiration, setEphemeralKeyExpiration] = useState(null);
         const [sessionId, setSessionId] = useState(null);
@@ -157,7 +160,7 @@
                 dc.onclose = () => {
                     console.log('Data Channel closed.');
                     // Only handle disconnect if not initiated by user stop
-                    if (status !== 'idle') {
+                    if (status !== 'disconnected') {
                         handleDisconnect('Data channel closed unexpectedly.');
                     }
                 };
@@ -220,7 +223,7 @@
             }
             // Close WebRTC connection and data channel
             closeSession();
-            setStatus('idle'); // Return to idle state
+            setStatus('disconnected'); // Return to disconnected state
             setCurrentTurnTranscript(''); // Clear any partial transcript
         }, []); // No dependencies needed as it uses refs and closeSession
 
@@ -230,7 +233,7 @@
         const handleToggleButtonClick = () => {
             if (status === 'recording' || status === 'processing' || status === 'speaking' || status === 'tool_wait') {
                 stopRecordingSession();
-            } else if (status === 'idle' || status === 'error') {
+            } else if (status === 'disconnected' || status === 'error') {
                 startRecordingSession();
             }
             // Do nothing if connecting
@@ -249,13 +252,11 @@
                         break;
 
                     case 'input_audio_buffer.speech_started':
-                        console.log('Server event: Speech started detected.');
                         setCurrentTurnTranscript(''); // Clear transcript for new speech turn
                         if (status !== 'recording') setStatus('recording'); // Reflect VAD start
                         break;
 
                     case 'input_audio_buffer.speech_stopped':
-                        console.log('Server event: Speech stopped detected.');
                         if (status === 'recording') setStatus('processing'); // Move to processing after VAD stop
                         // Append the final turn transcript to the main transcript
                         if (currentTurnTranscript) {
@@ -265,7 +266,6 @@
                         break;
 
                     case 'response.created':
-                        console.log('Server event: AI is preparing response.');
                         if (status !== 'tool_wait') setStatus('processing'); // If not waiting for tool, we are processing
                         break;
 
@@ -281,18 +281,18 @@
 
                     case 'response.audio.done':
                         // Maybe transition status if needed, e.g., back to connected if no text follows
-                        console.log('Server event: AI audio finished.');
                         // Don't reset status here, wait for response.done
                         break;
 
                     case 'response.function_call_arguments.delta':
                         // Could potentially stream arguments, but waiting for `response.done` is usually simpler
-                        console.log('Server event: Function call arguments delta received.');
                         if (status !== 'tool_wait') setStatus('tool_wait');
                         break;
 
                     case 'response.done':
-                        console.log('Server event: Response cycle finished.', serverEvent.response);
+                        // The AI finished processing the request, but might not have
+                        // finished speaking yet
+
                         // Append the final turn transcript if any
                         if (currentTurnTranscript) {
                             setTranscript(prev => prev + currentTurnTranscript + '\n\n');
@@ -316,9 +316,12 @@
                         // Process the next tool call if any, otherwise return to connected state
                         if (toolCallQueueRef.current.length > 0) {
                             processNextToolCall();
-                        } else {
-                            setStatus('connected'); // Ready for next user input
                         }
+                        break;
+
+                    case 'output_audio_buffer.stopped':
+                        // The AI finished speaking
+                        setStatus('idle'); // Ready for next user input
                         break;
 
                     case 'error':
@@ -437,10 +440,10 @@
 
         const handleDisconnect = (message) => {
             console.warn('Disconnected:', message);
-            // Only transition to idle if not already in error or idle
-            if (status !== 'error' && status !== 'idle') {
+            // Only transition to disconnected if not already in error or disconnected
+            if (status !== 'error' && status !== 'disconnected') {
                 setErrorMessage(message || 'Connection closed unexpectedly.');
-                setStatus('idle'); // Go back to idle
+                setStatus('disconnected'); // Go back to disconnected
                 closeSession(false); // Clean up refs without resetting state again
             }
         };
@@ -476,20 +479,19 @@
                 remoteAudioRef.current.srcObject = null;
                 console.log('Remote audio source cleared.');
             }
-            // Note: Setting status to idle is now handled by stopRecordingSession or handleDisconnect
         };
 
         // --- UI Rendering ---
 
         const getButtonTextAndIcon = () => {
             switch (status) {
-                case 'idle': return { text: 'Start Recording', icon: e(MicrophoneIcon) };
+                case 'disconnected': return { text: 'Start Recording', icon: e(MicrophoneIcon) };
                 case 'connecting': return { text: 'Connecting...', icon: e(Spinner) };
-                // case 'connected': // This state is removed
                 case 'recording': return { text: 'Stop Recording', icon: e(MicrophoneIcon) };
                 case 'processing': return { text: 'Processing...', icon: e(Spinner) }; // Still need processing/speaking states
                 case 'speaking': return { text: 'AI Speaking...', icon: e(Spinner) };
                 case 'tool_wait': return { text: 'Executing Tool...', icon: e(Spinner) };
+                case 'idle': return { text: 'Waiting for input...', icon: e(Spinner) };
                 case 'error': return { text: 'Retry Session', icon: e(MicrophoneIcon) };
                 default: return { text: 'Unknown State', icon: null };
             }
@@ -518,7 +520,7 @@
                 )
             ),
 
-            (status !== 'idle' && status !== 'connecting') && errorMessage && e(StatusIndicator, { status: 'error', message: errorMessage }),
+            (status !== 'disconnected' && status !== 'connecting') && errorMessage && e(StatusIndicator, { status: 'error', message: errorMessage }),
             (status === 'processing' || status === 'speaking' || status === 'tool_wait') && !errorMessage && e(StatusIndicator, { status: status }),
 
             e('div', { className: 'ai-commander-realtime-transcript' },
