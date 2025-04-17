@@ -94,6 +94,9 @@ public function enqueue_overview_styles( $hook ) {
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=ai-commander-chatbot' ) ); ?>" class="nav-tab">
                     <?php esc_html_e( 'Chatbot', 'ai-commander' ); ?>
                 </a>
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=ai-commander-realtime' ) ); ?>" class="nav-tab">
+                    <?php esc_html_e( 'Realtime', 'ai-commander' ); ?>
+                </a>
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=ai-commander-settings' ) ); ?>" class="nav-tab">
                     <?php esc_html_e( 'Settings', 'ai-commander' ); ?>
                 </a>
