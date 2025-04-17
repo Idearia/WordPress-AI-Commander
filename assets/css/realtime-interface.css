@@ -59,6 +59,12 @@
     color: #fff;
 }
 
+.ai-commander-realtime-button.status-error {
+    background-color: #d63638;
+    border-color: #d63638;
+    color: #fff;
+}
+
 .ai-commander-realtime-button.status-recording:hover:not(:disabled),
 .ai-commander-realtime-button.status-processing:hover:not(:disabled),
 .ai-commander-realtime-button.status-speaking:hover:not(:disabled),
@@ -120,8 +126,7 @@
 }
 
 #ai-commander-transcript-output {
-    font-family: monospace;
-    white-space: pre-wrap; /* Keep line breaks */
+    font-family: sans-serif;
     word-wrap: break-word;
     color: #333;
     font-size: 13px;

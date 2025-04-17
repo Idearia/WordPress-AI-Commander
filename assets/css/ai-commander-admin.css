@@ -1,0 +1,54 @@
+/* Chat Bubbles for Realtime Interface */
+.ai-commander-realtime-interface .ai-commander-chat-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    max-height: 350px !important;
+    overflow-y: auto !important;
+    padding: 10px !important;
+    background-color: #ffffff !important;
+    border: 1px solid #ddd !important;
+    border-radius: 5px !important;
+}
+
+.ai-commander-realtime-interface .ai-commander-message {
+    display: flex !important;
+    width: 100% !important;
+    margin-bottom: 8px !important;
+}
+
+.ai-commander-realtime-interface .user-message {
+    justify-content: flex-end !important;
+}
+
+.ai-commander-realtime-interface .ai-message {
+    justify-content: flex-start !important;
+}
+
+.ai-commander-realtime-interface .ai-commander-bubble {
+    max-width: 80% !important;
+    padding: 10px 15px !important;
+    border-radius: 18px !important;
+    word-break: break-word !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
+}
+
+.ai-commander-realtime-interface .user-bubble {
+    background-color: #0084ff !important;
+    color: white !important;
+    border-top-right-radius: 4px !important;
+}
+
+.ai-commander-realtime-interface .ai-bubble {
+    background-color: #f1f0f0 !important;
+    color: #333 !important;
+    border-top-left-radius: 4px !important;
+}
+
+/* Remove pre-wrap to avoid conflicts with chat bubbles */
+.ai-commander-realtime-interface #ai-commander-transcript-output {
+    white-space: normal !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif !important;
+}
+
+/* ... existing styles ... */ 

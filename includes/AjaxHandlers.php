@@ -222,7 +222,10 @@ class AjaxHandlers {
         $session_data = $openai_client->create_realtime_session([
             'tools' => $this->tool_registry->get_tool_definitions( 'realtime' ),
             'tool_choice' => 'auto',
-            'max_response_output_tokens' => 4096,
+            'max_response_output_tokens' => 4096, // TODO: make this configurable
+            "input_audio_transcription" => [
+                "model" => "whisper-1"  // TODO: make this configurable
+            ],
         ]);
 
         // Check for errors during session creation

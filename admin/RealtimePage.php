@@ -65,6 +65,14 @@ class RealtimePage extends AdminPage {
             array(),
             AI_COMMANDER_VERSION
         );
+        
+        // Enqueue admin.css for chat bubbles
+        wp_enqueue_style(
+            'ai-commander-admin-styles',
+            AI_COMMANDER_PLUGIN_URL . 'assets/css/ai-commander-admin.css',
+            array(),
+            AI_COMMANDER_VERSION
+        );
 
         // Localize script with necessary data
         wp_localize_script(

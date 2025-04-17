@@ -49,8 +49,8 @@
         const [ephemeralKeyExpiration, setEphemeralKeyExpiration] = useState(null);
         const [sessionId, setSessionId] = useState(null);
         const [errorMessage, setErrorMessage] = useState('');
-        const [transcript, setTranscript] = useState('');
-        const [currentTurnTranscript, setCurrentTurnTranscript] = useState('');
+        const [assistantTranscriptDelta, setAssistantTranscriptDelta] = useState('');
+        const [messages, setMessages] = useState([]); // New state to track messages with their source
 
         const peerConnectionRef = useRef(null);
         const dataChannelRef = useRef(null);
@@ -66,8 +66,8 @@
 
             setStatus('connecting');
             setErrorMessage('');
-            setTranscript('');
-            setCurrentTurnTranscript('');
+            setAssistantTranscriptDelta('');
+            setMessages([]); // Clear messages array
             toolCallQueueRef.current = [];
             currentToolCallIdRef.current = null;
             closeSession(false); // Clean up any previous connections first
@@ -224,7 +224,7 @@
             // Close WebRTC connection and data channel
             closeSession();
             setStatus('disconnected'); // Return to disconnected state
-            setCurrentTurnTranscript(''); // Clear any partial transcript
+            setAssistantTranscriptDelta(''); // Clear any partial transcript
         }, []); // No dependencies needed as it uses refs and closeSession
 
         // --- Audio Handling (Simplified, logic moved to start/stop session) ---
@@ -241,77 +241,84 @@
 
         // --- Event Handling ---
 
-        const handleServerEvent = (event) => {
+        // List of events at https://platform.openai.com/docs/api-reference/realtime-server-events
+        const handleServerEvent = (serverEvent) => {
             try {
-                const serverEvent = JSON.parse(event.data);
-                console.log(`Received Server Event: ${serverEvent.type}`);
+                const event = JSON.parse(serverEvent.data);
+                console.log(`Received Server Event: ${event.type}`);
 
-                switch (serverEvent.type) {
+                switch (event.type) {
                     case 'session.created':
                     case 'session.updated':
                         break;
 
+                    // When VAD starts, set status to recording
                     case 'input_audio_buffer.speech_started':
-                        setCurrentTurnTranscript(''); // Clear transcript for new speech turn
-                        if (status !== 'recording') setStatus('recording'); // Reflect VAD start
+                        setStatus('recording');
                         break;
 
+                    // When VAD stops, set status to processing
                     case 'input_audio_buffer.speech_stopped':
                         if (status === 'recording') setStatus('processing'); // Move to processing after VAD stop
-                        // Append the final turn transcript to the main transcript
-                        if (currentTurnTranscript) {
-                            setTranscript(prev => prev + currentTurnTranscript + '\n\n');
-                            setCurrentTurnTranscript(''); // Clear for next turn
-                        }
                         break;
 
+                    // Save user's transcript
+                    case 'conversation.item.input_audio_transcription.completed':
+                        setMessages(prev => [...prev, { type: 'user', content: event.transcript }]);
+                        break;
+
+                    // When AI starts processing the request, set status to processing
                     case 'response.created':
-                        if (status !== 'tool_wait') setStatus('processing'); // If not waiting for tool, we are processing
+                        if (status !== 'tool_wait') setStatus('processing');
                         break;
 
+                    // Save AI's transcript as it comes in
                     case 'response.audio_transcript.delta':
                     case 'response.text.delta': // Handle both text and audio transcript deltas
-                        setCurrentTurnTranscript(prev => prev + (serverEvent.delta || ''));
+                        setAssistantTranscriptDelta(prev => prev + (event.delta || ''));
+                        console.log('Assistant transcript delta:', assistantTranscriptDelta);
                         break;
 
+                    // When AI starts speaking, set status to speaking
                     case 'response.audio.delta':
-                        // Audio data comes via WebRTC track, not typically needed here
-                        if (status !== 'speaking' && status !== 'tool_wait') setStatus('speaking');
+                        setStatus('speaking');
                         break;
 
-                    case 'response.audio.done':
-                        // Maybe transition status if needed, e.g., back to connected if no text follows
-                        // Don't reset status here, wait for response.done
-                        break;
-
+                    // Could potentially stream arguments, but waiting for `response.done` is usually simpler
                     case 'response.function_call_arguments.delta':
-                        // Could potentially stream arguments, but waiting for `response.done` is usually simpler
-                        if (status !== 'tool_wait') setStatus('tool_wait');
+                        setStatus('tool_wait');
                         break;
 
+                    // The AI finished processing the request (but might not have
+                    // finished speaking yet)
                     case 'response.done':
-                        // The AI finished processing the request, but might not have
-                        // finished speaking yet
-
-                        // Append the final turn transcript if any
-                        if (currentTurnTranscript) {
-                            setTranscript(prev => prev + currentTurnTranscript + '\n\n');
-                            setCurrentTurnTranscript('');
+                        // Check for error in the response
+                        if (event.response.status === 'failed') {
+                            setStatus('error');
+                            const errorMessage = event.response?.status_details?.error?.message || 'Unknown error';
+                            setErrorMessage("Error from AI: " + errorMessage);
+                            break;
                         }
+
+                        // Get text response from AI
+                        const responseOutput = event.response?.output?.[0]?.content?.[0];
+                        const responseOutputText = responseOutput?.text || responseOutput?.transcript;
+                        if (responseOutputText) {
+                            setMessages(prev => [...prev, { type: 'assistant', content: responseOutputText }]);
+                        }
+                        setAssistantTranscriptDelta('');
 
                         // Check for function calls in the final response
-                        if (serverEvent.response?.output?.length > 0) {
-                            serverEvent.response.output.forEach(outputItem => {
-                                if (outputItem.type === 'function_call' && outputItem.name && outputItem.arguments && outputItem.call_id) {
-                                    console.log(`Queueing tool call: ${outputItem.name} with ID ${outputItem.call_id}`);
-                                    toolCallQueueRef.current.push({
-                                        name: outputItem.name,
-                                        arguments: outputItem.arguments, // Keep as JSON string
-                                        call_id: outputItem.call_id,
-                                    });
-                                }
-                            });
-                        }
+                        event.response.output.forEach(outputItem => {
+                            if (outputItem.type === 'function_call' && outputItem.name && outputItem.arguments && outputItem.call_id) {
+                                console.log(`Queueing tool call: ${outputItem.name} with ID ${outputItem.call_id}`);
+                                toolCallQueueRef.current.push({
+                                    name: outputItem.name,
+                                    arguments: outputItem.arguments, // Keep as JSON string
+                                    call_id: outputItem.call_id,
+                                });
+                            }
+                        });
 
                         // Process the next tool call if any, otherwise return to connected state
                         if (toolCallQueueRef.current.length > 0) {
@@ -319,23 +326,21 @@
                         }
                         break;
 
+                    // The AI finished speaking
                     case 'output_audio_buffer.stopped':
-                        // The AI finished speaking
                         setStatus('idle'); // Ready for next user input
                         break;
 
                     case 'error':
-                        console.error('Realtime API Error Event:', serverEvent);
-                        handleError(`API Error: ${serverEvent.message || 'Unknown error'}`);
+                        console.error('Realtime API Error Event:', event);
+                        handleError(`API Error: ${event.message || 'Unknown error'}`);
                         break;
 
                     default:
-                        console.log('Unhandled server event type:', serverEvent.type);
+                        console.log('Unhandled server event type:', event.type);
                 }
             } catch (error) {
-                console.error('Error parsing server event:', error, 'Raw data:', event.data);
-                // Avoid setting error status here unless it's critical
-                // Consider setting error status if parsing fails consistently
+                console.error('Error parsing server event:', error, 'Raw data:', serverEvent.data);
             }
         };
 
@@ -527,10 +532,29 @@
 
             e('div', { className: 'ai-commander-realtime-transcript' },
                 e('h3', null, 'Conversation Transcript:'),
-                e('div', { id: 'ai-commander-transcript-output' },
-                    transcript,
-                    // Show current turn transcript separately while it's coming in
-                    currentTurnTranscript ? e('span', { style: { color: '#888' } }, currentTurnTranscript) : null
+                e('div', {
+                    id: 'ai-commander-transcript-output',
+                    className: 'ai-commander-chat-container'
+                },
+                    // Render messages as chat bubbles
+                    messages.map((message, index) =>
+                        e('div', {
+                            key: index,
+                            className: `ai-commander-message ${message.type === 'user' ? 'user-message' : 'ai-message'}`
+                        },
+                            e('div', {
+                                className: `ai-commander-bubble ${message.type === 'user' ? 'user-bubble' : 'ai-bubble'}`
+                            }, message.content)
+                        )
+                    ),
+                    // Show current turn transcript separately
+                    assistantTranscriptDelta && e('div', {
+                        className: `ai-commander-message ${status === 'recording' ? 'user-message' : 'ai-message'}`
+                    },
+                        e('div', {
+                            className: `ai-commander-bubble ${status === 'recording' ? 'user-bubble' : 'ai-bubble'}`
+                        }, assistantTranscriptDelta)
+                    )
                 )
             ),
 
