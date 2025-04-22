@@ -203,20 +203,7 @@ class RestApi {
      * @param \WP_REST_Request $request The request object.
      * @return \WP_REST_Response|\WP_Error The response object.
      */
-    public function transcribe_audio( $request ) {
-        // Check if speech-to-text is enabled
-        $enable_speech = get_option( 'ai_commander_enable_speech_to_text', true );
-        if ( ! $enable_speech ) {
-            return new \WP_Error(
-                'speech_disabled',
-                __( 'Speech-to-text is disabled in settings.', 'ai-commander' ),
-                array( 'status' => 400 )
-            );
-        }
-        
-        // Get the language parameter if provided
-        $language = $request->get_param( 'language' );
-        
+    public function transcribe_audio( $request ) {        
         // Check if file was uploaded
         $files = $request->get_file_params();
         if ( empty( $files['audio'] ) ) {
@@ -242,7 +229,7 @@ class RestApi {
         
         try {
             // Transcribe the audio
-            $transcription = $this->conversation_service->transcribe_audio( $file_path, $language );
+            $transcription = $this->conversation_service->transcribe_audio( $file_path );
             
             // Delete the audio file after transcription
             wp_delete_file( $file_path );
@@ -278,21 +265,8 @@ class RestApi {
      * @return \WP_REST_Response|\WP_Error The response object.
      */
     public function process_voice_command( $request ) {
-        // Check if speech-to-text is enabled
-        $enable_speech = get_option( 'ai_commander_enable_speech_to_text', true );
-        if ( ! $enable_speech ) {
-            return new \WP_Error(
-                'speech_disabled',
-                __( 'Speech-to-text is disabled in settings.', 'ai-commander' ),
-                array( 'status' => 400 )
-            );
-        }
-        
         // Get the conversation UUID if provided
         $conversation_uuid = $request->get_param( 'conversation_uuid' );
-        
-        // Get the language parameter if provided
-        $language = $request->get_param( 'language' );
         
         // Check if file was uploaded
         $files = $request->get_file_params();
@@ -322,7 +296,7 @@ class RestApi {
             $user_id = get_current_user_id();
             
             // Process the voice command
-            $result = $this->conversation_service->process_voice_command( $file_path, $conversation_uuid, $user_id, $language );
+            $result = $this->conversation_service->process_voice_command( $file_path, $conversation_uuid, $user_id );
             
             // Delete the audio file after processing
             wp_delete_file( $file_path );

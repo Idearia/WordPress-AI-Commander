@@ -63,10 +63,6 @@ class ChatbotPage extends AdminPage {
         wp_localize_script( 'ai-commander-react-chat-interface', 'aiCommanderData', array(
             'ajax_url' => admin_url( 'admin-ajax.php' ),
             'nonce' => wp_create_nonce( 'ai_commander_nonce' ),
-            'api_key' => get_option( 'ai_commander_openai_api_key', '' ),
-            'model' => get_option( 'ai_commander_openai_model', 'gpt-4o' ),
-            'enable_speech_to_text' => get_option( 'ai_commander_enable_speech_to_text', '1' ),
-            'speech_language' => get_option( 'ai_commander_speech_language', '' ),
         ) );
     }
 
@@ -145,10 +141,9 @@ class ChatbotPage extends AdminPage {
                     </ul>
                 </div>
                 
-                <?php if ( get_option( 'ai_commander_enable_speech_to_text', true ) ) : ?>
                 <div class="card">
-                    <h2><?php esc_html_e( 'Speech-to-Text Requirements', 'ai-commander' ); ?></h2>
-                    <p><?php esc_html_e( 'To use the speech-to-text feature, please ensure:', 'ai-commander' ); ?></p>
+                    <h2><?php esc_html_e( 'Requirements for voice input', 'ai-commander' ); ?></h2>
+                    <p><?php esc_html_e( 'To use the realtime or speech-to-text features, please ensure:', 'ai-commander' ); ?></p>
                     <ul>
                         <li><?php esc_html_e( 'Your site is served over HTTPS (required for microphone access in most browsers).', 'ai-commander' ); ?></li>
                         <li><?php esc_html_e( 'You are using a modern browser that supports the MediaRecorder API (Chrome, Edge, Firefox, Safari 14.1+).', 'ai-commander' ); ?></li>
@@ -158,7 +153,6 @@ class ChatbotPage extends AdminPage {
                         <?php esc_html_e( 'Note: If you\'re using this plugin on a local development environment, you can access it via http://localhost without HTTPS.', 'ai-commander' ); ?>
                     </p>
                 </div>
-                <?php endif; ?>
             </div>
         </div>
         

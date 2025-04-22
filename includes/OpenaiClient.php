@@ -33,11 +33,18 @@ class OpenaiClient {
     private $chat_api_endpoint = 'https://api.openai.com/v1/chat/completions';
     
     /**
-     * The OpenAI Whisper API endpoint.
+     * The OpenAI transcription endpoint.
      *
      * @var string
      */
-    private $whisper_api_endpoint = 'https://api.openai.com/v1/audio/transcriptions';
+    private $transcription_api_endpoint = 'https://api.openai.com/v1/audio/transcriptions';
+
+    /**
+     * The OpenAI speech-to-text endpoint.
+     *
+     * @var string
+     */
+    private $speech_api_endpoint = 'https://api.openai.com/v1/audio/speech';
 
     /**
      * The OpenAI Realtime API endpoint for creating sessions.
@@ -52,7 +59,21 @@ class OpenaiClient {
      * @var string
      */
     private $chat_model;
+
+    /**
+     * The OpenAI model to use for speech-to-text transcription.
+     *
+     * @var string
+     */
+    private $transcription_model;
     
+    /**
+     * The OpenAI model to use for speech-to-text.
+     *
+     * @var string
+     */
+    private $speech_model;
+
     /**
      * The OpenAI model to use for realtime sessions.
      *
@@ -94,22 +115,29 @@ class OpenaiClient {
      */
     public function __construct() {
         $this->api_key = get_option( 'ai_commander_openai_api_key', '' );
-        $this->chat_model = get_option( 'ai_commander_openai_model', 'gpt-4o' );
-        $this->realtime_model = get_option( 'ai_commander_realtime_model', 'gpt-4o-realtime-preview-2024-12-17' );
+        $this->chat_model = get_option( 'ai_commander_openai_chat_model', 'gpt-4o' );
+        $this->transcription_model = get_option( 'ai_commander_openai_transcription_model', 'gpt-4o-transcribe' );
+        $this->speech_model = get_option( 'ai_commander_openai_speech_model', 'gpt-4o-mini-tts' );
+        $this->realtime_model = get_option( 'ai_commander_openai_realtime_model', 'gpt-4o-realtime-preview-2024-12-17' );
         $this->realtime_voice = get_option( 'ai_commander_realtime_voice', 'verse' );
         $this->system_prompt = $this->get_system_prompt();
         $this->realtime_system_prompt = $this->get_realtime_system_prompt();
-        $this->debug_mode = get_option( 'ai_commander_debug_mode', false );
+        $this->debug_mode = get_option( 'ai_commander_openai_debug_mode', false );
     }
     
     /**
-     * Transcribe audio using the OpenAI Whisper API.
+     * Transcribe audio using the OpenAI API.
+     *
+     * TODO: support 4o specific features, e.g. streaming and text prompt.
+     *
+     * @link https://platform.openai.com/docs/api-reference/audio/createTranscription
      *
      * @param string $audio_file_path The path to the audio file.
+     * @param string $model The model to use for transcription.
      * @param string $language Optional language code to improve transcription accuracy.
      * @return string|\WP_Error The transcribed text or an error.
      */
-    public function transcribe_audio( $audio_file_path, $language = null ) {
+    public function transcribe_audio( $audio_file_path, $model = 'gpt-4o-transcribe', $language = null ) {
         if ( empty( $this->api_key ) ) {
             return new \WP_Error(
                 'missing_api_key',
@@ -155,7 +183,7 @@ class OpenaiClient {
         // Add the model part
         $body .= '--' . $boundary . "\r\n";
         $body .= 'Content-Disposition: form-data; name="model"' . "\r\n\r\n";
-        $body .= 'whisper-1' . "\r\n";
+        $body .= $model . "\r\n";
         
         // Add the language part if specified
         if ( ! empty( $language ) ) {
@@ -169,11 +197,11 @@ class OpenaiClient {
         
         // Log the request if debug mode is enabled
         if ( $this->debug_mode ) {
-            error_log( 'OpenAI Whisper API Request: ' . basename( $audio_file_path ) . ' (language: ' . ( $language ?: 'auto' ) . ')' );
+            error_log( 'OpenAI Transcription API Request: file:' . basename( $audio_file_path ) . ', model:' . $model . ', language:' . ( $language ?: 'auto' ) );
         }
         
         // Send the request
-        $response = wp_remote_post( $this->whisper_api_endpoint, array(
+        $response = wp_remote_post( $this->transcription_api_endpoint, array(
             'headers' => $headers,
             'body' => $body,
             'timeout' => 60, // Longer timeout for audio processing
@@ -191,7 +219,7 @@ class OpenaiClient {
             
             return new \WP_Error(
                 'openai_api_error',
-                sprintf( 'OpenAI Whisper API error (%d): %s', $response_code, $error_message )
+                sprintf( 'OpenAI Transcription API error (%d): %s', $response_code, $error_message )
             );
         }
         
@@ -292,14 +320,14 @@ class OpenaiClient {
         $default_prompt = $this->get_default_system_prompt();
 
         // Get the system prompt from options, fallback to default if empty
-        $system_prompt = get_option( 'ai_commander_system_prompt', $default_prompt );
-        
+        $system_prompt = get_option( 'ai_commander_chatbot_system_prompt', $default_prompt );
+
         if ( empty( $system_prompt ) ) {
             $system_prompt = $default_prompt;
         }
         
         // Apply filter to allow developers to modify the system prompt
-        return apply_filters( 'ai_commander_filter_system_prompt', $system_prompt );
+        return apply_filters( 'ai_commander_filter_chatbot_system_prompt', $system_prompt );
     }
 
     /**
@@ -310,7 +338,7 @@ class OpenaiClient {
      * @return array|\WP_Error The API response, or \WP_Error on failure.
      */
     private function send_chat_completion_request( $messages, $tools ) {
-        if ($this->debug_mode) {
+        if ( $this->debug_mode ) {
             error_log('OpenAI API Request: ' . wp_json_encode(array(
                 'model' => $this->chat_model,
                 'messages' => $messages,
@@ -366,7 +394,7 @@ class OpenaiClient {
      * @return array The processed response.
      */
     private function process_response( $response ) {
-        if ($this->debug_mode) {
+        if ( $this->debug_mode ) {
             error_log('OpenAI API Response: ' . wp_json_encode($response, JSON_PRETTY_PRINT));
         }
         
@@ -415,7 +443,7 @@ class OpenaiClient {
         }
 
         // Apply filter to allow developers to modify the system prompt
-        return apply_filters( 'ai_commander_filter_realtime_system_prompt', $combined_instructions );
+        return apply_filters( 'ai_commander_filter_realtime_system_prompt', $combined_instructions, $main_prompt, $realtime_specific_prompt );
     }
 
     /**
@@ -443,7 +471,7 @@ class OpenaiClient {
             ...$params,
         );
 
-        if ($this->debug_mode) {
+        if ( $this->debug_mode ) {
             error_log('OpenAI Realtime Session Request Body: ' . wp_json_encode($request_body, JSON_PRETTY_PRINT));
         }
 
@@ -471,7 +499,7 @@ class OpenaiClient {
         $response_body = wp_remote_retrieve_body( $response );
         $result = json_decode( $response_body, true );
 
-        if ($this->debug_mode) {
+        if ( $this->debug_mode ) {
             error_log('OpenAI Realtime Session Response (Code: ' . $response_code . '): ' . wp_json_encode($result, JSON_PRETTY_PRINT));
         }
 

@@ -49,7 +49,7 @@ class SettingsPage extends AdminPage {
      * Register settings.
      */
     public function register_settings() {
-        // Register the settings
+        // OpenAI API settings
         register_setting(
             'ai_commander_settings',
             'ai_commander_openai_api_key',
@@ -62,28 +62,59 @@ class SettingsPage extends AdminPage {
         
         register_setting(
             'ai_commander_settings',
-            'ai_commander_openai_model',
+            'ai_commander_openai_chat_model',
             array(
                 'type' => 'string',
                 'sanitize_callback' => 'sanitize_text_field',
                 'default' => 'gpt-4o',
             )
         );
-        
+
         register_setting(
             'ai_commander_settings',
-            'ai_commander_debug_mode',
+            'ai_commander_openai_transcription_model',
+            array(
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+                'default' => 'gpt-4o-transcribe',
+            )
+        );
+
+        register_setting(
+            'ai_commander_settings',
+            'ai_commander_openai_speech_model',
+            array(
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+                'default' => 'gpt-4o-mini-tts',
+            )
+        );
+
+        register_setting(
+            'ai_commander_settings',
+            'ai_commander_openai_realtime_model',
+            array(
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+                'default' => 'gpt-4o-realtime-preview-2024-12-17',
+            )
+        );
+
+        // Debug settings
+        register_setting(
+            'ai_commander_settings',
+            'ai_commander_openai_debug_mode',
             array(
                 'type' => 'boolean',
                 'sanitize_callback' => 'rest_sanitize_boolean',
                 'default' => false,
             )
         );
-        
-        // System prompt setting
+
+        // Chatbot settings
         register_setting(
             'ai_commander_settings',
-            'ai_commander_system_prompt',
+            'ai_commander_chatbot_system_prompt',
             array(
                 'type' => 'string',
                 'sanitize_callback' => 'sanitize_textarea_field',
@@ -94,32 +125,20 @@ class SettingsPage extends AdminPage {
                             'If you are unable to perform a requested action, explain why and suggest alternatives.',
             )
         );
-        
-        // Assistant greeting setting
+
         register_setting(
             'ai_commander_settings',
-            'ai_commander_assistant_greeting',
+            'ai_commander_chatbot_greeting',
             array(
                 'type' => 'string',
                 'sanitize_callback' => 'sanitize_textarea_field',
                 'default' => \AICommander\Includes\ConversationManager::get_default_assistant_greeting(),
             )
         );
-        
-        // Speech-to-text settings
+
         register_setting(
             'ai_commander_settings',
-            'ai_commander_enable_speech_to_text',
-            array(
-                'type' => 'boolean',
-                'sanitize_callback' => 'rest_sanitize_boolean',
-                'default' => true,
-            )
-        );
-        
-        register_setting(
-            'ai_commander_settings',
-            'ai_commander_speech_language',
+            'ai_commander_chatbot_speech_language',
             array(
                 'type' => 'string',
                 'sanitize_callback' => 'sanitize_text_field',
@@ -128,16 +147,6 @@ class SettingsPage extends AdminPage {
         );
         
         // Realtime API settings
-        register_setting(
-            'ai_commander_settings',
-            'ai_commander_realtime_model',
-            array(
-                'type' => 'string',
-                'sanitize_callback' => 'sanitize_text_field',
-                'default' => 'gpt-4o-realtime-preview-2024-12-17', // Default realtime model
-            )
-        );
-
         register_setting(
             'ai_commander_settings',
             'ai_commander_realtime_voice',
@@ -157,8 +166,8 @@ class SettingsPage extends AdminPage {
                 'default' => '', // Default empty
             )
         );
-        
-        // Add settings sections
+
+        // Add settings section for OpenAI API
         add_settings_section(
             'ai_commander_openai_settings',
             __( 'OpenAI API Settings', 'ai-commander' ),
@@ -166,69 +175,87 @@ class SettingsPage extends AdminPage {
             'ai_commander_settings'
         );
         
-        add_settings_section(
-            'ai_commander_speech_settings',
-            __( 'Speech-to-Text Settings', 'ai-commander' ),
-            array( $this, 'render_speech_settings_section' ),
-            'ai_commander_settings'
-        );
-        
         // Add settings fields for OpenAI API
         add_settings_field(
             'ai_commander_openai_api_key',
             __( 'API Key', 'ai-commander' ),
-            array( $this, 'render_api_key_field' ),
+            array( $this, 'render_openai_api_key_field' ),
             'ai_commander_settings',
             'ai_commander_openai_settings'
         );
         
         add_settings_field(
-            'ai_commander_openai_model',
-            __( 'Model', 'ai-commander' ),
-            array( $this, 'render_model_field' ),
+            'ai_commander_openai_chat_model',
+            __( 'Chat Completion Model', 'ai-commander' ),
+            array( $this, 'render_openai_chat_model_field' ),
             'ai_commander_settings',
             'ai_commander_openai_settings'
         );
         
+
         add_settings_field(
-            'ai_commander_debug_mode',
+            'ai_commander_openai_transcription_model',
+            __( 'Transcription Model', 'ai-commander' ),
+            array( $this, 'render_openai_transcription_model_field' ),
+            'ai_commander_settings',
+            'ai_commander_openai_settings'
+        );
+
+        add_settings_field(
+            'ai_commander_openai_speech_model',
+            __( 'Speech Model', 'ai-commander' ),
+            array( $this, 'render_openai_speech_model_field' ),
+            'ai_commander_settings',
+            'ai_commander_openai_settings'
+        );
+
+        add_settings_field(
+            'ai_commander_openai_realtime_model',
+            __( 'Realtime Model', 'ai-commander' ),
+            array( $this, 'render_openai_realtime_model_field' ),
+            'ai_commander_settings',
+            'ai_commander_openai_settings'
+        );
+
+        add_settings_field(
+            'ai_commander_openai_debug_mode',
             __( 'Debug Mode', 'ai-commander' ),
-            array( $this, 'render_debug_mode_field' ),
+            array( $this, 'render_openai_debug_mode_field' ),
             'ai_commander_settings',
             'ai_commander_openai_settings'
         );
-        
+
+        // Add settings section for chatbot
+        add_settings_section(
+            'ai_commander_chatbot_settings',
+            __( 'Chatbot Settings', 'ai-commander' ),
+            array( $this, 'render_chatbot_settings_section' ),
+            'ai_commander_settings'
+        );
+
+        // Add settings fields for chatbot
         add_settings_field(
-            'ai_commander_system_prompt',
+            'ai_commander_chatbot_system_prompt',
             __( 'System Prompt', 'ai-commander' ),
-            array( $this, 'render_system_prompt_field' ),
+            array( $this, 'render_chatbot_system_prompt_field' ),
             'ai_commander_settings',
-            'ai_commander_openai_settings'
+            'ai_commander_chatbot_settings'
         );
         
         add_settings_field(
-            'ai_commander_assistant_greeting',
+            'ai_commander_chatbot_greeting',
             __( 'Assistant Greeting', 'ai-commander' ),
-            array( $this, 'render_assistant_greeting_field' ),
+            array( $this, 'render_chatbot_greeting_field' ),
             'ai_commander_settings',
-            'ai_commander_openai_settings'
+            'ai_commander_chatbot_settings'
         );
-        
-        // Add settings fields for Speech-to-Text
+
         add_settings_field(
-            'ai_commander_enable_speech_to_text',
-            __( 'Enable Speech-to-Text', 'ai-commander' ),
-            array( $this, 'render_enable_speech_field' ),
+            'ai_commander_chatbot_speech_language',
+            __( 'Speech language', 'ai-commander' ),
+            array( $this, 'render_chatbot_speech_language_field' ),
             'ai_commander_settings',
-            'ai_commander_speech_settings'
-        );
-        
-        add_settings_field(
-            'ai_commander_speech_language',
-            __( 'Language', 'ai-commander' ),
-            array( $this, 'render_speech_language_field' ),
-            'ai_commander_settings',
-            'ai_commander_speech_settings'
+            'ai_commander_chatbot_settings'
         );
 
         // Add settings section for Realtime API
@@ -240,14 +267,6 @@ class SettingsPage extends AdminPage {
         );
 
         // Add settings fields for Realtime API
-        add_settings_field(
-            'ai_commander_realtime_model',
-            __( 'Realtime Model', 'ai-commander' ),
-            array( $this, 'render_realtime_model_field' ),
-            'ai_commander_settings',
-            'ai_commander_realtime_settings'
-        );
-
         add_settings_field(
             'ai_commander_realtime_voice',
             __( 'Realtime Voice', 'ai-commander' ),
@@ -326,7 +345,7 @@ class SettingsPage extends AdminPage {
     /**
      * Render the API key field.
      */
-    public function render_api_key_field() {
+    public function render_openai_api_key_field() {
         $api_key = get_option( 'ai_commander_openai_api_key', '' );
         $masked_key = ! empty( $api_key ) ? substr( $api_key, 0, 4 ) . '...' . substr( $api_key, -4 ) : '';
         ?>
@@ -350,12 +369,51 @@ class SettingsPage extends AdminPage {
     /**
      * Render the model field.
      */
-    public function render_model_field() {
-        $model = get_option( 'ai_commander_openai_model', 'gpt-4o' );
+    public function render_openai_chat_model_field() {
+        $chat_model = get_option( 'ai_commander_openai_chat_model', 'gpt-4o' );
         ?>
-        <input type="text" id="ai_commander_openai_model" name="ai_commander_openai_model" value="<?php echo esc_attr( $model ); ?>" class="regular-text" />
+        <input type="text" id="ai_commander_openai_chat_model" name="ai_commander_openai_chat_model" value="<?php echo esc_attr( $chat_model ); ?>" class="regular-text" />
         <p class="description">
-            <?php esc_html_e( 'Enter the OpenAI model to use (e.g., gpt-4o). GPT-4 models provide better results but may be more expensive.', 'ai-commander' ); ?>
+            <?php esc_html_e( 'Enter the OpenAI model to use for chat completion, e.g., gpt-4o.', 'ai-commander' ); ?>
+        </p>
+        <?php
+    }
+
+    /**
+     * Render the transcription model field.
+     */
+    public function render_openai_transcription_model_field() {
+        $transcription_model = get_option( 'ai_commander_openai_transcription_model', 'gpt-4o-transcribe' );
+        ?>
+        <input type="text" id="ai_commander_openai_transcription_model" name="ai_commander_openai_transcription_model" value="<?php echo esc_attr( $transcription_model ); ?>" class="regular-text" />
+        <p class="description">
+            <?php esc_html_e( 'Enter the OpenAI model to generate text from audio (speech-to-text), e.g., gpt-4o-transcribe.', 'ai-commander' ); ?>
+        </p>
+        <?php
+    }
+    
+    /**
+     * Render the speech model field.
+     */
+    public function render_openai_speech_model_field() {
+        $speech_model = get_option( 'ai_commander_openai_speech_model', 'gpt-4o-mini-tts' );
+        ?>
+        <input type="text" id="ai_commander_openai_speech_model" name="ai_commander_openai_speech_model" value="<?php echo esc_attr( $speech_model ); ?>" class="regular-text" />
+        <p class="description">
+            <?php esc_html_e( 'Enter the OpenAI model to use to generate audio from text (text-to-speech), e.g., gpt-4o-mini-tts.', 'ai-commander' ); ?>
+        </p>
+        <?php
+    }
+
+    /**
+     * Render the Realtime model field.
+     */
+    public function render_openai_realtime_model_field() {
+        $model = get_option( 'ai_commander_openai_realtime_model', 'gpt-4o-realtime-preview-2024-12-17' );
+        ?>
+        <input type="text" id="ai_commander_openai_realtime_model" name="ai_commander_openai_realtime_model" value="<?php echo esc_attr( $model ); ?>" class="regular-text" />
+        <p class="description">
+            <?php esc_html_e( 'Enter the OpenAI Realtime model to use (e.g., gpt-4o-realtime-preview-2024-12-17).', 'ai-commander' ); ?>
         </p>
         <?php
     }
@@ -363,11 +421,11 @@ class SettingsPage extends AdminPage {
     /**
      * Render the debug mode field.
      */
-    public function render_debug_mode_field() {
-        $debug_mode = get_option( 'ai_commander_debug_mode', false );
+    public function render_openai_debug_mode_field() {
+        $debug_mode = get_option( 'ai_commander_openai_debug_mode', false );
         ?>
-        <label for="ai_commander_debug_mode">
-            <input type="checkbox" id="ai_commander_debug_mode" name="ai_commander_debug_mode" value="1" <?php checked( $debug_mode, true ); ?> />
+        <label for="ai_commander_openai_debug_mode">
+            <input type="checkbox" id="ai_commander_openai_debug_mode" name="ai_commander_openai_debug_mode" value="1" <?php checked( $debug_mode, true ); ?> />
             <?php esc_html_e( 'Enable debug logging', 'ai-commander' ); ?>
         </label>
         <p class="description">
@@ -379,38 +437,22 @@ class SettingsPage extends AdminPage {
     /**
      * Render the speech settings section.
      */
-    public function render_speech_settings_section() {
+    public function render_chatbot_settings_section() {
         ?>
-        <p><?php esc_html_e( 'Configure speech-to-text settings for the chatbot interface. This feature uses OpenAI\'s Whisper API to transcribe spoken messages.', 'ai-commander' ); ?></p>
-        <?php
-    }
-    
-    /**
-     * Render the enable speech field.
-     */
-    public function render_enable_speech_field() {
-        $enable_speech = get_option( 'ai_commander_enable_speech_to_text', true );
-        ?>
-        <label for="ai_commander_enable_speech_to_text">
-            <input type="checkbox" id="ai_commander_enable_speech_to_text" name="ai_commander_enable_speech_to_text" value="1" <?php checked( $enable_speech, true ); ?> />
-            <?php esc_html_e( 'Enable speech-to-text functionality', 'ai-commander' ); ?>
-        </label>
-        <p class="description">
-            <?php esc_html_e( 'When enabled, users can record voice messages using a microphone button in the chat interface.', 'ai-commander' ); ?>
-        </p>
+        <p><?php esc_html_e( 'Configure settings for the chatbot interface.', 'ai-commander' ); ?></p>
         <?php
     }
     
     /**
      * Render the system prompt field.
      */
-    public function render_system_prompt_field() {
-        $system_prompt = get_option( 'ai_commander_system_prompt', '' );
-        $filtered_prompt = apply_filters( 'ai_commander_filter_system_prompt', $system_prompt );
+    public function render_chatbot_system_prompt_field() {
+        $system_prompt = get_option( 'ai_commander_chatbot_system_prompt', '' );
+        $filtered_prompt = apply_filters( 'ai_commander_filter_chatbot_system_prompt', $system_prompt );
         $is_filtered = $filtered_prompt !== $system_prompt;
         ?>
         <?php if ( ! $is_filtered ) : ?>
-            <textarea id="ai_commander_system_prompt" name="ai_commander_system_prompt" rows="6" class="large-text code"><?php echo esc_textarea( $system_prompt ); ?></textarea>
+            <textarea id="ai_commander_chatbot_system_prompt" name="ai_commander_chatbot_system_prompt" rows="6" class="large-text code"><?php echo esc_textarea( $system_prompt ); ?></textarea>
             <p class="description">
             <?php esc_html_e( 'The system prompt sets the behavior and capabilities of the AI assistant. Customize this to change how the assistant responds to user requests.  If empty, the following default system prompt will be used:', 'ai-commander' ); ?>
             </p>
@@ -423,7 +465,7 @@ class SettingsPage extends AdminPage {
             <div class="notice notice-warning inline">
                 <p>
                     <strong><?php esc_html_e( 'Note:', 'ai-commander' ); ?></strong>
-                    <?php esc_html_e( 'The system prompt is currently set by code using the `ai_commander_filter_system_prompt` filter. This is the actual value used:', 'ai-commander' ); ?>
+                    <?php esc_html_e( 'The system prompt is currently set by code using the `ai_commander_filter_chatbot_system_prompt` filter. This is the actual value used:', 'ai-commander' ); ?>
                     <code><?php echo esc_html( $filtered_prompt ); ?></code>
                 </p>
             </div>
@@ -434,13 +476,13 @@ class SettingsPage extends AdminPage {
     /**
      * Render the assistant greeting field.
      */
-    public function render_assistant_greeting_field() {
-        $greeting = get_option( 'ai_commander_assistant_greeting', '' );
-        $filtered_greeting = apply_filters( 'ai_commander_filter_assistant_greeting', $greeting );
+    public function render_chatbot_greeting_field() {
+        $greeting = get_option( 'ai_commander_chatbot_greeting', '' );
+        $filtered_greeting = apply_filters( 'ai_commander_filter_chatbot_greeting', $greeting );
         $is_filtered = $filtered_greeting !== $greeting;
         ?>
         <?php if ( ! $is_filtered ) : ?>
-            <textarea id="ai_commander_assistant_greeting" name="ai_commander_assistant_greeting" rows="3" class="large-text"><?php echo esc_textarea( $greeting ); ?></textarea>
+            <textarea id="ai_commander_chatbot_greeting" name="ai_commander_chatbot_greeting" rows="3" class="large-text"><?php echo esc_textarea( $greeting ); ?></textarea>
             <p class="description">
             <?php esc_html_e( 'The initial greeting message shown to users when starting a new conversation. If empty, the default greeting will be used:', 'ai-commander' ); ?>
             </p>
@@ -453,7 +495,7 @@ class SettingsPage extends AdminPage {
             <div class="notice notice-warning inline">
                 <p>
                     <strong><?php esc_html_e( 'Note:', 'ai-commander' ); ?></strong>
-                    <?php esc_html_e( 'The assistant greeting is currently set by code using the `ai_commander_filter_assistant_greeting` filter. This is the actual value used:', 'ai-commander' ); ?>
+                    <?php esc_html_e( 'The assistant greeting is currently set by code using the `ai_commander_filter_chatbot_greeting` filter. This is the actual value used:', 'ai-commander' ); ?>
                     <code><?php echo esc_html( $filtered_greeting ); ?></code>
                 </p>
             </div>
@@ -464,8 +506,8 @@ class SettingsPage extends AdminPage {
     /**
      * Render the speech language field.
      */
-    public function render_speech_language_field() {
-        $language = get_option( 'ai_commander_speech_language', '' );
+    public function render_chatbot_speech_language_field() {
+        $language = get_option( 'ai_commander_chatbot_speech_language', '' );
         $languages = array(
             '' => __( 'Auto-detect (recommended)', 'ai-commander' ),
             'en' => __( 'English', 'ai-commander' ),
@@ -482,7 +524,7 @@ class SettingsPage extends AdminPage {
             'hi' => __( 'Hindi', 'ai-commander' ),
         );
         ?>
-        <select id="ai_commander_speech_language" name="ai_commander_speech_language">
+        <select id="ai_commander_chatbot_speech_language" name="ai_commander_chatbot_speech_language">
             <?php foreach ( $languages as $code => $name ) : ?>
                 <option value="<?php echo esc_attr( $code ); ?>" <?php selected( $language, $code ); ?>>
                     <?php echo esc_html( $name ); ?>
@@ -501,19 +543,6 @@ class SettingsPage extends AdminPage {
     public function render_realtime_settings_section() {
         ?>
         <p><?php esc_html_e( 'Configure settings specific to the Realtime voice conversation feature.', 'ai-commander' ); ?></p>
-        <?php
-    }
-
-    /**
-     * Render the Realtime model field.
-     */
-    public function render_realtime_model_field() {
-        $model = get_option( 'ai_commander_realtime_model', 'gpt-4o-realtime-preview-2024-12-17' );
-        ?>
-        <input type="text" id="ai_commander_realtime_model" name="ai_commander_realtime_model" value="<?php echo esc_attr( $model ); ?>" class="regular-text" />
-        <p class="description">
-            <?php esc_html_e( 'Enter the OpenAI Realtime model to use (e.g., gpt-4o-realtime-preview-2024-12-17).', 'ai-commander' ); ?>
-        </p>
         <?php
     }
 

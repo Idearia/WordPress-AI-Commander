@@ -490,13 +490,6 @@
 							"description": "Audio file to transcribe (WebM, MP3, WAV, etc.)",
 							"type": "file",
 							"src": "/path/to/your/audio/file.webm"
-						},
-						{
-							"key": "language",
-							"value": "en",
-							"description": "Optional language code to improve transcription accuracy",
-							"type": "text",
-							"disabled": true
 						}
 					]
 				},
@@ -512,7 +505,7 @@
 						"transcribe"
 					]
 				},
-				"description": "Transcribes an audio file using OpenAI's Whisper API and returns the transcribed text."
+				"description": "Transcribes an audio file using OpenAI's Transcription API and returns the transcribed text."
 			},
 			"response": []
 		},

@@ -143,7 +143,7 @@ class AjaxHandlers {
     }
     
     /**
-     * AJAX handler for transcribing audio using OpenAI Whisper API.
+     * AJAX handler for transcribing audio using OpenAI Transcription API.
      */
     public function transcribe_audio() {
         // Check nonce for security
@@ -154,19 +154,10 @@ class AjaxHandlers {
             wp_send_json_error( array( 'message' => 'Insufficient permissions' ) );
         }
         
-        // Check if speech-to-text is enabled
-        $enable_speech = get_option( 'ai_commander_enable_speech_to_text', true );
-        if ( ! $enable_speech ) {
-            wp_send_json_error( array( 'message' => 'Speech-to-text is disabled in settings' ) );
-        }
-        
         // Check if file was uploaded
         if ( empty( $_FILES['audio'] ) ) {
             wp_send_json_error( array( 'message' => 'No audio file provided' ) );
         }
-        
-        // Get the language setting
-        $language = get_option( 'ai_commander_speech_language', '' );
         
         // Handle the file upload using the ConversationService
         $upload_result = $this->conversation_service->handle_audio_upload( $_FILES['audio'] );
@@ -179,7 +170,7 @@ class AjaxHandlers {
         
         try {
             // Use the ConversationService to transcribe the audio
-            $transcription = $this->conversation_service->transcribe_audio( $file_path, $language );
+            $transcription = $this->conversation_service->transcribe_audio( $file_path );
             
             // Delete the audio file after transcription
             wp_delete_file( $file_path );
@@ -224,7 +215,7 @@ class AjaxHandlers {
             'tool_choice' => 'auto',
             'max_response_output_tokens' => 4096, // TODO: make this configurable
             "input_audio_transcription" => [
-                "model" => "whisper-1"  // TODO: make this configurable
+                "model" => get_option( 'ai_commander_openai_transcription_model', 'gpt-4o-transcribe' )
             ],
         ]);
 

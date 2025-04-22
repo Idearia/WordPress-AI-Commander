@@ -191,9 +191,13 @@ class ConversationService {
                 $error_message
             );
         }
-        
+
+        // Move the file to the upload directory
+        if ( ! function_exists( 'wp_handle_upload' ) ) {
+            require_once( ABSPATH . 'wp-admin/includes/file.php' );
+        }
         add_filter('upload_dir', [ static::class, 'get_audio_upload_dir' ]);
-        $movefile = wp_handle_upload($file, array( 'test_form' => false ) );
+        $movefile = \wp_handle_upload($file, array( 'test_form' => false ) );
         remove_filter('upload_dir', [ static::class, 'get_audio_upload_dir' ]);
         
         if ( $movefile && ! isset( $movefile['error'] ) ) {
@@ -259,22 +263,16 @@ class ConversationService {
     }
 
     /**
-     * Transcribe audio file using OpenAI Whisper API.
+     * Transcribe audio file using OpenAI TranscriptionAPI.
      *
      * @param string $audio_file_path The path to the audio file.
-     * @param string $language Optional language code to improve transcription accuracy.
      * @return string|\WP_Error The transcribed text or an error.
      */
-    public function transcribe_audio( $audio_file_path, $language = null ) {
-        // Check if speech-to-text is enabled
-        $enable_speech = get_option( 'ai_commander_enable_speech_to_text', true );
-        if ( ! $enable_speech ) {
-            return new \WP_Error(
-                'speech_disabled',
-                'Speech-to-text is disabled in settings'
-            );
-        }
-        
+    public function transcribe_audio( $audio_file_path ) {        
+        // Get parameter
+        $model = get_option( 'ai_commander_openai_transcription_model', 'gpt-4o-transcribe' );
+        $language = get_option( 'ai_commander_chatbot_speech_language', '' );
+
         // Validate the file
         if ( ! file_exists( $audio_file_path ) ) {
             return new \WP_Error(
@@ -285,7 +283,7 @@ class ConversationService {
         
         try {
             // Transcribe the audio using the OpenAI client
-            $transcription = $this->openai_client->transcribe_audio( $audio_file_path, $language );
+            $transcription = $this->openai_client->transcribe_audio( $audio_file_path, $model, $language );
             
             if ( is_wp_error( $transcription ) ) {
                 return $transcription;
@@ -299,19 +297,18 @@ class ConversationService {
             );
         }
     }
-    
+
     /**
      * Process a voice command by transcribing audio and then processing the transcribed text.
      *
      * @param string $audio_file_path The path to the audio file.
      * @param string|null $conversation_uuid The conversation UUID. If null, a new conversation will be created.
      * @param int|null $user_id The WordPress user ID.
-     * @param string|null $language Optional language code to improve transcription accuracy.
      * @return array The result containing transcription and command processing results.
      */
-    public function process_voice_command( $audio_file_path, $conversation_uuid = null, $user_id = null, $language = null ) {
+    public function process_voice_command( $audio_file_path, $conversation_uuid = null, $user_id = null ) {
         // Transcribe the audio
-        $transcription = $this->transcribe_audio( $audio_file_path, $language );
+        $transcription = $this->transcribe_audio( $audio_file_path );
         
         if ( is_wp_error( $transcription ) ) {
             return array(

@@ -36,14 +36,14 @@ class ConversationManager {
         $default_greeting = self::get_default_assistant_greeting();
 
         // Get the greeting from options, fallback to default if empty
-        $greeting = get_option( 'ai_commander_assistant_greeting', $default_greeting );
+        $greeting = get_option( 'ai_commander_chatbot_greeting', $default_greeting );
         
         if ( empty( $greeting ) ) {
             $greeting = $default_greeting;
         }
         
         // Apply filter to allow developers to modify the greeting
-        return apply_filters( 'ai_commander_filter_assistant_greeting', $greeting );
+        return apply_filters( 'ai_commander_filter_chatbot_greeting', $greeting );
     }
     
     /**

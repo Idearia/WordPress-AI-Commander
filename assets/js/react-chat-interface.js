@@ -410,14 +410,6 @@
             const mediaRecorderRef = useRef(null);
             const audioChunksRef = useRef([]);
 
-            // Check if speech-to-text is enabled in settings
-            useEffect(() => {
-                // This value is set in the localized script data
-                if (typeof aiCommanderData !== 'undefined' && aiCommanderData.enable_speech_to_text !== undefined) {
-                    setIsSpeechEnabled(aiCommanderData.enable_speech_to_text === '1');
-                }
-            }, []);
-
             const handleInputChange = (e) => {
                 setInputValue(e.target.value);
             };
@@ -881,9 +873,6 @@
             const config = {
                 ajaxUrl: aiCommanderData.ajax_url,
                 nonce: aiCommanderData.nonce,
-                apiKey: aiCommanderData.api_key,
-                model: aiCommanderData.model,
-                enableSpeechToText: aiCommanderData.enable_speech_to_text
             };
 
             // Render the chat interface
