@@ -181,18 +181,18 @@ class OpenaiClient {
      * Generate audio from text using the OpenAI TTS API.
      *
      * @param string $text The text to convert to audio.
-     * @param string $output_file_path File path to save the audio file; the
-     * directory will be created if it does not exist.
      * @param string $voice The voice to use when generating the audio
      * @param string $model The model to use for speech generation.
      * @param string $instructions Optional instructions for the speech generation,
      * does not work with tts-1 models.
      * @param float $speed The speed of the speech, between 0.25 and 4.0. Does not
      * work with gpt-4o-mini-tts.
-     * @return string|\WP_Error The audio file path or an error.
+     * @param bool $return_binary Whether to return binary audio data (true) or save to file (false).
+     * @param string $output_file_path File path to save the audio file if $return_binary is false.
+     * @return string|array|\WP_Error The audio file path, array with audio data, or an error.
      * @link https://platform.openai.com/docs/api-reference/audio/createSpeech
      */
-    public function read_text( $text, $output_file_path = null, $voice = "verse", $model = 'gpt-4o-mini-tts', $instructions = null, $speed = 1 ) {
+    public function read_text( $text, $voice = "verse", $model = 'gpt-4o-mini-tts', $instructions = null, $speed = 1, $return_binary = false, $output_file_path = null ) {
         if ( empty( $this->api_key ) ) {
             return new \WP_Error(
                 'missing_api_key',
@@ -212,6 +212,14 @@ class OpenaiClient {
             return new \WP_Error(
                 'invalid_speed',
                 'Speed must be between 0.25 and 4.0.'
+            );
+        }
+        
+        // If we're not returning binary, we need an output file path
+        if ( !$return_binary && empty( $output_file_path ) ) {
+            return new \WP_Error(
+                'missing_output_path',
+                'Output file path is required when not returning binary data'
             );
         }
         
@@ -239,10 +247,11 @@ class OpenaiClient {
         
         // Log the request if debug mode is enabled
         if ( $this->debug_mode ) {
-            error_log( 'OpenAI TTS API Request: ' . wp_json_encode( $body, JSON_PRETTY_PRINT ) );
+            error_log( 'OpenAI TTS API Request : POST ' . $this->speech_api_endpoint . ' ' . wp_json_encode( $body, JSON_PRETTY_PRINT ) );
+            error_log( 'OpenAI TTS API Request: headers ' . wp_json_encode( $headers, JSON_PRETTY_PRINT ) );
         }
-        
-        // Send the request
+
+        // Send the request with proper binary data handling
         $response = wp_remote_post( $this->speech_api_endpoint, array(
             'headers' => $headers,
             'body' => wp_json_encode( $body ),
@@ -265,9 +274,33 @@ class OpenaiClient {
             );
         }
         
-        // Get the audio data from the response
+        // Get the audio data from the response - ensure binary data is preserved
         $audio_data = wp_remote_retrieve_body( $response );
         
+        // If we want binary data, return it directly
+        if ( $return_binary ) {
+            // Log the response if debug mode is enabled
+            if ( $this->debug_mode ) {
+                $data_length = strlen( $audio_data );
+                $sample_hex = bin2hex(substr($audio_data, 0, 20));
+                error_log( 'OpenAI TTS API Response: Returning binary data of ' . $data_length . ' bytes' );
+                error_log( 'OpenAI TTS API Response: First 20 bytes (hex): ' . $sample_hex );
+                
+                // Check MP3 header
+                if ($data_length > 4 && substr($audio_data, 0, 3) === 'ID3' || substr($audio_data, 0, 2) === "\xFF\xFB") {
+                    error_log( 'OpenAI TTS API Response: Valid MP3 header detected' );
+                } else {
+                    error_log( 'OpenAI TTS API Response: Warning - MP3 header not detected' );
+                }
+            }
+            
+            return array(
+                'audio_data' => $audio_data,
+                'mime_type' => 'audio/mpeg'
+            );
+        }
+        
+        // Otherwise, save to file as before
         // Ensure the directory exists
         $dir_path = dirname( $output_file_path );
         if ( ! file_exists( $dir_path ) ) {

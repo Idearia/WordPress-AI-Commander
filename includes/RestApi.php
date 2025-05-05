@@ -106,6 +106,20 @@ class RestApi {
             ),
         ) );
         
+        // Register route for text-to-speech
+        register_rest_route( 'ai-commander/v1', '/read-text', array(
+            'methods' => 'POST',
+            'callback' => array( $this, 'read_text' ),
+            'permission_callback' => array( $this, 'check_permission' ),
+            'args' => array(
+                'text' => array(
+                    'required' => true,
+                    'validate_callback' => function( $param ) {
+                        return is_string( $param ) && ! empty( $param );
+                    },
+                ),
+            ),
+        ) );
     }
 
     /**
@@ -322,5 +336,45 @@ class RestApi {
                 array( 'status' => 500 )
             );
         }
+    }
+
+    /**
+     * Convert text to speech using the OpenAI TTS API.
+     *
+     * @param \WP_REST_Request $request The request object.
+     * @return \WP_REST_Response|\WP_Error The response object.
+     */
+    public function read_text( $request ) {
+        $text = $request->get_param( 'text' );
+        
+        $result = $this->conversation_service->read_text( $text );
+        
+        if ( is_wp_error( $result ) ) {
+            return new \WP_Error(
+                $result->get_error_code(),
+                $result->get_error_message(),
+                array( 'status' => 500 )
+            );
+        }
+        
+        // Send binary directly bypassing WP's JSON encoding
+        // which corrupts binary data
+        header( 'Content-Type: ' . $result['mime_type'] );
+        header( 'Content-Disposition: attachment; filename="audio.mp3"' );
+        header( 'Content-Length: ' . strlen($result['audio_data']) );
+        
+        // This is using WP functions but it's not working
+        // $response = new \WP_REST_Response( $result['audio_data'] );
+        // $response->set_status( 200 );
+        // $response->header( 'Content-Type', $result['mime_type'] );
+        // $response->header( 'Content-Disposition', 'attachment; filename="audio.mp3"' );
+
+        // Disable any output buffering to ensure clean binary output
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        echo $result['audio_data'];
+        exit;
     }
 }

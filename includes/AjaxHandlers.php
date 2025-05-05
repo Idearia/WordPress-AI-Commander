@@ -56,6 +56,7 @@ class AjaxHandlers {
         add_action( 'wp_ajax_ai_commander_get_conversation', array( $this, 'get_conversation' ) );
         add_action( 'wp_ajax_ai_commander_process_command', array( $this, 'process_command' ) );
         add_action( 'wp_ajax_ai_commander_transcribe_audio', array( $this, 'transcribe_audio' ) );
+        add_action( 'wp_ajax_ai_commander_read_text', array( $this, 'read_text' ) );
         
         // Realtime AJAX handlers
         add_action( 'wp_ajax_ai_commander_create_realtime_session', array( $this, 'create_realtime_session' ) );
@@ -196,6 +197,55 @@ class AjaxHandlers {
             
             wp_send_json_error( array( 'message' => $e->getMessage() ) );
         }
+    }
+
+    /**
+     * AJAX handler for text-to-speech functionality.
+     */
+    public function read_text() {
+        // Check nonce for security
+        check_ajax_referer( 'ai_commander_nonce', 'nonce' );
+        
+        // Check user capabilities
+        if ( ! current_user_can( 'edit_posts' ) ) {
+            wp_send_json_error( array( 'message' => 'Insufficient permissions' ) );
+        }
+        
+        // Get the parameters from the request
+        $text = sanitize_textarea_field( $_POST['text'] ?? '' );
+        
+        if ( empty( $text ) ) {
+            wp_send_json_error( array( 'message' => 'No text provided' ) );
+        }
+        
+        // Process text-to-speech using the service
+        $result = $this->conversation_service->read_text( $text );
+        
+        if ( is_wp_error( $result ) ) {
+            wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+        }
+        
+        // Debug info - check if we have valid audio data
+        if ( defined('WP_DEBUG') && WP_DEBUG ) {
+            $data_length = strlen( $result['audio_data'] );
+            error_log( 'AJAX: Sending binary data of ' . $data_length . ' bytes' );
+            $sample_hex = bin2hex(substr($result['audio_data'], 0, 20));
+            error_log( 'AJAX: First 20 bytes (hex): ' . $sample_hex );
+        }
+        
+        // Set headers for audio response
+        header( 'Content-Type: ' . $result['mime_type'] );
+        header( 'Content-Disposition: attachment; filename="audio.mp3"' );
+        header( 'Content-Length: ' . strlen($result['audio_data']) );
+        
+        // Disable any output buffering to ensure clean binary output
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        // Output the audio data and end execution
+        echo $result['audio_data'];
+        exit;
     }
 
     // --- Realtime AJAX Handlers ---

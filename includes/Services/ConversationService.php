@@ -337,4 +337,30 @@ class ConversationService {
         
         return $result;
     }
+
+    /**
+     * Convert text to speech using OpenAI TTS API.
+     *
+     * @param string $text The text to convert to speech.
+     * @return array|\WP_Error Audio data and mime type or error.
+     */
+    public function read_text($text) {
+        if (empty($text)) {
+            return new \WP_Error(
+                'empty_text',
+                'Text to convert to speech cannot be empty.'
+            );
+        }
+        
+        $voice = get_option( 'ai_commander_realtime_voice', 'verse' );
+        $model = get_option( 'ai_commander_openai_speech_model', 'gpt-4o-mini-tts' );
+        // $instructions = nuovo get_option; // TODO
+        $instructions = null;
+        $speed = 1;
+
+        // Convert text to speech using the OpenAI client with binary data return
+        return $this->openai_client->read_text(
+            $text, $voice, $model, $instructions, $speed, true
+        );
+    }
 }
