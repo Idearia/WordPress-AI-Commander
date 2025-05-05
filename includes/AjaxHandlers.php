@@ -8,6 +8,7 @@
 namespace AICommander\Includes;
 
 use AICommander\Includes\Services\ConversationService;
+use AICommander\Includes\Services\PromptService;
 use Exception;
 
 if ( ! defined( 'WPINC' ) ) {
@@ -29,6 +30,13 @@ class AjaxHandlers {
     private $conversation_service;
 
     /**
+     * The prompt service.
+     *
+     * @var PromptService
+     */
+    private $prompt_service;
+
+    /**
      * The tool registry.
      *
      * @var ToolRegistry
@@ -40,6 +48,7 @@ class AjaxHandlers {
      */
     public function __construct() {
         $this->conversation_service = new ConversationService();
+        $this->prompt_service = new PromptService();
         $this->tool_registry = ToolRegistry::get_instance();
         
         // Register AJAX handlers
@@ -211,6 +220,9 @@ class AjaxHandlers {
 
         // Create the Realtime session
         $session_data = $openai_client->create_realtime_session([
+            'model' => get_option( 'ai_commander_openai_realtime_model', 'gpt-4o-realtime-preview-2024-12-17' ),
+            'voice' => get_option( 'ai_commander_realtime_voice', 'verse' ),
+            'instructions' => $this->prompt_service->get_realtime_system_prompt(),
             'tools' => $this->tool_registry->get_tool_definitions( 'realtime' ),
             'tool_choice' => 'auto',
             'max_response_output_tokens' => 4096, // TODO: make this configurable

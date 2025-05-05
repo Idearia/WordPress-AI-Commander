@@ -54,56 +54,6 @@ class OpenaiClient {
     private $realtime_session_endpoint = 'https://api.openai.com/v1/realtime/sessions';
 
     /**
-     * The OpenAI model to use for chat completions.
-     *
-     * @var string
-     */
-    private $chat_model;
-
-    /**
-     * The OpenAI model to use for speech-to-text transcription.
-     *
-     * @var string
-     */
-    private $transcription_model;
-    
-    /**
-     * The OpenAI model to use for speech-to-text.
-     *
-     * @var string
-     */
-    private $speech_model;
-
-    /**
-     * The OpenAI model to use for realtime sessions.
-     *
-     * @var string
-     */
-    private $realtime_model;
-
-    /**
-     * The OpenAI voice to use for realtime sessions.
-     *
-     * @var string
-     */
-    private $realtime_voice;
-
-    /**
-     * System prompt common to all LLM requests.
-     *
-     * @var string
-     */
-    private $system_prompt;
-
-    /**
-     * System prompt that will be added to $this->system_prompt specifically
-     * for realtime sessions.
-     *
-     * @var string
-     */
-    private $realtime_system_prompt;
-
-    /**
      * Debug mode flag.
      *
      * @var bool
@@ -115,13 +65,6 @@ class OpenaiClient {
      */
     public function __construct() {
         $this->api_key = get_option( 'ai_commander_openai_api_key', '' );
-        $this->chat_model = get_option( 'ai_commander_openai_chat_model', 'gpt-4o' );
-        $this->transcription_model = get_option( 'ai_commander_openai_transcription_model', 'gpt-4o-transcribe' );
-        $this->speech_model = get_option( 'ai_commander_openai_speech_model', 'gpt-4o-mini-tts' );
-        $this->realtime_model = get_option( 'ai_commander_openai_realtime_model', 'gpt-4o-realtime-preview-2024-12-17' );
-        $this->realtime_voice = get_option( 'ai_commander_realtime_voice', 'verse' );
-        $this->system_prompt = $this->get_system_prompt();
-        $this->realtime_system_prompt = $this->get_realtime_system_prompt();
         $this->debug_mode = get_option( 'ai_commander_openai_debug_mode', false );
     }
     
@@ -235,13 +178,129 @@ class OpenaiClient {
     }
 
     /**
+     * Generate audio from text using the OpenAI TTS API.
+     *
+     * @param string $text The text to convert to audio.
+     * @param string $output_file_path File path to save the audio file; the
+     * directory will be created if it does not exist.
+     * @param string $voice The voice to use when generating the audio
+     * @param string $model The model to use for speech generation.
+     * @param string $instructions Optional instructions for the speech generation,
+     * does not work with tts-1 models.
+     * @param float $speed The speed of the speech, between 0.25 and 4.0. Does not
+     * work with gpt-4o-mini-tts.
+     * @return string|\WP_Error The audio file path or an error.
+     * @link https://platform.openai.com/docs/api-reference/audio/createSpeech
+     */
+    public function read_text( $text, $output_file_path = null, $voice = "verse", $model = 'gpt-4o-mini-tts', $instructions = null, $speed = 1 ) {
+        if ( empty( $this->api_key ) ) {
+            return new \WP_Error(
+                'missing_api_key',
+                'OpenAI API key is not configured. Please set it in the plugin settings.'
+            );
+        }
+        
+        // Validate inputs
+        if ( empty( $text ) ) {
+            return new \WP_Error(
+                'empty_text',
+                'Text to convert to speech cannot be empty.'
+            );
+        }
+        
+        if ( $speed < 0.25 || $speed > 4.0 ) {
+            return new \WP_Error(
+                'invalid_speed',
+                'Speed must be between 0.25 and 4.0.'
+            );
+        }
+        
+        // Prepare the request
+        $headers = array(
+            'Authorization' => 'Bearer ' . $this->api_key,
+            'Content-Type' => 'application/json',
+        );
+        
+        $body = array(
+            'model' => $model,
+            'input' => $text,
+            'voice' => $voice,
+        );
+        
+        // Add speed parameter only if not using gpt-4o-mini-tts model
+        if ( strpos( $model, 'gpt-4o-mini-tts' ) === false ) {
+            $body['speed'] = $speed;
+        }
+        
+        // Add instructions if provided and not using tts-1 model
+        if ( ! empty( $instructions ) && strpos( $model, 'tts-1' ) === false ) {
+            $body['instructions'] = $instructions;
+        }
+        
+        // Log the request if debug mode is enabled
+        if ( $this->debug_mode ) {
+            error_log( 'OpenAI TTS API Request: ' . wp_json_encode( $body, JSON_PRETTY_PRINT ) );
+        }
+        
+        // Send the request
+        $response = wp_remote_post( $this->speech_api_endpoint, array(
+            'headers' => $headers,
+            'body' => wp_json_encode( $body ),
+            'timeout' => 30,
+        ) );
+        
+        if ( is_wp_error( $response ) ) {
+            return $response;
+        }
+        
+        $response_code = wp_remote_retrieve_response_code( $response );
+        if ( $response_code !== 200 ) {
+            $body = wp_remote_retrieve_body( $response );
+            $error = json_decode( $body, true );
+            $error_message = isset( $error['error']['message'] ) ? $error['error']['message'] : 'Unknown error';
+            
+            return new \WP_Error(
+                'openai_api_error',
+                sprintf( 'OpenAI TTS API error (%d): %s', $response_code, $error_message )
+            );
+        }
+        
+        // Get the audio data from the response
+        $audio_data = wp_remote_retrieve_body( $response );
+        
+        // Ensure the directory exists
+        $dir_path = dirname( $output_file_path );
+        if ( ! file_exists( $dir_path ) ) {
+            wp_mkdir_p( $dir_path );
+        }
+        
+        // Save the audio data to a file
+        $result = file_put_contents( $output_file_path, $audio_data );
+        
+        if ( false === $result ) {
+            return new \WP_Error(
+                'file_save_error',
+                'Failed to save the generated audio file.'
+            );
+        }
+        
+        // Log the response if debug mode is enabled
+        if ( $this->debug_mode ) {
+            error_log( 'OpenAI TTS API Response: Audio saved to ' . $output_file_path );
+        }
+        
+        return $output_file_path;
+    }
+
+    /**
      * Process a command using the OpenAI API.
      *
      * @param string $command The command to process.
+     * @param string $chat_model The model to use for the chat completion.
      * @param array $tools The tools to make available to the API.
      * @return array|\WP_Error The result of processing the command.
      */
-    public function process_command( $command, $tools ) {
+    public function process_command( $command, $chat_model = 'gpt-40', $tools = [], $system_prompt = '' ) {
         if ( empty( $this->api_key ) ) {
             return new \WP_Error(
                 'missing_api_key',
@@ -249,18 +308,21 @@ class OpenaiClient {
             );
         }
 
-        $messages = array(
-            array(
+        $messages = array();
+
+        if ( ! empty( $system_prompt ) ) {
+            $messages[] = array(
                 'role' => 'system',
-                'content' => $this->system_prompt,
-            ),
-            array(
-                'role' => 'user',
-                'content' => $command,
-            ),
+                'content' => $system_prompt,
+            );
+        }
+
+        $messages[] = array(
+            'role' => 'user',
+            'content' => $command,
         );
 
-        $response = $this->send_chat_completion_request( $messages, $tools );
+        $response = $this->send_chat_completion_request( $messages, $chat_model, $tools );
 
         if ( $response instanceof \WP_Error ) {
             return $response;
@@ -273,11 +335,13 @@ class OpenaiClient {
      * Process a command with conversation history using the OpenAI API.
      *
      * @param array $messages The conversation history messages.
+     * @param string $chat_model The model to use for the chat completion.
      * @param array $tools The tools to make available to the API.
+     * @param string $system_prompt The system prompt to use.
      * @return array|\WP_Error The result of processing the command.
      */
-    public function process_command_with_history( $messages, $tools ) {
-        if ( empty( $this->api_key ) ) {
+    public function process_command_with_history($messages, $chat_model = 'gpt-4o', $tools = [], $system_prompt = '') {
+        if (empty($this->api_key)) {
             return new \WP_Error(
                 'missing_api_key',
                 'OpenAI API key is not configured. Please set it in the plugin settings.'
@@ -285,20 +349,20 @@ class OpenaiClient {
         }
         
         // Ensure the system prompt is included as the first message
-        if ( empty( $messages ) || $messages[0]['role'] !== 'system' ) {
-            array_unshift( $messages, array(
+        if ($system_prompt && (empty($messages) || $messages[0]['role'] !== 'system')) {
+            array_unshift($messages, array(
                 'role' => 'system',
-                'content' => $this->system_prompt,
-            ) );
+                'content' => $system_prompt,
+            ));
         }
 
-        $response = $this->send_chat_completion_request( $messages, $tools );
+        $response = $this->send_chat_completion_request($messages, $chat_model, $tools);
 
-        if ( $response instanceof \WP_Error ) {
+        if ($response instanceof \WP_Error) {
             return $response;
         }
 
-        return $this->process_response( $response );
+        return $this->process_response($response);
     }
 
     public static function get_default_system_prompt() {
@@ -334,13 +398,14 @@ class OpenaiClient {
      * Send a request to the OpenAI API.
      *
      * @param array $messages The messages to send.
+     * @param string $chat_model The model to use for the chat completion.
      * @param array $tools The tools to make available to the API.
      * @return array|\WP_Error The API response, or \WP_Error on failure.
      */
-    private function send_chat_completion_request( $messages, $tools ) {
+    private function send_chat_completion_request( $messages, $chat_model, $tools ) {
         if ( $this->debug_mode ) {
             error_log('OpenAI API Request: ' . wp_json_encode(array(
-                'model' => $this->chat_model,
+                'model' => $chat_model,
                 'messages' => $messages,
                 // 'tools' => $tools,
                 'tool_choice' => 'auto',
@@ -353,7 +418,7 @@ class OpenaiClient {
                 'Content-Type' => 'application/json',
             ),
             'body' => wp_json_encode( array(
-                'model' => $this->chat_model,
+                'model' => $chat_model,
                 'messages' => $messages,
                 'tools' => $tools,
                 'tool_choice' => 'auto',
@@ -429,24 +494,6 @@ class OpenaiClient {
     // --- Realtime AJAX Handlers ---
 
     /**
-     * Get the system prompt for realtime sessions, which is the same as
-     * $this->system_prompt, but with the realtime-specific prompt appended.
-     *
-     * @return string The system prompt.
-     */
-    public function get_realtime_system_prompt() {
-        $main_prompt = $this->system_prompt;
-        $realtime_specific_prompt = get_option( 'ai_commander_realtime_system_prompt', '' );
-        $combined_instructions = $main_prompt;
-        if ( ! empty( $realtime_specific_prompt ) ) {
-            $combined_instructions .= "\n\n" . $realtime_specific_prompt;
-        }
-
-        // Apply filter to allow developers to modify the system prompt
-        return apply_filters( 'ai_commander_filter_realtime_system_prompt', $combined_instructions, $main_prompt, $realtime_specific_prompt );
-    }
-
-    /**
      * Create a Realtime API session and get an ephemeral token.
      *
      * Accepted parameters by the endpoint:
@@ -456,7 +503,7 @@ class OpenaiClient {
      * @return array|\WP_Error Session details including client_secret or WP_Error on failure.
      */
     public function create_realtime_session($params = array()) {
-        if ( empty( $this->api_key ) ) {
+        if (empty($this->api_key)) {
             return new \WP_Error(
                 'missing_api_key',
                 'OpenAI API key is not configured. Please set it in the plugin settings.'
@@ -465,13 +512,10 @@ class OpenaiClient {
         
         // Prepare request body
         $request_body = array(
-            'model' => $this->realtime_model,
-            'voice' => $this->realtime_voice,
-            'instructions' => $this->realtime_system_prompt,
             ...$params,
         );
 
-        if ( $this->debug_mode ) {
+        if ($this->debug_mode) {
             error_log('OpenAI Realtime Session Request Body: ' . wp_json_encode($request_body, JSON_PRETTY_PRINT));
         }
 
@@ -481,41 +525,41 @@ class OpenaiClient {
                 'Authorization' => 'Bearer ' . $this->api_key,
                 'Content-Type' => 'application/json',
             ),
-            'body' => wp_json_encode( $request_body ),
+            'body' => wp_json_encode($request_body),
             'timeout' => 30,
         );
 
         // Make the POST request to OpenAI API
-        $response = wp_remote_post( $this->realtime_session_endpoint, $args );
+        $response = wp_remote_post($this->realtime_session_endpoint, $args);
 
         // Handle potential WP_Error from wp_remote_post
-        if ( is_wp_error( $response ) ) {
+        if (is_wp_error($response)) {
             error_log('WP_Error during OpenAI Realtime session creation: ' . $response->get_error_message());
             return $response;
         }
 
         // Check response code
-        $response_code = wp_remote_retrieve_response_code( $response );
-        $response_body = wp_remote_retrieve_body( $response );
-        $result = json_decode( $response_body, true );
+        $response_code = wp_remote_retrieve_response_code($response);
+        $response_body = wp_remote_retrieve_body($response);
+        $result = json_decode($response_body, true);
 
-        if ( $this->debug_mode ) {
+        if ($this->debug_mode) {
             error_log('OpenAI Realtime Session Response (Code: ' . $response_code . '): ' . wp_json_encode($result, JSON_PRETTY_PRINT));
         }
 
-        if ( $response_code !== 200 ) {
-            $error_message = isset( $result['error']['message'] ) ? $result['error']['message'] : 'Unknown error during session creation';
+        if ($response_code !== 200) {
+            $error_message = isset($result['error']['message']) ? $result['error']['message'] : 'Unknown error during session creation';
             error_log(sprintf('OpenAI Realtime Session API error (%d): %s', $response_code, $error_message));
             return new \WP_Error(
                 'openai_realtime_api_error',
-                sprintf( 'OpenAI Realtime API error (%d): %s', $response_code, $error_message )
+                sprintf('OpenAI Realtime API error (%d): %s', $response_code, $error_message)
             );
         }
 
         // Check if essential data is present
         $session_id = $result['id'] ?? null;
         $ephemeral_key = $result['client_secret']['value'] ?? null;
-        if ( ! $ephemeral_key || ! $session_id ) {
+        if (!$ephemeral_key || !$session_id) {
             error_log('OpenAI Realtime Session response missing ephemeral key or id.');
             return new \WP_Error(
                 'openai_realtime_invalid_response',

@@ -7,6 +7,8 @@
 
 namespace AICommander\Includes;
 
+use AICommander\Includes\Services\PromptService;
+
 if ( ! defined( 'WPINC' ) ) {
     die;
 }
@@ -40,12 +42,20 @@ class CommandProcessor {
     private $conversation_manager;
 
     /**
+     * The prompt service.
+     *
+     * @var PromptService
+     */
+    private $prompt_service;
+
+    /**
      * Constructor.
      */
     public function __construct() {
         $this->openai_client = new OpenaiClient();
         $this->tool_registry = ToolRegistry::get_instance();
         $this->conversation_manager = new ConversationManager();
+        $this->prompt_service = new PromptService();
     }
 
     /**
@@ -55,7 +65,7 @@ class CommandProcessor {
      * @param string|null $conversation_uuid The conversation UUID. If null, a new conversation will be created.
      * @return array|\WP_Error The result of processing the command.
      */
-    public function process( $command, $conversation_uuid = null ) {
+    public function process( $command, $chat_model, $conversation_uuid = null ) {
         // Get the tool definitions for OpenAI function calling
         $tool_definitions = $this->tool_registry->get_tool_definitions( 'chat_completion' );
         
@@ -73,13 +83,21 @@ class CommandProcessor {
         $actions = array();
         $final_message = '';
         
+        // Get the system prompt
+        $system_prompt = $this->prompt_service->get_system_prompt();
+        
         // Continue processing until no more tool calls are needed
         while ( $has_tool_calls ) {
             // Get the formatted conversation history for OpenAI
             $messages = $this->conversation_manager->format_for_openai( $conversation_uuid );
             
             // Process the command using the OpenAI API with conversation history
-            $response = $this->openai_client->process_command_with_history( $messages, $tool_definitions );
+            $response = $this->openai_client->process_command_with_history(
+                $messages,
+                $chat_model,
+                $tool_definitions,
+                $system_prompt
+            );
             
             // Errors at this point are likely to be due to the API key being
             // invalid or the quota being exceeded

@@ -236,7 +236,7 @@ class SettingsPage extends AdminPage {
         // Add settings fields for chatbot
         add_settings_field(
             'ai_commander_chatbot_system_prompt',
-            __( 'System Prompt', 'ai-commander' ),
+            __( 'Chatbot System Prompt', 'ai-commander' ),
             array( $this, 'render_chatbot_system_prompt_field' ),
             'ai_commander_settings',
             'ai_commander_chatbot_settings'
@@ -244,7 +244,7 @@ class SettingsPage extends AdminPage {
         
         add_settings_field(
             'ai_commander_chatbot_greeting',
-            __( 'Assistant Greeting', 'ai-commander' ),
+            __( 'Chatbot Greeting', 'ai-commander' ),
             array( $this, 'render_chatbot_greeting_field' ),
             'ai_commander_settings',
             'ai_commander_chatbot_settings'

@@ -173,7 +173,11 @@ class ConversationService {
             }
         }
         
-        return $this->command_processor->process( $command, $conversation_uuid );
+        return $this->command_processor->process(
+            $command,
+            get_option( 'ai_commander_openai_chat_model', 'gpt-4o' ),
+            $conversation_uuid
+        );
     }
     
     /**
