@@ -64,6 +64,89 @@
             return config.useCustomTts === true;
         };
 
+        // --- Microphone helpers (mute / unmute during TTS playback) ---
+        const muteMicrophone = () => {
+            if (localStreamRef.current) {
+                localStreamRef.current.getAudioTracks().forEach(track => {
+                    track.enabled = false;
+                });
+            }
+        };
+
+        const unmuteMicrophone = () => {
+            if (localStreamRef.current) {
+                localStreamRef.current.getAudioTracks().forEach(track => {
+                    track.enabled = true;
+                });
+            }
+        };
+
+        // --- Custom TTS playback when Realtime API audio is disabled ---
+        const playCustomTtsAudio = async (text) => {
+            if (!text) return;
+
+            try {
+                // Update UI status
+                setStatus('speaking');
+
+                // Mute the microphone so that speaker output is not captured
+                muteMicrophone();
+
+                const formData = new FormData();
+                formData.append('action', 'ai_commander_read_text');
+                formData.append('nonce', config.nonce);
+                formData.append('text', text);
+
+                // Fetch the synthesized audio from backend
+                const response = await fetch(config.ajaxUrl, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error(`TTS request failed with status ${response.status}`);
+                }
+
+                const audioBlob = await response.blob();
+
+                // Prepare audio element for playback
+                if (remoteAudioRef.current) {
+                    // Revoke previous object URL if any
+                    if (remoteAudioRef.current.dataset.objectUrl) {
+                        URL.revokeObjectURL(remoteAudioRef.current.dataset.objectUrl);
+                        delete remoteAudioRef.current.dataset.objectUrl;
+                    }
+
+                    // Ensure srcObject is cleared when using blob src
+                    remoteAudioRef.current.srcObject = null;
+
+                    const objectUrl = URL.createObjectURL(audioBlob);
+                    remoteAudioRef.current.dataset.objectUrl = objectUrl;
+                    remoteAudioRef.current.src = objectUrl;
+
+                    // Play and await end
+                    await remoteAudioRef.current.play();
+
+                    // Wait for playback to finish
+                    await new Promise((resolve) => {
+                        remoteAudioRef.current.onended = resolve;
+                    });
+
+                    // Clean up object URL
+                    URL.revokeObjectURL(objectUrl);
+                    delete remoteAudioRef.current.dataset.objectUrl;
+                }
+
+            } catch (err) {
+                console.error('Error during custom TTS playback:', err);
+                handleError('Failed to play synthesized audio.');
+            } finally {
+                // Re-enable microphone and update status
+                unmuteMicrophone();
+                setStatus('idle');
+            }
+        };
+
         // --- WebRTC and Session Management ---
 
         const startRecordingSession = useCallback(async () => {
@@ -259,6 +342,8 @@
 
                     // When VAD starts, set status to recording
                     case 'input_audio_buffer.speech_started':
+                        // Ensure mic is unmuted when user speaks again
+                        unmuteMicrophone();
                         setStatus('recording');
                         break;
 
@@ -286,7 +371,9 @@
 
                     // When AI starts speaking, set status to speaking
                     case 'response.audio.delta':
-                        setStatus('speaking');
+                        if (!isCustomTtsEnabled()) {
+                            setStatus('speaking');
+                        }
                         break;
 
                     // Could potentially stream arguments, but waiting for `response.done` is usually simpler
@@ -313,6 +400,12 @@
                         }
                         setAssistantTranscriptDelta('');
 
+                        // If custom TTS is enabled, synthesize and play audio now
+                        if (isCustomTtsEnabled() && responseOutputText) {
+                            // Do not rely on Realtime API's audio; instead, call our endpoint
+                            playCustomTtsAudio(responseOutputText);
+                        }
+
                         // Check for function calls in the final response
                         event.response.output.forEach(outputItem => {
                             if (outputItem.type === 'function_call' && outputItem.name && outputItem.arguments && outputItem.call_id) {
@@ -333,7 +426,9 @@
 
                     // The AI finished speaking
                     case 'output_audio_buffer.stopped':
-                        setStatus('idle'); // Ready for next user input
+                        if (!isCustomTtsEnabled()) {
+                            setStatus('idle'); // Ready for next user input
+                        }
                         break;
 
                     case 'error':
