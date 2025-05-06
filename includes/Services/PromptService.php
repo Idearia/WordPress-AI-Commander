@@ -69,4 +69,17 @@ class PromptService {
         // Apply filter to allow developers to modify the system prompt
         return apply_filters( 'ai_commander_filter_realtime_system_prompt', $combined_instructions, $main_prompt, $realtime_specific_prompt );
     }
+
+    /**
+     * Get the instructions prompt for the TTS API.
+     *
+     * @return string The instructions prompt for TTS.
+     */
+    public function get_tts_instructions() {
+        // Get the instructions from options, fallback to empty string
+        $instructions = get_option( 'ai_commander_realtime_tts_instructions', '' );
+
+        // Apply filter to allow developers to modify the TTS instructions
+        return apply_filters( 'ai_commander_filter_tts_instructions', $instructions );
+    }
 } 

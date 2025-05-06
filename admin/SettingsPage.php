@@ -189,6 +189,17 @@ class SettingsPage extends AdminPage {
             )
         );
 
+        // Rename register_setting key
+        register_setting(
+            'ai_commander_settings',
+            'ai_commander_realtime_tts_instructions',
+            array(
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_textarea_field',
+                'default' => '', // Default empty
+            )
+        );
+
         // Add settings section for OpenAI API
         add_settings_section(
             'ai_commander_openai_settings',
@@ -310,6 +321,15 @@ class SettingsPage extends AdminPage {
             'ai_commander_use_custom_tts',
             __( 'Use Custom TTS', 'ai-commander' ),
             array( $this, 'render_custom_tts_field' ),
+            'ai_commander_settings',
+            'ai_commander_realtime_settings'
+        );
+
+        // Add settings field for TTS instructions
+        add_settings_field(
+            'ai_commander_realtime_tts_instructions',
+            __( 'TTS Instructions', 'ai-commander' ),
+            array( $this, 'render_tts_instructions_field' ),
             'ai_commander_settings',
             'ai_commander_realtime_settings'
         );
@@ -632,6 +652,31 @@ class SettingsPage extends AdminPage {
         <p class="description">
             <?php esc_html_e( 'When enabled, the plugin will use your configured TTS model instead of Realtime API\'s built-in voice. This may provide better quality or different voice options depending on your settings.', 'ai-commander' ); ?>
         </p>
+        <?php
+    }
+
+    /**
+     * Render the TTS instructions field.
+     */
+    public function render_tts_instructions_field() {
+        $tts_instructions = get_option( 'ai_commander_realtime_tts_instructions', '' );
+        $filtered_instructions = apply_filters( 'ai_commander_filter_tts_instructions', $tts_instructions );
+        $is_filtered = $filtered_instructions !== $tts_instructions;
+        ?>
+        <?php if ( ! $is_filtered ) : ?>
+            <textarea id="ai_commander_realtime_tts_instructions" name="ai_commander_realtime_tts_instructions" rows="4" class="large-text code"><?php echo esc_textarea( $tts_instructions ); ?></textarea>
+            <p class="description">
+                <?php esc_html_e( 'Optional: Provide additional guidance for how the TTS model should speak (tone, style, etc.).  Ignored unless custom TTS is enabled.  Ignored for tts-1 models.', 'ai-commander' ); ?>
+            </p>
+        <?php else : ?>
+            <div class="notice notice-warning inline">
+                <p>
+                    <strong><?php esc_html_e( 'Note:', 'ai-commander' ); ?></strong>
+                    <?php esc_html_e( 'The TTS instructions are currently set by code using the `ai_commander_filter_tts_instructions` filter. This is the actual value used:', 'ai-commander' ); ?>
+                    <code><?php echo esc_html( $filtered_instructions ); ?></code>
+                </p>
+            </div>
+        <?php endif; ?>
         <?php
     }
 

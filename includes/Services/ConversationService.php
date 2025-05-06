@@ -10,6 +10,7 @@ namespace AICommander\Includes\Services;
 use AICommander\Includes\ConversationManager;
 use AICommander\Includes\CommandProcessor;
 use AICommander\Includes\OpenaiClient;
+use AICommander\Includes\Services\PromptService;
 use Exception;
 
 if ( ! defined( 'WPINC' ) ) {
@@ -45,12 +46,20 @@ class ConversationService {
     private $openai_client;
 
     /**
+     * The Prompt service.
+     *
+     * @var PromptService
+     */
+    private $prompt_service;
+
+    /**
      * Constructor.
      */
     public function __construct() {
         $this->conversation_manager = new ConversationManager();
         $this->command_processor = new CommandProcessor();
         $this->openai_client = new OpenaiClient();
+        $this->prompt_service = new PromptService();
     }
 
     /**
@@ -354,9 +363,8 @@ class ConversationService {
         
         $voice = get_option( 'ai_commander_realtime_voice', 'verse' );
         $model = get_option( 'ai_commander_openai_speech_model', 'gpt-4o-mini-tts' );
-        // $instructions = nuovo get_option; // TODO
-        $instructions = null;
-        $speed = 1;
+        $instructions = $this->prompt_service->get_tts_instructions() ?: null;  // Ignored for tts-1 models
+        $speed = 1; // Ignored for gpt-4o-mini-tts
 
         // Convert text to speech using the OpenAI client with binary data return
         return $this->openai_client->read_text(
