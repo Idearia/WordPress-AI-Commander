@@ -225,14 +225,6 @@ class AjaxHandlers {
             wp_send_json_error( array( 'message' => $result->get_error_message() ) );
         }
         
-        // Debug info - check if we have valid audio data
-        if ( defined('WP_DEBUG') && WP_DEBUG ) {
-            $data_length = strlen( $result['audio_data'] );
-            error_log( 'AJAX: Sending binary data of ' . $data_length . ' bytes' );
-            $sample_hex = bin2hex(substr($result['audio_data'], 0, 20));
-            error_log( 'AJAX: First 20 bytes (hex): ' . $sample_hex );
-        }
-        
         // Set headers for audio response
         header( 'Content-Type: ' . $result['mime_type'] );
         header( 'Content-Disposition: attachment; filename="audio.mp3"' );
@@ -268,6 +260,13 @@ class AjaxHandlers {
         // Instantiate the OpenAI client
         $openai_client = new OpenaiClient();
 
+        // In custom TTS mode, we do not need the model to output audio
+        $custom_tts_enabled = get_option( 'ai_commander_use_custom_tts', false );
+        $modalities = [ 'text' ];
+        if ( !$custom_tts_enabled ) {
+            $modalities[] = 'audio';
+        }
+
         // Create the Realtime session
         $session_data = $openai_client->create_realtime_session([
             'model' => get_option( 'ai_commander_openai_realtime_model', 'gpt-4o-realtime-preview-2024-12-17' ),
@@ -275,10 +274,17 @@ class AjaxHandlers {
             'instructions' => $this->prompt_service->get_realtime_system_prompt(),
             'tools' => $this->tool_registry->get_tool_definitions( 'realtime' ),
             'tool_choice' => 'auto',
-            'max_response_output_tokens' => 4096, // TODO: make this configurable
-            "input_audio_transcription" => [
-                "model" => get_option( 'ai_commander_openai_transcription_model', 'gpt-4o-transcribe' )
+            'modalities' => $modalities,
+            'input_audio_noise_reduction' => [
+                'type' => 'far_field',  // TODO: make this configurable
             ],
+            // 'max_response_output_tokens' => 4096, // TODO: make this configurable
+            'input_audio_transcription' => [
+                "language" => get_option( 'ai_commander_chatbot_speech_language', '' ),
+                "model" => get_option( 'ai_commander_openai_transcription_model', 'gpt-4o-transcribe' )
+                // "prompt" => "expect words related to technology" TODO: make this configurable (only for gpt-4o-transcribe)
+            ],
+            // 'temperature' => 0.8,  // OPENAI BUG: OpenAI Realtime Session API error (400): Invalid 'temperature': max decimal places exceeded. Expected a value with at most 16 decimal places, but got a value with 17 decimal places instead.
         ]);
 
         // Check for errors during session creation

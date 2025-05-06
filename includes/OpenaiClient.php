@@ -247,8 +247,7 @@ class OpenaiClient {
         
         // Log the request if debug mode is enabled
         if ( $this->debug_mode ) {
-            error_log( 'OpenAI TTS API Request : POST ' . $this->speech_api_endpoint . ' ' . wp_json_encode( $body, JSON_PRETTY_PRINT ) );
-            error_log( 'OpenAI TTS API Request: headers ' . wp_json_encode( $headers, JSON_PRETTY_PRINT ) );
+            error_log( 'OpenAI TTS API Request : ' . wp_json_encode( $body, JSON_PRETTY_PRINT ) );
         }
 
         // Send the request with proper binary data handling
@@ -278,22 +277,7 @@ class OpenaiClient {
         $audio_data = wp_remote_retrieve_body( $response );
         
         // If we want binary data, return it directly
-        if ( $return_binary ) {
-            // Log the response if debug mode is enabled
-            if ( $this->debug_mode ) {
-                $data_length = strlen( $audio_data );
-                $sample_hex = bin2hex(substr($audio_data, 0, 20));
-                error_log( 'OpenAI TTS API Response: Returning binary data of ' . $data_length . ' bytes' );
-                error_log( 'OpenAI TTS API Response: First 20 bytes (hex): ' . $sample_hex );
-                
-                // Check MP3 header
-                if ($data_length > 4 && substr($audio_data, 0, 3) === 'ID3' || substr($audio_data, 0, 2) === "\xFF\xFB") {
-                    error_log( 'OpenAI TTS API Response: Valid MP3 header detected' );
-                } else {
-                    error_log( 'OpenAI TTS API Response: Warning - MP3 header not detected' );
-                }
-            }
-            
+        if ( $return_binary ) {            
             return array(
                 'audio_data' => $audio_data,
                 'mime_type' => 'audio/mpeg'
@@ -523,8 +507,6 @@ class OpenaiClient {
             'mpga' => 'audio/mpeg',
         );
     }
-
-    // --- Realtime AJAX Handlers ---
 
     /**
      * Create a Realtime API session and get an ephemeral token.

@@ -167,6 +167,17 @@ class SettingsPage extends AdminPage {
             )
         );
 
+        // Add new setting for TTS override
+        register_setting(
+            'ai_commander_settings',
+            'ai_commander_use_custom_tts',
+            array(
+                'type' => 'boolean',
+                'sanitize_callback' => 'rest_sanitize_boolean',
+                'default' => false,
+            )
+        );
+
         // Add settings section for OpenAI API
         add_settings_section(
             'ai_commander_openai_settings',
@@ -279,6 +290,15 @@ class SettingsPage extends AdminPage {
             'ai_commander_realtime_system_prompt',
             __( 'Realtime System Prompt', 'ai-commander' ),
             array( $this, 'render_realtime_system_prompt_field' ),
+            'ai_commander_settings',
+            'ai_commander_realtime_settings'
+        );
+
+        // Add field for custom TTS override
+        add_settings_field(
+            'ai_commander_use_custom_tts',
+            __( 'Use Custom TTS', 'ai-commander' ),
+            array( $this, 'render_custom_tts_field' ),
             'ai_commander_settings',
             'ai_commander_realtime_settings'
         );
@@ -575,6 +595,22 @@ class SettingsPage extends AdminPage {
         <textarea id="ai_commander_realtime_system_prompt" name="ai_commander_realtime_system_prompt" rows="4" class="large-text code"><?php echo esc_textarea( $realtime_prompt ); ?></textarea>
         <p class="description">
             <?php esc_html_e( 'Optional: Add specific instructions for the Realtime voice assistant. This will be appended to the main System Prompt.', 'ai-commander' ); ?>
+        </p>
+        <?php
+    }
+
+    /**
+     * Render the Custom TTS override field.
+     */
+    public function render_custom_tts_field() {
+        $use_custom_tts = get_option( 'ai_commander_use_custom_tts', false );
+        ?>
+        <label for="ai_commander_use_custom_tts">
+            <input type="checkbox" id="ai_commander_use_custom_tts" name="ai_commander_use_custom_tts" value="1" <?php checked( $use_custom_tts, true ); ?> />
+            <?php esc_html_e( 'Use custom text-to-speech for audio responses', 'ai-commander' ); ?>
+        </label>
+        <p class="description">
+            <?php esc_html_e( 'When enabled, the plugin will use your configured TTS model instead of Realtime API\'s built-in voice. This may provide better quality or different voice options depending on your settings.', 'ai-commander' ); ?>
         </p>
         <?php
     }

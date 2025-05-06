@@ -59,6 +59,11 @@
         const toolCallQueueRef = useRef([]); // Queue for pending tool calls
         const currentToolCallIdRef = useRef(null); // Track the ID of the tool call being processed
 
+        // Helper function to determine if custom TTS is enabled
+        const isCustomTtsEnabled = () => {
+            return config.useCustomTts === true;
+        };
+
         // --- WebRTC and Session Management ---
 
         const startRecordingSession = useCallback(async () => {
@@ -584,7 +589,8 @@
             nonce: aiCommanderRealtimeData.nonce,
             realtimeApiBaseUrl: aiCommanderRealtimeData.realtime_api_base_url,
             realtimeModel: aiCommanderRealtimeData.realtime_model,
-            realtimeVoice: aiCommanderRealtimeData.realtime_voice
+            realtimeVoice: aiCommanderRealtimeData.realtime_voice,
+            useCustomTts: !!aiCommanderRealtimeData.use_custom_tts
         };
 
         // Render the chat interface

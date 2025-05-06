@@ -84,6 +84,7 @@ class RealtimePage extends AdminPage {
                 'realtime_api_base_url' => 'https://api.openai.com/v1/realtime',
                 'realtime_model' => get_option( 'ai_commander_openai_realtime_model', 'gpt-4o-realtime-preview-2024-12-17' ),
                 'realtime_voice' => get_option( 'ai_commander_realtime_voice', 'verse' ),
+                'use_custom_tts' => (bool) get_option( 'ai_commander_use_custom_tts', false ),
             )
         );
     }
