@@ -178,6 +178,17 @@ class SettingsPage extends AdminPage {
             )
         );
 
+        // Add new setting for realtime input transcription
+        register_setting(
+            'ai_commander_settings',
+            'ai_commander_realtime_input_transcription',
+            array(
+                'type' => 'boolean',
+                'sanitize_callback' => 'rest_sanitize_boolean',
+                'default' => false, // Disabled by default
+            )
+        );
+
         // Add settings section for OpenAI API
         add_settings_section(
             'ai_commander_openai_settings',
@@ -299,6 +310,15 @@ class SettingsPage extends AdminPage {
             'ai_commander_use_custom_tts',
             __( 'Use Custom TTS', 'ai-commander' ),
             array( $this, 'render_custom_tts_field' ),
+            'ai_commander_settings',
+            'ai_commander_realtime_settings'
+        );
+
+        // Add settings field for realtime input transcription
+        add_settings_field(
+            'ai_commander_realtime_input_transcription',
+            __( 'Enable Input Transcription', 'ai-commander' ),
+            array( $this, 'render_realtime_input_transcription_field' ),
             'ai_commander_settings',
             'ai_commander_realtime_settings'
         );
@@ -611,6 +631,22 @@ class SettingsPage extends AdminPage {
         </label>
         <p class="description">
             <?php esc_html_e( 'When enabled, the plugin will use your configured TTS model instead of Realtime API\'s built-in voice. This may provide better quality or different voice options depending on your settings.', 'ai-commander' ); ?>
+        </p>
+        <?php
+    }
+
+    /**
+     * Render the Realtime input transcription field.
+     */
+    public function render_realtime_input_transcription_field() {
+        $input_transcription_enabled = get_option( 'ai_commander_realtime_input_transcription', false );
+        ?>
+        <label for="ai_commander_realtime_input_transcription">
+            <input type="checkbox" id="ai_commander_realtime_input_transcription" name="ai_commander_realtime_input_transcription" value="1" <?php checked( $input_transcription_enabled, true ); ?> />
+            <?php esc_html_e( 'Enable input audio transcription', 'ai-commander' ); ?>
+        </label>
+        <p class="description">
+            <?php esc_html_e( 'When enabled, the transcript of your speech will be displayed in the conversation. Disabling this can save API costs but won\'t show what the AI heard.', 'ai-commander' ); ?>
         </p>
         <?php
     }

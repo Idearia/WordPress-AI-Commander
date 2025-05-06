@@ -267,8 +267,8 @@ class AjaxHandlers {
             $modalities[] = 'audio';
         }
 
-        // Create the Realtime session
-        $session_data = $openai_client->create_realtime_session([
+        // Create session parameters
+        $session_params = [
             'model' => get_option( 'ai_commander_openai_realtime_model', 'gpt-4o-realtime-preview-2024-12-17' ),
             'voice' => get_option( 'ai_commander_realtime_voice', 'verse' ),
             'instructions' => $this->prompt_service->get_realtime_system_prompt(),
@@ -279,13 +279,21 @@ class AjaxHandlers {
                 'type' => 'far_field',  // TODO: make this configurable
             ],
             // 'max_response_output_tokens' => 4096, // TODO: make this configurable
-            'input_audio_transcription' => [
+            // 'temperature' => 0.8,  // OPENAI BUG: OpenAI Realtime Session API error (400): Invalid 'temperature': max decimal places exceeded. Expected a value with at most 16 decimal places, but got a value with 17 decimal places instead.
+        ];
+
+        // Add input audio transcription only if enabled in settings
+        $input_transcription_enabled = get_option( 'ai_commander_realtime_input_transcription', false );
+        if ( $input_transcription_enabled ) {
+            $session_params['input_audio_transcription'] = [
                 "language" => get_option( 'ai_commander_chatbot_speech_language', '' ),
                 "model" => get_option( 'ai_commander_openai_transcription_model', 'gpt-4o-transcribe' )
                 // "prompt" => "expect words related to technology" TODO: make this configurable (only for gpt-4o-transcribe)
-            ],
-            // 'temperature' => 0.8,  // OPENAI BUG: OpenAI Realtime Session API error (400): Invalid 'temperature': max decimal places exceeded. Expected a value with at most 16 decimal places, but got a value with 17 decimal places instead.
-        ]);
+            ];
+        }
+
+        // Create the Realtime session
+        $session_data = $openai_client->create_realtime_session($session_params);
 
         // Check for errors during session creation
         if ( is_wp_error( $session_data ) ) {

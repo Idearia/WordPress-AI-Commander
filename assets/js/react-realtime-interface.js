@@ -60,6 +60,10 @@
         const currentToolCallIdRef = useRef(null); // Track the ID of the tool call being processed
 
         // Helper function to determine if custom TTS is enabled
+        // When using a custom TTS, the backend must take care of
+        // setting the modalities parameter of the realtime session 
+        // to text-only, lest the audios from the realtime and TTS
+        // APIs will clash.
         const isCustomTtsEnabled = () => {
             return config.useCustomTts === true;
         };
@@ -354,6 +358,7 @@
 
                     // Save user's transcript
                     case 'conversation.item.input_audio_transcription.completed':
+                        // Only received if input transcription is enabled in settings
                         setMessages(prev => [...prev, { type: 'user', content: event.transcript }]);
                         break;
 
