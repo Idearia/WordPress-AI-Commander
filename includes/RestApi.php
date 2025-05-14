@@ -1,4 +1,5 @@
 <?php
+
 /**
  * REST API Class
  *
@@ -9,7 +10,7 @@ namespace AICommander\Includes;
 
 use AICommander\Includes\Services\ConversationService;
 
-if ( ! defined( 'WPINC' ) ) {
+if (! defined('WPINC')) {
     die;
 }
 
@@ -18,7 +19,8 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * This class registers and handles REST API endpoints for the plugin.
  */
-class RestApi {
+class RestApi
+{
 
     /**
      * The conversation service.
@@ -30,96 +32,98 @@ class RestApi {
     /**
      * Constructor.
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->conversation_service = new ConversationService();
-        
+
         // Register REST API routes
-        add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+        add_action('rest_api_init', array($this, 'register_routes'));
     }
 
     /**
      * Register REST API routes.
      */
-    public function register_routes() {
+    public function register_routes()
+    {
         // Register route for processing commands (creating a new conversation or adding to an existing one)
-        register_rest_route( 'ai-commander/v1', '/command', array(
+        register_rest_route('ai-commander/v1', '/command', array(
             'methods' => 'POST',
-            'callback' => array( $this, 'process_command' ),
-            'permission_callback' => array( $this, 'check_permission' ),
+            'callback' => array($this, 'process_command'),
+            'permission_callback' => array($this, 'check_permission'),
             'args' => array(
                 'command' => array(
                     'required' => true,
-                    'validate_callback' => function( $param ) {
-                        return is_string( $param ) && ! empty( $param );
+                    'validate_callback' => function ($param) {
+                        return is_string($param) && ! empty($param);
                     },
                 ),
                 'conversation_uuid' => array(
                     'required' => false,
-                    'validate_callback' => function( $param ) {
-                        return is_string( $param ) && ! empty( $param );
+                    'validate_callback' => function ($param) {
+                        return is_string($param) && ! empty($param);
                     },
                 ),
             ),
-        ) );
-        
+        ));
+
         // Register route for transcribing audio
-        register_rest_route( 'ai-commander/v1', '/transcribe', array(
+        register_rest_route('ai-commander/v1', '/transcribe', array(
             'methods' => 'POST',
-            'callback' => array( $this, 'transcribe_audio' ),
-            'permission_callback' => array( $this, 'check_permission' ),
-        ) );
-        
+            'callback' => array($this, 'transcribe_audio'),
+            'permission_callback' => array($this, 'check_permission'),
+        ));
+
         // Register route for processing voice commands (transcribe + process in one request)
-        register_rest_route( 'ai-commander/v1', '/voice-command', array(
+        register_rest_route('ai-commander/v1', '/voice-command', array(
             'methods' => 'POST',
-            'callback' => array( $this, 'process_voice_command' ),
-            'permission_callback' => array( $this, 'check_permission' ),
+            'callback' => array($this, 'process_voice_command'),
+            'permission_callback' => array($this, 'check_permission'),
             'args' => array(
                 'conversation_uuid' => array(
                     'required' => false,
-                    'validate_callback' => function( $param ) {
-                        return is_string( $param ) && ! empty( $param );
+                    'validate_callback' => function ($param) {
+                        return is_string($param) && ! empty($param);
                     },
                 ),
             ),
-        ) );
+        ));
 
         // Register route for getting all conversations for the current user
-        register_rest_route( 'ai-commander/v1', '/conversations', array(
+        register_rest_route('ai-commander/v1', '/conversations', array(
             'methods' => 'GET',
-            'callback' => array( $this, 'get_all_conversations' ),
-            'permission_callback' => array( $this, 'check_permission' ),
-        ) );
-        
+            'callback' => array($this, 'get_all_conversations'),
+            'permission_callback' => array($this, 'check_permission'),
+        ));
+
         // Register route for getting a conversation
-        register_rest_route( 'ai-commander/v1', '/conversations/(?P<uuid>[a-zA-Z0-9-]+)', array(
+        register_rest_route('ai-commander/v1', '/conversations/(?P<uuid>[a-zA-Z0-9-]+)', array(
             'methods' => 'GET',
-            'callback' => array( $this, 'get_conversation' ),
-            'permission_callback' => array( $this, 'check_permission' ),
+            'callback' => array($this, 'get_conversation'),
+            'permission_callback' => array($this, 'check_permission'),
             'args' => array(
                 'uuid' => array(
                     'required' => true,
-                    'validate_callback' => function( $param ) {
-                        return is_string( $param ) && ! empty( $param );
+                    'validate_callback' => function ($param) {
+                        return is_string($param) && ! empty($param);
                     },
                 ),
             ),
-        ) );
-        
+        ));
+
         // Register route for text-to-speech
-        register_rest_route( 'ai-commander/v1', '/read-text', array(
+        register_rest_route('ai-commander/v1', '/read-text', array(
             'methods' => 'POST',
-            'callback' => array( $this, 'read_text' ),
-            'permission_callback' => array( $this, 'check_permission' ),
+            'callback' => array($this, 'read_text'),
+            'permission_callback' => array($this, 'check_permission'),
             'args' => array(
                 'text' => array(
                     'required' => true,
-                    'validate_callback' => function( $param ) {
-                        return is_string( $param ) && ! empty( $param );
+                    'validate_callback' => function ($param) {
+                        return is_string($param) && ! empty($param);
                     },
                 ),
             ),
-        ) );
+        ));
     }
 
     /**
@@ -128,16 +132,17 @@ class RestApi {
      * @param \WP_REST_Request $request The request object.
      * @return bool|\WP_Error True if the user has permission, \WP_Error otherwise.
      */
-    public function check_permission( $request ) {
+    public function check_permission($request)
+    {
         // Check if the user is logged in and has the required capability
-        if ( ! current_user_can( 'edit_posts' ) ) {
+        if (! current_user_can('edit_posts')) {
             return new \WP_Error(
                 'rest_forbidden',
-                __( 'You do not have permission to use this API.', 'ai-commander' ),
-                array( 'status' => 403 )
+                __('You do not have permission to use this API.', 'ai-commander'),
+                array('status' => 403)
             );
         }
-        
+
         return true;
     }
 
@@ -147,15 +152,16 @@ class RestApi {
      * @param \WP_REST_Request $request The request object.
      * @return \WP_REST_Response The response object.
      */
-    public function get_all_conversations( $request ) {
+    public function get_all_conversations($request)
+    {
         // Get the current user ID
         $user_id = get_current_user_id();
-        
+
         // Get all conversations for the user
-        $result = $this->conversation_service->get_user_conversations( $user_id );
+        $result = $this->conversation_service->get_user_conversations($user_id);
 
         // Return the response
-        return rest_ensure_response( $result );
+        return rest_ensure_response($result);
     }
 
     /**
@@ -164,26 +170,27 @@ class RestApi {
      * @param \WP_REST_Request $request The request object.
      * @return \WP_REST_Response|\WP_Error The response object.
      */
-    public function get_conversation( $request ) {
+    public function get_conversation($request)
+    {
         // Get the conversation UUID from the request
-        $conversation_uuid = $request->get_param( 'uuid' );
-        
+        $conversation_uuid = $request->get_param('uuid');
+
         // Get the current user ID
         $user_id = get_current_user_id();
-        
+
         // Get the conversation
-        $result = $this->conversation_service->get_conversation( $conversation_uuid, $user_id );
-        
-        if ( ! $result ) {
+        $result = $this->conversation_service->get_conversation($conversation_uuid, $user_id);
+
+        if (! $result) {
             return new \WP_Error(
                 'rest_not_found',
-                __( 'Conversation not found or you do not have permission to access it.', 'ai-commander' ),
-                array( 'status' => 404 )
+                __('Conversation not found or you do not have permission to access it.', 'ai-commander'),
+                array('status' => 404)
             );
         }
-        
+
         // Return the response
-        return rest_ensure_response( $result );
+        return rest_ensure_response($result);
     }
 
     /**
@@ -192,148 +199,151 @@ class RestApi {
      * @param \WP_REST_Request $request The request object.
      * @return \WP_REST_Response|\WP_Error The response object.
      */
-    public function process_command( $request ) {
+    public function process_command($request)
+    {
         // Get the command and optional conversation UUID
-        $command = $request->get_param( 'command' );
-        $conversation_uuid = $request->get_param( 'conversation_uuid' );
-        
+        $command = $request->get_param('command');
+        $conversation_uuid = $request->get_param('conversation_uuid');
+
         // Get the current user ID
         $user_id = get_current_user_id();
-        
+
         // Process the command (if conversation_uuid is null, a new one will be created)
-        $result = $this->conversation_service->process_command( $command, $conversation_uuid, $user_id );
-        
-        if ( is_wp_error( $result ) ) {
+        $result = $this->conversation_service->process_command($command, $conversation_uuid, $user_id);
+
+        if (is_wp_error($result)) {
             return $result;
         }
-        
+
         // Return the response
-        return rest_ensure_response( $result );
+        return rest_ensure_response($result);
     }
-    
+
     /**
      * Transcribe audio using the OpenAI Whisper API.
      *
      * @param \WP_REST_Request $request The request object.
      * @return \WP_REST_Response|\WP_Error The response object.
      */
-    public function transcribe_audio( $request ) {        
+    public function transcribe_audio($request)
+    {
         // Check if file was uploaded
         $files = $request->get_file_params();
-        if ( empty( $files['audio'] ) ) {
+        if (empty($files['audio'])) {
             return new \WP_Error(
                 'missing_audio',
-                __( 'No audio file provided.', 'ai-commander' ),
-                array( 'status' => 400 )
+                __('No audio file provided.', 'ai-commander'),
+                array('status' => 400)
             );
         }
-        
+
         // Handle the file upload using the ConversationService
-        $upload_result = $this->conversation_service->handle_audio_upload( $files['audio'] );
-        
-        if ( is_wp_error( $upload_result ) ) {
+        $upload_result = $this->conversation_service->handle_audio_upload($files['audio']);
+
+        if (is_wp_error($upload_result)) {
             return new \WP_Error(
                 $upload_result->get_error_code(),
                 $upload_result->get_error_message(),
-                array( 'status' => 400 )
+                array('status' => 400)
             );
         }
-        
+
         $file_path = $upload_result['file_path'];
-        
+
         try {
             // Transcribe the audio
-            $transcription = $this->conversation_service->transcribe_audio( $file_path );
-            
+            $transcription = $this->conversation_service->transcribe_audio($file_path);
+
             // Delete the audio file after transcription
-            wp_delete_file( $file_path );
-            
-            if ( is_wp_error( $transcription ) ) {
+            wp_delete_file($file_path);
+
+            if (is_wp_error($transcription)) {
                 return new \WP_Error(
                     'transcription_error',
                     $transcription->get_error_message(),
-                    array( 'status' => 500 )
+                    array('status' => 500)
                 );
             }
-            
+
             // Return the transcription
-            return rest_ensure_response( array(
+            return rest_ensure_response(array(
                 'transcription' => $transcription
-            ) );
-        } catch ( \Exception $e ) {
+            ));
+        } catch (\Exception $e) {
             // Delete the audio file if there was an error
-            wp_delete_file( $file_path );
-            
+            wp_delete_file($file_path);
+
             return new \WP_Error(
                 'transcription_error',
                 $e->getMessage(),
-                array( 'status' => 500 )
+                array('status' => 500)
             );
         }
     }
-    
+
     /**
      * Process a voice command by transcribing audio and then processing the transcribed text.
      *
      * @param \WP_REST_Request $request The request object.
      * @return \WP_REST_Response|\WP_Error The response object.
      */
-    public function process_voice_command( $request ) {
+    public function process_voice_command($request)
+    {
         // Get the conversation UUID if provided
-        $conversation_uuid = $request->get_param( 'conversation_uuid' );
-        
+        $conversation_uuid = $request->get_param('conversation_uuid');
+
         // Check if file was uploaded
         $files = $request->get_file_params();
-        if ( empty( $files['audio'] ) ) {
+        if (empty($files['audio'])) {
             return new \WP_Error(
                 'missing_audio',
-                __( 'No audio file provided.', 'ai-commander' ),
-                array( 'status' => 400 )
+                __('No audio file provided.', 'ai-commander'),
+                array('status' => 400)
             );
         }
-        
+
         // Handle the file upload using the ConversationService
-        $upload_result = $this->conversation_service->handle_audio_upload( $files['audio'] );
-        
-        if ( is_wp_error( $upload_result ) ) {
+        $upload_result = $this->conversation_service->handle_audio_upload($files['audio']);
+
+        if (is_wp_error($upload_result)) {
             return new \WP_Error(
                 $upload_result->get_error_code(),
                 $upload_result->get_error_message(),
-                array( 'status' => 400 )
+                array('status' => 400)
             );
         }
-        
+
         $file_path = $upload_result['file_path'];
-        
+
         try {
             // Get the current user ID
             $user_id = get_current_user_id();
-            
+
             // Process the voice command
-            $result = $this->conversation_service->process_voice_command( $file_path, $conversation_uuid, $user_id );
-            
+            $result = $this->conversation_service->process_voice_command($file_path, $conversation_uuid, $user_id);
+
             // Delete the audio file after processing
-            wp_delete_file( $file_path );
-            
-            if ( ! $result || isset( $result['success'] ) && $result['success'] === false ) {
-                $message = isset( $result['message'] ) ? $result['message'] : 'Unknown error';
+            wp_delete_file($file_path);
+
+            if (! $result || isset($result['success']) && $result['success'] === false) {
+                $message = isset($result['message']) ? $result['message'] : 'Unknown error';
                 return new \WP_Error(
                     'voice_command_error',
                     $message,
-                    array( 'status' => 500 )
+                    array('status' => 500)
                 );
             }
-            
+
             // Return the result
-            return rest_ensure_response( $result );
-        } catch ( \Exception $e ) {
+            return rest_ensure_response($result);
+        } catch (\Exception $e) {
             // Delete the audio file if there was an error
-            wp_delete_file( $file_path );
-            
+            wp_delete_file($file_path);
+
             return new \WP_Error(
                 'voice_command_error',
                 $e->getMessage(),
-                array( 'status' => 500 )
+                array('status' => 500)
             );
         }
     }
@@ -344,25 +354,26 @@ class RestApi {
      * @param \WP_REST_Request $request The request object.
      * @return \WP_REST_Response|\WP_Error The response object.
      */
-    public function read_text( $request ) {
-        $text = $request->get_param( 'text' );
-        
-        $result = $this->conversation_service->read_text( $text );
-        
-        if ( is_wp_error( $result ) ) {
+    public function read_text($request)
+    {
+        $text = $request->get_param('text');
+
+        $result = $this->conversation_service->read_text($text);
+
+        if (is_wp_error($result)) {
             return new \WP_Error(
                 $result->get_error_code(),
                 $result->get_error_message(),
-                array( 'status' => 500 )
+                array('status' => 500)
             );
         }
-        
+
         // Send binary directly bypassing WP's JSON encoding
         // which corrupts binary data
-        header( 'Content-Type: ' . $result['mime_type'] );
-        header( 'Content-Disposition: attachment; filename="audio.mp3"' );
-        header( 'Content-Length: ' . strlen($result['audio_data']) );
-        
+        header('Content-Type: ' . $result['mime_type']);
+        header('Content-Disposition: attachment; filename="audio.mp3"');
+        header('Content-Length: ' . strlen($result['audio_data']));
+
         // This is using WP functions but it's not working
         // $response = new \WP_REST_Response( $result['audio_data'] );
         // $response->set_status( 200 );
@@ -373,7 +384,7 @@ class RestApi {
         while (ob_get_level()) {
             ob_end_clean();
         }
-        
+
         echo $result['audio_data'];
         exit;
     }

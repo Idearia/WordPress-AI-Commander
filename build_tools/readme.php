@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Markdown to WordPress readme.txt Converter
  * 
@@ -77,15 +78,14 @@ echo "Conversion complete! WordPress readme.txt file created successfully.\n";
  * that goes all the way to the end of the file if it is
  * not followed by another section header.
  */
-function remove_section($markdown_content, $section_name, $prefix = '##') {
+function remove_section($markdown_content, $section_name, $prefix = '##')
+{
     // Escape special characters in the section name for regex
     $escaped_section_name = preg_quote($section_name, '/');
-    
+
     // Pattern to match the section and its content up to the next section or end of string
     $pattern = "/$prefix\\s*$escaped_section_name\\s*$(.*?)(?=$prefix|\\Z)/ms";
-    
+
     // Remove the matched section and its content
     return preg_replace($pattern, '', $markdown_content);
 }
-
-

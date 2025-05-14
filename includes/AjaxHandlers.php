@@ -1,4 +1,5 @@
 <?php
+
 /**
  * AJAX Handlers Class
  *
@@ -11,7 +12,7 @@ use AICommander\Includes\Services\ConversationService;
 use AICommander\Includes\Services\PromptService;
 use Exception;
 
-if ( ! defined( 'WPINC' ) ) {
+if (! defined('WPINC')) {
     die;
 }
 
@@ -20,7 +21,8 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * This class handles all AJAX requests for the plugin.
  */
-class AjaxHandlers {
+class AjaxHandlers
+{
 
     /**
      * The conversation service.
@@ -46,195 +48,201 @@ class AjaxHandlers {
     /**
      * Constructor.
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->conversation_service = new ConversationService();
         $this->prompt_service = new PromptService();
         $this->tool_registry = ToolRegistry::get_instance();
-        
+
         // Register AJAX handlers
-        add_action( 'wp_ajax_ai_commander_create_conversation', array( $this, 'create_conversation' ) );
-        add_action( 'wp_ajax_ai_commander_get_conversation', array( $this, 'get_conversation' ) );
-        add_action( 'wp_ajax_ai_commander_process_command', array( $this, 'process_command' ) );
-        add_action( 'wp_ajax_ai_commander_transcribe_audio', array( $this, 'transcribe_audio' ) );
-        add_action( 'wp_ajax_ai_commander_read_text', array( $this, 'read_text' ) );
-        
+        add_action('wp_ajax_ai_commander_create_conversation', array($this, 'create_conversation'));
+        add_action('wp_ajax_ai_commander_get_conversation', array($this, 'get_conversation'));
+        add_action('wp_ajax_ai_commander_process_command', array($this, 'process_command'));
+        add_action('wp_ajax_ai_commander_transcribe_audio', array($this, 'transcribe_audio'));
+        add_action('wp_ajax_ai_commander_read_text', array($this, 'read_text'));
+
         // Realtime AJAX handlers
-        add_action( 'wp_ajax_ai_commander_create_realtime_session', array( $this, 'create_realtime_session' ) );
-        add_action( 'wp_ajax_ai_commander_execute_realtime_tool', array( $this, 'execute_realtime_tool' ) );
+        add_action('wp_ajax_ai_commander_create_realtime_session', array($this, 'create_realtime_session'));
+        add_action('wp_ajax_ai_commander_execute_realtime_tool', array($this, 'execute_realtime_tool'));
     }
 
     /**
      * AJAX handler for creating a new conversation.
      */
-    public function create_conversation() {
+    public function create_conversation()
+    {
         // Check nonce for security
-        check_ajax_referer( 'ai_commander_nonce', 'nonce' );
-        
+        check_ajax_referer('ai_commander_nonce', 'nonce');
+
         // Check user capabilities
-        if ( ! current_user_can( 'edit_posts' ) ) {
-            wp_send_json_error( array( 'message' => 'Insufficient permissions' ) );
+        if (! current_user_can('edit_posts')) {
+            wp_send_json_error(array('message' => 'Insufficient permissions'));
         }
-        
+
         // Get current user ID
         $user_id = get_current_user_id();
-        
+
         // Create a new conversation using the service
-        $result = $this->conversation_service->create_conversation( $user_id );
-        
+        $result = $this->conversation_service->create_conversation($user_id);
+
         // Return the result
-        wp_send_json_success( $result );
+        wp_send_json_success($result);
     }
 
     /**
      * AJAX handler for getting an existing conversation.
      */
-    public function get_conversation() {
+    public function get_conversation()
+    {
         // Check nonce for security
-        check_ajax_referer( 'ai_commander_nonce', 'nonce' );
-        
+        check_ajax_referer('ai_commander_nonce', 'nonce');
+
         // Check user capabilities
-        if ( ! current_user_can( 'edit_posts' ) ) {
-            wp_send_json_error( array( 'message' => 'Insufficient permissions' ) );
+        if (! current_user_can('edit_posts')) {
+            wp_send_json_error(array('message' => 'Insufficient permissions'));
         }
-        
+
         // Get the conversation UUID from the request
-        $conversation_uuid = sanitize_text_field( $_POST['conversation_uuid'] ?? '' );
-        
-        if ( empty( $conversation_uuid ) ) {
-            wp_send_json_error( array( 'message' => 'No conversation UUID provided' ) );
+        $conversation_uuid = sanitize_text_field($_POST['conversation_uuid'] ?? '');
+
+        if (empty($conversation_uuid)) {
+            wp_send_json_error(array('message' => 'No conversation UUID provided'));
         }
-        
+
         // Get the current user ID
         $user_id = get_current_user_id();
-        
+
         // Get the conversation using the service
-        $result = $this->conversation_service->get_conversation( $conversation_uuid, $user_id );
-        
-        if ( ! $result ) {
-            wp_send_json_error( array( 'message' => 'Conversation not found or you do not have permission to access it' ) );
+        $result = $this->conversation_service->get_conversation($conversation_uuid, $user_id);
+
+        if (! $result) {
+            wp_send_json_error(array('message' => 'Conversation not found or you do not have permission to access it'));
         }
-        
+
         // Return the result
-        wp_send_json_success( $result );
+        wp_send_json_success($result);
     }
 
     /**
      * AJAX handler for processing chatbot commands.
      */
-    public function process_command() {
+    public function process_command()
+    {
         // Check nonce for security
-        check_ajax_referer( 'ai_commander_nonce', 'nonce' );
-        
+        check_ajax_referer('ai_commander_nonce', 'nonce');
+
         // Check user capabilities
-        if ( ! current_user_can( 'edit_posts' ) ) {
-            wp_send_json_error( array( 'message' => 'Insufficient permissions' ) );
+        if (! current_user_can('edit_posts')) {
+            wp_send_json_error(array('message' => 'Insufficient permissions'));
         }
-        
+
         // Get the command from the request
-        $command = sanitize_text_field( $_POST['command'] ?? '' );
-        $conversation_uuid = sanitize_text_field( $_POST['conversation_uuid'] ?? null );
-        
-        if ( empty( $command ) ) {
-            wp_send_json_error( array( 'message' => 'No command provided' ) );
+        $command = sanitize_text_field($_POST['command'] ?? '');
+        $conversation_uuid = sanitize_text_field($_POST['conversation_uuid'] ?? null);
+
+        if (empty($command)) {
+            wp_send_json_error(array('message' => 'No command provided'));
         }
-        
+
         // Get the current user ID
         $user_id = get_current_user_id();
-        
+
         // Process the command using the service
-        $result = $this->conversation_service->process_command( $command, $conversation_uuid, $user_id );
-        
-        if ( is_wp_error( $result ) ) {
-            wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+        $result = $this->conversation_service->process_command($command, $conversation_uuid, $user_id);
+
+        if (is_wp_error($result)) {
+            wp_send_json_error(array('message' => $result->get_error_message()));
         }
-        
+
         // Return the result
-        wp_send_json_success( $result );
+        wp_send_json_success($result);
     }
-    
+
     /**
      * AJAX handler for transcribing audio using OpenAI Transcription API.
      */
-    public function transcribe_audio() {
+    public function transcribe_audio()
+    {
         // Check nonce for security
-        check_ajax_referer( 'ai_commander_nonce', 'nonce' );
-        
+        check_ajax_referer('ai_commander_nonce', 'nonce');
+
         // Check user capabilities
-        if ( ! current_user_can( 'edit_posts' ) ) {
-            wp_send_json_error( array( 'message' => 'Insufficient permissions' ) );
+        if (! current_user_can('edit_posts')) {
+            wp_send_json_error(array('message' => 'Insufficient permissions'));
         }
-        
+
         // Check if file was uploaded
-        if ( empty( $_FILES['audio'] ) ) {
-            wp_send_json_error( array( 'message' => 'No audio file provided' ) );
+        if (empty($_FILES['audio'])) {
+            wp_send_json_error(array('message' => 'No audio file provided'));
         }
-        
+
         // Handle the file upload using the ConversationService
-        $upload_result = $this->conversation_service->handle_audio_upload( $_FILES['audio'] );
-        
-        if ( is_wp_error( $upload_result ) ) {
-            wp_send_json_error( array( 'message' => $upload_result->get_error_message() ) );
+        $upload_result = $this->conversation_service->handle_audio_upload($_FILES['audio']);
+
+        if (is_wp_error($upload_result)) {
+            wp_send_json_error(array('message' => $upload_result->get_error_message()));
         }
-        
+
         $file_path = $upload_result['file_path'];
-        
+
         try {
             // Use the ConversationService to transcribe the audio
-            $transcription = $this->conversation_service->transcribe_audio( $file_path );
-            
+            $transcription = $this->conversation_service->transcribe_audio($file_path);
+
             // Delete the audio file after transcription
-            wp_delete_file( $file_path );
-            
-            if ( is_wp_error( $transcription ) ) {
-                wp_send_json_error( array( 'message' => $transcription->get_error_message() ) );
+            wp_delete_file($file_path);
+
+            if (is_wp_error($transcription)) {
+                wp_send_json_error(array('message' => $transcription->get_error_message()));
             }
-            
+
             // Return the transcription
-            wp_send_json_success( array( 'transcription' => $transcription ) );
-        } catch ( Exception $e ) {
+            wp_send_json_success(array('transcription' => $transcription));
+        } catch (Exception $e) {
             // Delete the audio file if there was an error
-            wp_delete_file( $file_path );
-            
-            wp_send_json_error( array( 'message' => $e->getMessage() ) );
+            wp_delete_file($file_path);
+
+            wp_send_json_error(array('message' => $e->getMessage()));
         }
     }
 
     /**
      * AJAX handler for text-to-speech functionality.
      */
-    public function read_text() {
+    public function read_text()
+    {
         // Check nonce for security
-        check_ajax_referer( 'ai_commander_nonce', 'nonce' );
-        
+        check_ajax_referer('ai_commander_nonce', 'nonce');
+
         // Check user capabilities
-        if ( ! current_user_can( 'edit_posts' ) ) {
-            wp_send_json_error( array( 'message' => 'Insufficient permissions' ) );
+        if (! current_user_can('edit_posts')) {
+            wp_send_json_error(array('message' => 'Insufficient permissions'));
         }
-        
+
         // Get the parameters from the request
-        $text = sanitize_textarea_field( $_POST['text'] ?? '' );
-        
-        if ( empty( $text ) ) {
-            wp_send_json_error( array( 'message' => 'No text provided' ) );
+        $text = sanitize_textarea_field($_POST['text'] ?? '');
+
+        if (empty($text)) {
+            wp_send_json_error(array('message' => 'No text provided'));
         }
-        
+
         // Process text-to-speech using the service
-        $result = $this->conversation_service->read_text( $text );
-        
-        if ( is_wp_error( $result ) ) {
-            wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+        $result = $this->conversation_service->read_text($text);
+
+        if (is_wp_error($result)) {
+            wp_send_json_error(array('message' => $result->get_error_message()));
         }
-        
+
         // Set headers for audio response
-        header( 'Content-Type: ' . $result['mime_type'] );
-        header( 'Content-Disposition: attachment; filename="audio.mp3"' );
-        header( 'Content-Length: ' . strlen($result['audio_data']) );
-        
+        header('Content-Type: ' . $result['mime_type']);
+        header('Content-Disposition: attachment; filename="audio.mp3"');
+        header('Content-Length: ' . strlen($result['audio_data']));
+
         // Disable any output buffering to ensure clean binary output
         while (ob_get_level()) {
             ob_end_clean();
         }
-        
+
         // Output the audio data and end execution
         echo $result['audio_data'];
         exit;
@@ -248,46 +256,47 @@ class AjaxHandlers {
      * The returned session data includes an ephemeral token in client_secret.value
      * which is used to authenticate further browser calls to the realtime endpoint.
      */
-    public function create_realtime_session() {
+    public function create_realtime_session()
+    {
         // Check nonce for security - use a specific nonce for realtime operations
-        check_ajax_referer( 'ai_commander_nonce', 'nonce' );
+        check_ajax_referer('ai_commander_nonce', 'nonce');
 
         // Check user capabilities - Ensure the user can interact with the chatbot features
-        if ( ! current_user_can( 'edit_posts' ) ) {
-            wp_send_json_error( array( 'message' => 'Insufficient permissions to start a Realtime session.' ), 403 );
+        if (! current_user_can('edit_posts')) {
+            wp_send_json_error(array('message' => 'Insufficient permissions to start a Realtime session.'), 403);
         }
 
         // Instantiate the OpenAI client
         $openai_client = new OpenaiClient();
 
         // In custom TTS mode, we do not need the model to output audio
-        $custom_tts_enabled = get_option( 'ai_commander_use_custom_tts', false );
-        $modalities = [ 'text' ];
-        if ( !$custom_tts_enabled ) {
+        $custom_tts_enabled = get_option('ai_commander_use_custom_tts', false);
+        $modalities = ['text'];
+        if (!$custom_tts_enabled) {
             $modalities[] = 'audio';
         }
 
         // Create session parameters
         $session_params = [
-            'model' => get_option( 'ai_commander_openai_realtime_model', 'gpt-4o-realtime-preview-2024-12-17' ),
-            'voice' => get_option( 'ai_commander_realtime_voice', 'verse' ),
+            'model' => get_option('ai_commander_openai_realtime_model', 'gpt-4o-realtime-preview-2024-12-17'),
+            'voice' => get_option('ai_commander_realtime_voice', 'verse'),
             'instructions' => $this->prompt_service->get_realtime_system_prompt(),
-            'tools' => $this->tool_registry->get_tool_definitions( 'realtime' ),
+            'tools' => $this->tool_registry->get_tool_definitions('realtime'),
             'tool_choice' => 'auto',
             'modalities' => $modalities,
             'input_audio_noise_reduction' => [
-                'type' => 'far_field',  // TODO: make this configurable
-            ],
+                'type' => 'far_field',
+            ],   // OPENAI BUG: connection stuck if you enable this (https://community.openai.com/t/realtime-webrtc-ice-connection-stuck-at-checking/1118849/3)
             // 'max_response_output_tokens' => 4096, // TODO: make this configurable
             // 'temperature' => 0.8,  // OPENAI BUG: OpenAI Realtime Session API error (400): Invalid 'temperature': max decimal places exceeded. Expected a value with at most 16 decimal places, but got a value with 17 decimal places instead.
         ];
 
         // Add input audio transcription only if enabled in settings
-        $input_transcription_enabled = get_option( 'ai_commander_realtime_input_transcription', false );
-        if ( $input_transcription_enabled ) {
+        $input_transcription_enabled = get_option('ai_commander_realtime_input_transcription', false);
+        if ($input_transcription_enabled) {
             $session_params['input_audio_transcription'] = [
-                "language" => get_option( 'ai_commander_chatbot_speech_language', '' ),
-                "model" => get_option( 'ai_commander_openai_transcription_model', 'gpt-4o-transcribe' )
+                "language" => get_option('ai_commander_chatbot_speech_language', ''),
+                "model" => get_option('ai_commander_openai_transcription_model', 'gpt-4o-transcribe')
                 // "prompt" => "expect words related to technology" TODO: make this configurable (only for gpt-4o-transcribe)
             ];
         }
@@ -296,7 +305,7 @@ class AjaxHandlers {
         $session_data = $openai_client->create_realtime_session($session_params);
 
         // Check for errors during session creation
-        if ( is_wp_error( $session_data ) ) {
+        if (is_wp_error($session_data)) {
             wp_send_json_error(
                 array(
                     'message' => 'Failed to create Realtime session: ' . $session_data->get_error_message(),
@@ -307,7 +316,7 @@ class AjaxHandlers {
         }
 
         // Return the full session data, including the ephemeral token (client_secret)
-        wp_send_json_success( $session_data );
+        wp_send_json_success($session_data);
     }
 
     /**
@@ -322,60 +331,61 @@ class AjaxHandlers {
      * Please note that the tool definition must be provided by the browser
      * beforehand, in the session.update event.
      */
-    public function execute_realtime_tool() {
+    public function execute_realtime_tool()
+    {
         // Check nonce for security
-        check_ajax_referer( 'ai_commander_nonce', 'nonce' );
+        check_ajax_referer('ai_commander_nonce', 'nonce');
 
         // Initial capability check - more specific check happens in execute_tool
-        if ( ! current_user_can( 'edit_posts' ) ) {
-            wp_send_json_error( array( 'message' => 'Insufficient permissions to execute tools.' ), 403 );
+        if (! current_user_can('edit_posts')) {
+            wp_send_json_error(array('message' => 'Insufficient permissions to execute tools.'), 403);
         }
 
         // Get tool name and arguments from the request
-        $tool_name = isset( $_POST['tool_name'] ) ? sanitize_text_field( $_POST['tool_name'] ) : '';
+        $tool_name = isset($_POST['tool_name']) ? sanitize_text_field($_POST['tool_name']) : '';
 
         // Important: Arguments from OpenAI are expected to be a JSON string
-        $arguments_json = isset( $_POST['arguments'] ) ? wp_unslash( $_POST['arguments'] ) : ''; 
-        
-        if ( empty( $tool_name ) ) {
-            wp_send_json_error( array( 'message' => 'No tool name specified.' ), 400 );
+        $arguments_json = isset($_POST['arguments']) ? wp_unslash($_POST['arguments']) : '';
+
+        if (empty($tool_name)) {
+            wp_send_json_error(array('message' => 'No tool name specified.'), 400);
         }
 
-        if ( empty( $arguments_json ) ) {
-            wp_send_json_error( array( 'message' => 'No tool arguments specified.' ), 400 );
+        if (empty($arguments_json)) {
+            wp_send_json_error(array('message' => 'No tool arguments specified.'), 400);
         }
 
         // Decode the JSON arguments into a PHP array
-        $params = json_decode( $arguments_json, true );
-        if ( json_last_error() !== JSON_ERROR_NONE ) {
-             wp_send_json_error( array( 'message' => 'Invalid tool arguments JSON: ' . json_last_error_msg() ), 400 );
+        $params = json_decode($arguments_json, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            wp_send_json_error(array('message' => 'Invalid tool arguments JSON: ' . json_last_error_msg()), 400);
         }
-        
+
         // Ensure $params is an array after decoding
         if (!is_array($params)) {
             $params = array(); // Default to empty array if decoding results in non-array
         }
 
         // Check if the tool exists using the already instantiated ToolRegistry
-        if ( ! $this->tool_registry->has_tool( $tool_name ) ) {
-            wp_send_json_error( array( 'message' => 'Tool not found: ' . $tool_name ), 404 );
+        if (! $this->tool_registry->has_tool($tool_name)) {
+            wp_send_json_error(array('message' => 'Tool not found: ' . $tool_name), 404);
         }
 
         // Execute the tool - This method includes the capability check based on the tool's requirement
-        $result = $this->tool_registry->execute_tool( $tool_name, $params );
+        $result = $this->tool_registry->execute_tool($tool_name, $params);
 
         // The Realtime API expects the function result (even errors) back.
         // We send the raw result. If it's a WP_Error, we format it into a structured error.
-        if ( is_wp_error( $result ) ) {
+        if (is_wp_error($result)) {
             // Send back a structured error message that the frontend can pass to OpenAI
-            wp_send_json_success( array(
+            wp_send_json_success(array(
                 'error' => true,
                 'message' => $result->get_error_message(),
                 'code' => $result->get_error_code(),
                 'data' => $result->get_error_data(),
-            ) );
+            ));
         } else {
-            wp_send_json_success( $result );
+            wp_send_json_success($result);
         }
     }
 }

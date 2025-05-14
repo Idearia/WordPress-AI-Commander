@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Tool Registry Class
  *
@@ -9,7 +10,7 @@ namespace AICommander\Includes;
 
 use AICommander\Tools\BaseTool;
 
-if ( ! defined( 'WPINC' ) ) {
+if (! defined('WPINC')) {
     die;
 }
 
@@ -23,7 +24,8 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * Docs: https://platform.openai.com/docs/guides/function-calling
  */
-class ToolRegistry {
+class ToolRegistry
+{
 
     /**
      * The single instance of the class.
@@ -42,7 +44,8 @@ class ToolRegistry {
     /**
      * Constructor.
      */
-    private function __construct() {
+    private function __construct()
+    {
         // Private constructor to prevent direct instantiation
     }
 
@@ -51,8 +54,9 @@ class ToolRegistry {
      *
      * @return ToolRegistry The instance.
      */
-    public static function get_instance() {
-        if ( is_null( self::$instance ) ) {
+    public static function get_instance()
+    {
+        if (is_null(self::$instance)) {
             self::$instance = new self();
         }
         return self::$instance;
@@ -64,19 +68,20 @@ class ToolRegistry {
      * @param BaseTool $tool The tool to register.
      * @return bool True if the tool was registered, false otherwise.
      */
-    public function register_tool( $tool ) {
-        if ( ! $tool instanceof BaseTool ) {
+    public function register_tool($tool)
+    {
+        if (! $tool instanceof BaseTool) {
             return false;
         }
 
         $name = $tool->get_name();
-        
-        if ( isset( $this->tools[ $name ] ) ) {
+
+        if (isset($this->tools[$name])) {
             // Tool already registered
             return false;
         }
 
-        $this->tools[ $name ] = $tool;
+        $this->tools[$name] = $tool;
         return true;
     }
 
@@ -86,12 +91,13 @@ class ToolRegistry {
      * @param string $name The name of the tool to remove.
      * @return bool True if the tool was removed, false if it wasn't registered.
      */
-    public function unregister_tool( $name ) {
-        if ( ! isset( $this->tools[ $name ] ) ) {
+    public function unregister_tool($name)
+    {
+        if (! isset($this->tools[$name])) {
             return false;
         }
-        
-        unset( $this->tools[ $name ] );
+
+        unset($this->tools[$name]);
         return true;
     }
 
@@ -101,16 +107,17 @@ class ToolRegistry {
      * @param array $exceptions Array of tool names to keep in the registry.
      * @return int Number of tools removed.
      */
-    public function unregister_all_tools( $exceptions = array() ) {
+    public function unregister_all_tools($exceptions = array())
+    {
         $removed_count = 0;
-        
-        foreach ( array_keys( $this->tools ) as $tool_name ) {
-            if ( ! in_array( $tool_name, $exceptions ) ) {
-                unset( $this->tools[ $tool_name ] );
+
+        foreach (array_keys($this->tools) as $tool_name) {
+            if (! in_array($tool_name, $exceptions)) {
+                unset($this->tools[$tool_name]);
                 $removed_count++;
             }
         }
-        
+
         return $removed_count;
     }
 
@@ -120,18 +127,20 @@ class ToolRegistry {
      * @param string $name The name of the tool to get.
      * @return BaseTool|null The tool, or null if not found.
      */
-    public function get_tool( $name ) {
-        return isset( $this->tools[ $name ] ) ? $this->tools[ $name ] : null;
+    public function get_tool($name)
+    {
+        return isset($this->tools[$name]) ? $this->tools[$name] : null;
     }
-    
+
     /**
      * Check if a tool is registered.
      *
      * @param string $name The name of the tool to check.
      * @return bool True if the tool is registered, false otherwise.
      */
-    public function has_tool( $name ) {
-        return isset( $this->tools[ $name ] );
+    public function has_tool($name)
+    {
+        return isset($this->tools[$name]);
     }
 
     /**
@@ -139,7 +148,8 @@ class ToolRegistry {
      *
      * @return array The registered tools.
      */
-    public function get_tools() {
+    public function get_tools()
+    {
         return $this->tools;
     }
 
@@ -158,32 +168,33 @@ class ToolRegistry {
      * - 'realtime': for Realtime API
      * @return array The tool definitions.
      */
-    public function get_tool_definitions( $format = 'chat_completion' ) {
+    public function get_tool_definitions($format = 'chat_completion')
+    {
         $definitions = array();
-        
-        foreach ( $this->tools as $name => $tool ) {
 
-            $properties = (object)array_map( function( $param ) {
+        foreach ($this->tools as $name => $tool) {
+
+            $properties = (object)array_map(function ($param) {
                 // Even in strict mode, it is still possible to define optional parameters,
                 // by including 'null' in the 'type' property.
-                $param['type'] = is_array( $param['type'] ) ? $param['type'] : array( $param['type'] );
-                if ( $param['required'] === false && ! in_array( 'null', $param['type'] ) ) {
+                $param['type'] = is_array($param['type']) ? $param['type'] : array($param['type']);
+                if ($param['required'] === false && ! in_array('null', $param['type'])) {
                     $param['type'][] = 'null';
                 }
                 // We need to get rid of the 'required' and 'default' properties, as they are not
                 // part of the OpenAI function calling schema.
-                unset( $param['required'], $param['default'] );
+                unset($param['required'], $param['default']);
                 return $param;
-            }, $tool->get_parameters() );
+            }, $tool->get_parameters());
 
             $parameters = array(
                 'type' => 'object',
                 // In strict mode, all parameters must be listed in the 'required' property.
-                'required' => array_keys( $tool->get_parameters() ),
+                'required' => array_keys($tool->get_parameters()),
                 'properties' => $properties,
             );
 
-            if ( $format === 'chat_completion' ) {
+            if ($format === 'chat_completion') {
                 $definitions[] = array(
                     'strict' => true,
                     'type' => 'function',
@@ -193,19 +204,18 @@ class ToolRegistry {
                         'parameters' => $parameters,
                     ),
                 );
-            } else if ( $format === 'realtime' ) {
+            } else if ($format === 'realtime') {
                 $definitions[] = array(
                     'type' => 'function',
                     'name' => $name,
                     'description' => $tool->get_description(),
                     'parameters' => $parameters,
                 );
-            }
-            else {
-                throw new \Exception( 'Invalid format for generating tool definitions' );
+            } else {
+                throw new \Exception('Invalid format for generating tool definitions');
             }
         }
-        
+
         return $definitions;
     }
 
@@ -216,16 +226,17 @@ class ToolRegistry {
      * @param array $params The parameters to use when executing the tool.
      * @return array|\WP_Error The result of executing the tool, or \WP_Error on failure.
      */
-    public function execute_tool( $name, $params ) {
-        $tool = $this->get_tool( $name );
-        
-        if ( ! $tool ) {
+    public function execute_tool($name, $params)
+    {
+        $tool = $this->get_tool($name);
+
+        if (! $tool) {
             return new \WP_Error(
                 'tool_not_found',
-                sprintf( 'Tool not found: %s', $name )
+                sprintf('Tool not found: %s', $name)
             );
         }
-        
-        return $tool->execute_with_permission_check( $params );
+
+        return $tool->execute_with_permission_check($params);
     }
 }
