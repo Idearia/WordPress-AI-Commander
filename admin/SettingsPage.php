@@ -205,6 +205,17 @@ class SettingsPage extends AdminPage
             )
         );
 
+        // Add new setting for showing tool calls
+        register_setting(
+            'ai_commander_settings',
+            'ai_commander_realtime_show_tool_calls',
+            array(
+                'type' => 'boolean',
+                'sanitize_callback' => 'rest_sanitize_boolean',
+                'default' => true,
+            )
+        );
+
         // Add settings section for OpenAI API
         add_settings_section(
             'ai_commander_openai_settings',
@@ -344,6 +355,15 @@ class SettingsPage extends AdminPage
             'ai_commander_realtime_input_transcription',
             __('Enable Input Transcription', 'ai-commander'),
             array($this, 'render_realtime_input_transcription_field'),
+            'ai_commander_settings',
+            'ai_commander_realtime_settings'
+        );
+
+        // Add settings field for showing tool calls
+        add_settings_field(
+            'ai_commander_realtime_show_tool_calls',
+            __('Show Tool Calls', 'ai-commander'),
+            array($this, 'render_realtime_show_tool_calls_field'),
             'ai_commander_settings',
             'ai_commander_realtime_settings'
         );
@@ -714,7 +734,24 @@ class SettingsPage extends AdminPage
             <?php esc_html_e('Enable input audio transcription', 'ai-commander'); ?>
         </label>
         <p class="description">
-            <?php esc_html_e('When enabled, the transcript of your speech will be displayed in the conversation. Disabling this can save API costs but won\'t show what the AI heard.', 'ai-commander'); ?>
+            <?php esc_html_e('When enabled, the transcript of your speech will be displayed in the conversation. Disabling this can save API costs.', 'ai-commander'); ?>
+        </p>
+    <?php
+    }
+
+    /**
+     * Render the Realtime show tool calls field.
+     */
+    public function render_realtime_show_tool_calls_field()
+    {
+        $show_tool_calls = get_option('ai_commander_realtime_show_tool_calls', true);
+    ?>
+        <label for="ai_commander_realtime_show_tool_calls">
+            <input type="checkbox" id="ai_commander_realtime_show_tool_calls" name="ai_commander_realtime_show_tool_calls" value="1" <?php checked($show_tool_calls, true); ?> />
+            <?php esc_html_e('Show Tool Calls', 'ai-commander'); ?>
+        </label>
+        <p class="description">
+            <?php esc_html_e('When enabled, the tool calls and their results will be displayed in the conversation. This provides more visibility into how the AI is working behind the scenes, but will also make the conversation log more technical.', 'ai-commander'); ?>
         </p>
 <?php
     }

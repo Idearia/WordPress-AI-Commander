@@ -415,6 +415,16 @@
                         event.response.output.forEach(outputItem => {
                             if (outputItem.type === 'function_call' && outputItem.name && outputItem.arguments && outputItem.call_id) {
                                 console.log(`Queueing tool call: ${outputItem.name} with ID ${outputItem.call_id}`);
+                                // Add tool call to messages only if showToolCalls is enabled
+                                if (config.showToolCalls) {
+                                    setMessages(prev => [...prev, {
+                                        type: 'tool_call',
+                                        name: outputItem.name,
+                                        arguments: JSON.parse(outputItem.arguments),
+                                        call_id: outputItem.call_id
+                                    }]);
+                                }
+
                                 toolCallQueueRef.current.push({
                                     name: outputItem.name,
                                     arguments: outputItem.arguments, // Keep as JSON string
@@ -513,6 +523,15 @@
                 console.warn(`Mismatch in call IDs. Expected ${currentToolCallIdRef.current}, got ${callId}. Ignoring.`);
                 // Potentially handle this case more robustly if needed
                 return;
+            }
+
+            // Add tool result to messages only if showToolCalls is enabled
+            if (config.showToolCalls) {
+                setMessages(prev => [...prev, {
+                    type: 'tool_result',
+                    call_id: callId,
+                    result: result
+                }]);
             }
 
             const resultEvent = {
@@ -642,16 +661,43 @@
                     className: 'ai-commander-chat-container'
                 },
                     // Render messages as chat bubbles
-                    messages.map((message, index) =>
-                        e('div', {
-                            key: index,
-                            className: `ai-commander-message ${message.type === 'user' ? 'user-message' : 'ai-message'}`
-                        },
-                            e('div', {
-                                className: `ai-commander-bubble ${message.type === 'user' ? 'user-bubble' : 'ai-bubble'}`
-                            }, message.content)
-                        )
-                    ),
+                    messages.map((message, index) => {
+                        if (message.type === 'user' || message.type === 'assistant') {
+                            return e('div', {
+                                key: index,
+                                className: `ai-commander-message ${message.type === 'user' ? 'user-message' : 'ai-message'}`
+                            },
+                                e('div', {
+                                    className: `ai-commander-bubble ${message.type === 'user' ? 'user-bubble' : 'ai-bubble'}`
+                                }, message.content)
+                            );
+                        } else if (message.type === 'tool_call') {
+                            return e('div', {
+                                key: index,
+                                className: 'ai-commander-message ai-message'
+                            },
+                                e('div', {
+                                    className: 'ai-commander-bubble ai-bubble tool-call'
+                                },
+                                    e('strong', {}, `Called tool: ${message.name}`),
+                                    e('pre', {}, JSON.stringify(message.arguments, null, 2))
+                                )
+                            );
+                        } else if (message.type === 'tool_result') {
+                            return e('div', {
+                                key: index,
+                                className: 'ai-commander-message ai-message'
+                            },
+                                e('div', {
+                                    className: 'ai-commander-bubble ai-bubble tool-result'
+                                },
+                                    e('strong', {}, 'Tool result:'),
+                                    e('pre', {}, JSON.stringify(message.result, null, 2))
+                                )
+                            );
+                        }
+                        return null;
+                    }),
                     // Show current turn transcript separately
                     assistantTranscriptDelta && e('div', {
                         className: `ai-commander-message ${status === 'recording' ? 'user-message' : 'ai-message'}`
@@ -690,7 +736,8 @@
             realtimeApiBaseUrl: aiCommanderRealtimeData.realtime_api_base_url,
             realtimeModel: aiCommanderRealtimeData.realtime_model,
             realtimeVoice: aiCommanderRealtimeData.realtime_voice,
-            useCustomTts: !!aiCommanderRealtimeData.use_custom_tts
+            useCustomTts: !!aiCommanderRealtimeData.use_custom_tts,
+            showToolCalls: !!aiCommanderRealtimeData.realtime_show_tool_calls
         };
 
         // Render the chat interface
