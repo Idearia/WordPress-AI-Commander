@@ -216,6 +216,17 @@ class SettingsPage extends AdminPage
             )
         );
 
+        // Add settings field for input audio noise reduction
+        register_setting(
+            'ai_commander_settings',
+            'ai_commander_realtime_input_audio_noise_reduction',
+            array(
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+                'default' => 'far_field',
+            )
+        );
+
         // Add settings section for OpenAI API
         add_settings_section(
             'ai_commander_openai_settings',
@@ -364,6 +375,15 @@ class SettingsPage extends AdminPage
             'ai_commander_realtime_show_tool_calls',
             __('Show Tool Calls', 'ai-commander'),
             array($this, 'render_realtime_show_tool_calls_field'),
+            'ai_commander_settings',
+            'ai_commander_realtime_settings'
+        );
+
+        // Add settings field for input audio noise reduction
+        add_settings_field(
+            'ai_commander_realtime_input_audio_noise_reduction',
+            __('Input Audio Noise Reduction', 'ai-commander'),
+            array($this, 'render_realtime_input_audio_noise_reduction_field'),
             'ai_commander_settings',
             'ai_commander_realtime_settings'
         );
@@ -753,6 +773,31 @@ class SettingsPage extends AdminPage
         <p class="description">
             <?php esc_html_e('When enabled, the tool calls and their results will be displayed in the conversation. This provides more visibility into how the AI is working behind the scenes, but will also make the conversation log more technical.', 'ai-commander'); ?>
         </p>
-<?php
+    <?php
+    }
+
+    /**
+     * Render the Input Audio Noise Reduction field.
+     */
+    public function render_realtime_input_audio_noise_reduction_field()
+    {
+        $value = get_option('ai_commander_realtime_input_audio_noise_reduction', 'far_field');
+        $options = array(
+            'none' => __('None (off)', 'ai-commander'),
+            'near_field' => __('Near field (for close-talking microphones such as headphones)', 'ai-commander'),
+            'far_field' => __('Far field (for laptop or conference room microphones)', 'ai-commander'),
+        );
+    ?>
+        <select id="ai_commander_realtime_input_audio_noise_reduction" name="ai_commander_realtime_input_audio_noise_reduction">
+            <?php foreach ($options as $key => $label) : ?>
+                <option value="<?php echo esc_attr($key); ?>" <?php selected($value, $key); ?>>
+                    <?php echo esc_html($label); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <p class="description">
+            <?php esc_html_e('Configure input audio noise reduction. "Near field" is for close-talking microphones such as headphones. "Far field" is for laptop or conference room microphones. Select "None" to turn off noise reduction.', 'ai-commander'); ?>
+        </p>
+    <?php
     }
 }
