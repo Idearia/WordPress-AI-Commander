@@ -284,9 +284,11 @@ class AjaxHandlers
             'tools' => $this->tool_registry->get_tool_definitions('realtime'),
             'tool_choice' => 'auto',
             'modalities' => $modalities,
-            // 'input_audio_noise_reduction' => [
-            //     'type' => 'far_field',
-            // ],   // OPENAI BUG: connection stuck if you enable this (https://community.openai.com/t/realtime-webrtc-ice-connection-stuck-at-checking/1118849/3)
+            // There used to be an OPENAI bug: connection stuck if you enable this (https://community.openai.com/t/realtime-webrtc-ice-connection-stuck-at-checking/1118849/3)
+            // but now it seems to be fixed.
+            'input_audio_noise_reduction' => [
+                'type' => 'far_field',
+            ],
             // 'max_response_output_tokens' => 4096, // TODO: make this configurable
             // 'temperature' => 0.8,  // OPENAI BUG: OpenAI Realtime Session API error (400): Invalid 'temperature': max decimal places exceeded. Expected a value with at most 16 decimal places, but got a value with 17 decimal places instead.
         ];
