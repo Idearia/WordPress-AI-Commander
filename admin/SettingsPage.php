@@ -572,16 +572,14 @@ class SettingsPage extends AdminPage
                 <?php esc_html_e('The system prompt sets the behavior and capabilities of the AI assistant. Customize this to change how the assistant responds to user requests.  If empty, the following default system prompt will be used:', 'ai-commander'); ?>
             </p>
             <p>
-                <code>
-                    <?php echo esc_html(OpenaiClient::get_default_system_prompt()); ?>
-                </code>
+                <?php echo $this->format_long_string(esc_html(OpenaiClient::get_default_system_prompt())); ?>
             </p>
         <?php else : ?>
             <div class="notice notice-warning inline">
                 <p>
                     <strong><?php esc_html_e('Note:', 'ai-commander'); ?></strong>
                     <?php esc_html_e('The system prompt is currently set by code using the `ai_commander_filter_chatbot_system_prompt` filter. This is the actual value used:', 'ai-commander'); ?>
-                    <code><?php echo esc_html($filtered_prompt); ?></code>
+                    <p><?php echo $this->format_long_string(esc_html($filtered_prompt)); ?></p>
                 </p>
             </div>
         <?php endif; ?>
@@ -799,5 +797,13 @@ class SettingsPage extends AdminPage
             <?php esc_html_e('Configure input audio noise reduction. "Near field" is for close-talking microphones such as headphones. "Far field" is for laptop or conference room microphones. Select "None" to turn off noise reduction.', 'ai-commander'); ?>
         </p>
     <?php
+    }
+
+    /**
+     * Make sure newlines are formatted correctly in the textarea fields.
+     */
+    private function format_long_string($string)
+    {
+        return str_replace("\n", "<br>", $string);
     }
 }
