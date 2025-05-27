@@ -1,7 +1,8 @@
 <?php
 
 /**
- * REST API Class
+ * REST API Class.  When possible, use the ConversationService rather
+ * than calling the business logic directly.
  *
  * @package AICommander
  */
@@ -117,6 +118,34 @@ class RestApi
             'permission_callback' => array($this, 'check_permission'),
             'args' => array(
                 'text' => array(
+                    'required' => true,
+                    'validate_callback' => function ($param) {
+                        return is_string($param) && ! empty($param);
+                    },
+                ),
+            ),
+        ));
+
+        // Register route for creating realtime sessions
+        register_rest_route('ai-commander/v1', '/realtime/session', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'create_realtime_session'),
+            'permission_callback' => array($this, 'check_permission'),
+        ));
+
+        // Register route for executing realtime tools
+        register_rest_route('ai-commander/v1', '/realtime/tool', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'execute_realtime_tool'),
+            'permission_callback' => array($this, 'check_permission'),
+            'args' => array(
+                'tool_name' => array(
+                    'required' => true,
+                    'validate_callback' => function ($param) {
+                        return is_string($param) && ! empty($param);
+                    },
+                ),
+                'arguments' => array(
                     'required' => true,
                     'validate_callback' => function ($param) {
                         return is_string($param) && ! empty($param);
@@ -387,5 +416,73 @@ class RestApi
 
         echo $result['audio_data'];
         exit;
+    }
+
+    /**
+     * Create a realtime session with OpenAI.
+     *
+     * @param \WP_REST_Request $request The request object.
+     * @return \WP_REST_Response|\WP_Error The response object.
+     */
+    public function create_realtime_session($request)
+    {
+        // Create the realtime session using the service
+        $result = $this->conversation_service->create_realtime_session();
+
+        if (is_wp_error($result)) {
+            return new \WP_Error(
+                $result->get_error_code(),
+                'Failed to create Realtime session: ' . $result->get_error_message(),
+                array('status' => 500)
+            );
+        }
+
+        // Return the session data
+        return rest_ensure_response($result);
+    }
+
+    /**
+     * Execute a realtime tool.
+     *
+     * @param \WP_REST_Request $request The request object.
+     * @return \WP_REST_Response|\WP_Error The response object.
+     */
+    public function execute_realtime_tool($request)
+    {
+        // Get tool name and arguments from the request
+        $tool_name = $request->get_param('tool_name');
+        $arguments_json = $request->get_param('arguments');
+
+        // Decode the JSON arguments into a PHP array
+        $params = json_decode($arguments_json, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return new \WP_Error(
+                'invalid_arguments',
+                'Invalid tool arguments JSON: ' . json_last_error_msg(),
+                array('status' => 400)
+            );
+        }
+
+        // Ensure $params is an array after decoding
+        if (!is_array($params)) {
+            $params = array(); // Default to empty array if decoding results in non-array
+        }
+
+        // Execute the tool using the service
+        $result = $this->conversation_service->execute_realtime_tool($tool_name, $params);
+
+        // The Realtime API expects the function result (even errors) back.
+        // We send the raw result. If it's a WP_Error, we format it into a structured error.
+        if (is_wp_error($result)) {
+            // Send back a structured error message that the frontend can pass to OpenAI
+            return rest_ensure_response(array(
+                'error' => true,
+                'message' => $result->get_error_message(),
+                'code' => $result->get_error_code(),
+                'data' => $result->get_error_data(),
+            ));
+        } else {
+            return rest_ensure_response($result);
+        }
     }
 }

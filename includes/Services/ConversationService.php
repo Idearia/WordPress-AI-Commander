@@ -1,6 +1,7 @@
 <?php
 /**
- * Conversation Service Class
+ * Methods used by AJAX handlers and REST API endpoints,
+ * grouped here to avoid code duplication.
  *
  * @package AICommander
  */
@@ -37,7 +38,7 @@ class ConversationService {
      * @var CommandProcessor
      */
     private $command_processor;
-    
+
     /**
      * The OpenAI client.
      *
@@ -70,9 +71,9 @@ class ConversationService {
      */
     public function create_conversation( $user_id ) {
         $conversation_uuid = $this->conversation_manager->create_conversation( $user_id );
-        
+
         $messages = $this->conversation_manager->format_for_frontend( $conversation_uuid, true );
-        
+
         return array(
             'conversation_uuid' => $conversation_uuid,
             'messages' => $messages
@@ -92,26 +93,26 @@ class ConversationService {
      */
     public function get_conversation( $conversation_uuid, $user_id ) {
         $conversation = $this->conversation_manager->get_conversation( $conversation_uuid );
-        
+
         if ( ! $conversation ) {
             return false;
         }
-        
+
         if ( $conversation->user_id != $user_id ) {
             return false;
         }
-        
+
         $messages = $this->conversation_manager->format_for_openai( $conversation_uuid );
-        
+
         $messages_for_frontend = $this->conversation_manager->format_for_frontend( $conversation_uuid, true );
-        
+
         return array(
             'conversation_uuid' => $conversation_uuid,
             'messages' => $messages,
             'messages_for_frontend' => $messages_for_frontend
         );
     }
-    
+
     /**
      * Get all conversations for a user.
      *
@@ -121,28 +122,28 @@ class ConversationService {
     public function get_user_conversations( $user_id ) {
         $conversations = $this->conversation_manager->get_user_conversations( $user_id );
         $formatted_conversations = array();
-        
+
         foreach ( $conversations as $conversation ) {
             // Get the first user message to use as a preview
             $messages = $this->conversation_manager->get_messages( $conversation->conversation_uuid );
             if ( is_wp_error( $messages ) ) {
                 return $messages;
             }
-            
+
             $preview = '';
-            
+
             foreach ( $messages as $message ) {
                 if ( $message->role === 'user' ) {
                     $preview = $message->content;
                     break;
                 }
             }
-            
+
             // Truncate preview if it's too long
             if ( strlen( $preview ) > 100 ) {
                 $preview = substr( $preview, 0, 97 ) . '...';
             }
-            
+
             $formatted_conversations[] = array(
                 'conversation_uuid' => $conversation->conversation_uuid,
                 'created_at' => $conversation->created_at,
@@ -150,7 +151,7 @@ class ConversationService {
                 'preview' => $preview
             );
         }
-        
+
         return $formatted_conversations;
     }
 
@@ -166,14 +167,14 @@ class ConversationService {
         // If a conversation UUID is provided, verify ownership
         if ( ! empty( $conversation_uuid ) ) {
             $conversation = $this->conversation_manager->get_conversation( $conversation_uuid );
-            
+
             if ( ! $conversation ) {
                 return new \WP_Error(
                     'conversation_not_found',
                     'Conversation not found'
                 );
             }
-            
+
             if ( $user_id !== null && $conversation->user_id != $user_id ) {
                 return new \WP_Error(
                     'conversation_not_authorized',
@@ -181,14 +182,14 @@ class ConversationService {
                 );
             }
         }
-        
+
         return $this->command_processor->process(
             $command,
             get_option( 'ai_commander_openai_chat_model', 'gpt-4o' ),
             $conversation_uuid
         );
     }
-    
+
     /**
      * Handle audio file upload.
      *
@@ -212,10 +213,10 @@ class ConversationService {
         add_filter('upload_dir', [ static::class, 'get_audio_upload_dir' ]);
         $movefile = \wp_handle_upload($file, array( 'test_form' => false ) );
         remove_filter('upload_dir', [ static::class, 'get_audio_upload_dir' ]);
-        
+
         if ( $movefile && ! isset( $movefile['error'] ) ) {
             $file_info = pathinfo( $movefile['file'] );
-            $extension = isset( $file_info['extension'] ) ? strtolower( $file_info['extension'] ) : 'tmp';            
+            $extension = isset( $file_info['extension'] ) ? strtolower( $file_info['extension'] ) : 'tmp';
             return array(
                 'file_path' => $movefile['file'],
                 'extension' => $extension
@@ -227,7 +228,7 @@ class ConversationService {
             );
         }
     }
-    
+
     /**
      * Get a human-readable error message for file upload errors.
      *
@@ -254,7 +255,7 @@ class ConversationService {
                 return 'Unknown upload error';
         }
     }
-    
+
     /**
      * Filter callback to modify the upload directory for audio files.
      *
@@ -265,13 +266,13 @@ class ConversationService {
         $uploads['subdir'] = '/ai-commander/audio';
         $uploads['path'] = $uploads['basedir'] . $uploads['subdir'];
         $uploads['url'] = $uploads['baseurl'] . $uploads['subdir'];
-        
+
         // Create directory if it doesn't exist
         if ( ! file_exists( $uploads['path'] ) ) {
             wp_mkdir_p( $uploads['path'] );
             file_put_contents( $uploads['path'] . '/index.php', '<?php // Silence is golden' );
         }
-        
+
         return $uploads;
     }
 
@@ -281,7 +282,7 @@ class ConversationService {
      * @param string $audio_file_path The path to the audio file.
      * @return string|\WP_Error The transcribed text or an error.
      */
-    public function transcribe_audio( $audio_file_path ) {        
+    public function transcribe_audio( $audio_file_path ) {
         // Get parameter
         $model = get_option( 'ai_commander_openai_transcription_model', 'gpt-4o-transcribe' );
         $language = get_option( 'ai_commander_chatbot_speech_language', '' );
@@ -293,15 +294,15 @@ class ConversationService {
                 'Audio file not found'
             );
         }
-        
+
         try {
             // Transcribe the audio using the OpenAI client
             $transcription = $this->openai_client->transcribe_audio( $audio_file_path, $model, $language );
-            
+
             if ( is_wp_error( $transcription ) ) {
                 return $transcription;
             }
-            
+
             return $transcription;
         } catch ( Exception $e ) {
             return new \WP_Error(
@@ -322,17 +323,17 @@ class ConversationService {
     public function process_voice_command( $audio_file_path, $conversation_uuid = null, $user_id = null ) {
         // Transcribe the audio
         $transcription = $this->transcribe_audio( $audio_file_path );
-        
+
         if ( is_wp_error( $transcription ) ) {
             return array(
                 'success' => false,
                 'message' => $transcription->get_error_message(),
             );
         }
-        
+
         // Process the transcribed text as a command
         $result = $this->process_command( $transcription, $conversation_uuid, $user_id );
-        
+
         if ( ! $result ) {
             return array(
                 'success' => false,
@@ -340,10 +341,10 @@ class ConversationService {
                 'transcription' => $transcription,
             );
         }
-        
+
         // Add the transcription to the result
         $result['transcription'] = $transcription;
-        
+
         return $result;
     }
 
@@ -360,7 +361,7 @@ class ConversationService {
                 'Text to convert to speech cannot be empty.'
             );
         }
-        
+
         $voice = get_option( 'ai_commander_realtime_voice', 'verse' );
         $model = get_option( 'ai_commander_openai_speech_model', 'gpt-4o-mini-tts' );
         $instructions = $this->prompt_service->get_tts_instructions() ?: null;  // Ignored for tts-1 models
@@ -370,5 +371,96 @@ class ConversationService {
         return $this->openai_client->read_text(
             $text, $voice, $model, $instructions, $speed, true
         );
+    }
+
+    /**
+     * Create a realtime session with OpenAI.
+     *
+     * @return array|\WP_Error The session data or an error.
+     */
+    public function create_realtime_session() {
+        // In custom TTS mode, we do not need the model to output audio
+        $custom_tts_enabled = get_option('ai_commander_use_custom_tts', false);
+        $modalities = ['text'];
+        if (!$custom_tts_enabled) {
+            $modalities[] = 'audio';
+        }
+
+        // Get the noise reduction type from the settings
+        $noise_reduction_type = get_option('ai_commander_realtime_input_audio_noise_reduction', 'far_field');
+        $input_audio_noise_reduction = null;
+        if ($noise_reduction_type !== 'none') {
+            $input_audio_noise_reduction = [
+                'type' => $noise_reduction_type,
+            ];
+        }
+
+        // Get tool registry instance
+        $tool_registry = \AICommander\Includes\ToolRegistry::get_instance();
+
+        // Create session parameters
+        $session_params = [
+            'model' => get_option('ai_commander_openai_realtime_model', 'gpt-4o-realtime-preview-2024-12-17'),
+            'voice' => get_option('ai_commander_realtime_voice', 'verse'),
+            'instructions' => $this->prompt_service->get_realtime_system_prompt(),
+            'tools' => $tool_registry->get_tool_definitions('realtime'),
+            'tool_choice' => 'auto',
+            'modalities' => $modalities,
+            // There used to be an OPENAI bug: connection stuck if you enable this (https://community.openai.com/t/realtime-webrtc-ice-connection-stuck-at-checking/1118849/3)
+            // but now it seems to be fixed.
+            'input_audio_noise_reduction' => $input_audio_noise_reduction,
+            // 'max_response_output_tokens' => 4096, // TODO: make this configurable
+            // 'temperature' => 0.8,  // OPENAI BUG: OpenAI Realtime Session API error (400): Invalid 'temperature': max decimal places exceeded. Expected a value with at most 16 decimal places, but got a value with 17 decimal places instead.
+        ];
+
+        // Add input audio transcription only if enabled in settings
+        $input_transcription_enabled = get_option('ai_commander_realtime_input_transcription', false);
+        if ($input_transcription_enabled) {
+            $session_params['input_audio_transcription'] = [
+                "language" => get_option('ai_commander_chatbot_speech_language', ''),
+                "model" => get_option('ai_commander_openai_transcription_model', 'gpt-4o-transcribe')
+                // "prompt" => "expect words related to technology" TODO: make this configurable (only for gpt-4o-transcribe)
+            ];
+        }
+
+        // Create the Realtime session
+        return $this->openai_client->create_realtime_session($session_params);
+    }
+
+    /**
+     * Execute a realtime tool.
+     *
+     * @param string $tool_name The name of the tool to execute.
+     * @param array $params The parameters for the tool.
+     * @return array|\WP_Error The result of the tool execution or an error.
+     */
+    public function execute_realtime_tool($tool_name, $params) {
+        if (empty($tool_name)) {
+            return new \WP_Error(
+                'missing_tool_name',
+                'No tool name specified.'
+            );
+        }
+
+        if (!is_array($params)) {
+            return new \WP_Error(
+                'invalid_params',
+                'Tool parameters must be an array.'
+            );
+        }
+
+        // Get tool registry instance
+        $tool_registry = \AICommander\Includes\ToolRegistry::get_instance();
+
+        // Check if the tool exists
+        if (!$tool_registry->has_tool($tool_name)) {
+            return new \WP_Error(
+                'tool_not_found',
+                'Tool not found: ' . $tool_name
+            );
+        }
+
+        // Execute the tool - This method includes the capability check based on the tool's requirement
+        return $tool_registry->execute_tool($tool_name, $params);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Prompt Service Class
+ * Helper class for getting the system prompts for the various models.
  *
  * @package AICommander
  */
@@ -18,7 +18,7 @@ if ( ! defined( 'WPINC' ) ) {
  * keeping prompt-related logic separate from the OpenAI client.
  */
 class PromptService {
-    
+
     /**
      * Get the default system prompt.
      *
@@ -32,7 +32,7 @@ class PromptService {
                'Do not use markdown formatting in your responses. ' .
                'If you are unable to perform a requested action, explain why and suggest alternatives.';
     }
-    
+
     /**
      * Get the system prompt for the OpenAI API.
      *
@@ -48,11 +48,11 @@ class PromptService {
         if ( empty( $system_prompt ) ) {
             $system_prompt = $default_prompt;
         }
-        
+
         // Apply filter to allow developers to modify the system prompt
         return apply_filters( 'ai_commander_filter_chatbot_system_prompt', $system_prompt );
     }
-    
+
     /**
      * Get the system prompt for realtime sessions.
      *
@@ -82,4 +82,4 @@ class PromptService {
         // Apply filter to allow developers to modify the TTS instructions
         return apply_filters( 'ai_commander_filter_tts_instructions', $instructions );
     }
-} 
+}

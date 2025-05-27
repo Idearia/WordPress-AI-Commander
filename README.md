@@ -4,11 +4,10 @@ Control WordPress with natural language or voice, with API support.  Uses OpenAI
 
 ## Features
 
-- **Natural Language Interface**: Interact with WordPress using conversational language
-- **Chatbot Interface**: User-friendly chat interface in the WordPress admin area
-- **Voice Input**: Supports voice input from the browser microphone
-- **Conversation History**: Maintains context across multiple commands in a conversation
-- **Extensible Tool System**: Add new tools and capabilities to control plugins and themes
+- **Conversational assistant**: Command WordPress using your voice, powered by OpenAI Realtime API
+- **Chatbot assistant**: In alternative, issue commands via text, using a user-friendly chat interface
+- **Conversation history**: Maintains context across multiple commands in a conversation
+- **Extensible tool system**: Add new tools and capabilities to control plugins and themes
 - **REST API**: Allows remote interaction with the chatbot via API
 
 ## Installation
@@ -20,7 +19,8 @@ Control WordPress with natural language or voice, with API support.  Uses OpenAI
 
 ## Demo video
 
-https://github.com/user-attachments/assets/824745f7-0bfe-4bb1-b7f8-c8b0c48eaeae
+- Voice assistant demo video: _TO BE ADDED_
+- Chatbot assistant demo video: https://github.com/user-attachments/assets/824745f7-0bfe-4bb1-b7f8-c8b0c48eaeae
 
 ## Example conversation
 
@@ -88,7 +88,7 @@ class SimplePageCreationTool extends BaseTool {
         $this->name = 'create_empty_page';
         $this->description = 'Creates an empty WordPress page with the specified title';
         $this->required_capability = 'publish_pages'; // Only users who can publish pages can use this tool
-        
+
         parent::__construct();
     }
 
@@ -137,7 +137,7 @@ class SimplePageCreationTool extends BaseTool {
             'edit_url' => $edit_url,
         );
     }
-    
+
     /**
      * Get a human-readable summary of the tool execution result.
      *
@@ -149,7 +149,7 @@ class SimplePageCreationTool extends BaseTool {
         if (is_wp_error($result)) {
             return $result->get_error_message();
         }
-        
+
         return sprintf('Empty page "%s" created successfully with ID %d.', $params['title'], $result['page_id']);
     }
 }
@@ -168,10 +168,10 @@ function register_custom_ai_commander_tools() {
     if (!class_exists('AICommander\\Includes\\ToolRegistry')) {
         return;
     }
-    
+
     // Include your custom tool class
     require_once 'path/to/your/SimplePageCreationTool.php';
-    
+
     // Instantiate your tool (this will automatically register it)
     new SimplePageCreationTool();
 }
@@ -217,9 +217,9 @@ public function get_action_buttons($result, $params) {
     if (is_wp_error($result)) {
         return array();
     }
-    
+
     $buttons = array();
-    
+
     // Example: Add a link button
     if (!empty($result['some_url'])) {
         $buttons[] = array(
@@ -229,7 +229,7 @@ public function get_action_buttons($result, $params) {
             'target' => '_blank',
         );
     }
-    
+
     // Example: Add a modal button
     $buttons[] = array(
         'type' => 'modal',
@@ -237,7 +237,7 @@ public function get_action_buttons($result, $params) {
         'title' => 'Item Details',
         'content' => '<h2>Details</h2><p>Here are the details of the item.</p>',
     );
-    
+
     // Example: Add an AJAX button
     $buttons[] = array(
         'type' => 'ajax',
@@ -254,7 +254,7 @@ public function get_action_buttons($result, $params) {
         'responseAction' => 'message',
         'successMessage' => 'Item deleted successfully!',
     );
-    
+
     return $buttons;
 }
 ```
@@ -417,6 +417,63 @@ language: [optional language code, e.g., 'en']
 
 This endpoint combines audio transcription and command processing in a single request.
 
+#### Create realtime session
+
+```
+POST /wp-json/ai-commander/v1/realtime/session
+```
+
+Creates a new OpenAI Realtime session with the configured model, voice, and tools. Returns session data including an ephemeral token for WebRTC connection.
+
+Request body:
+
+```json
+{}
+```
+
+Response:
+
+```json
+{
+  "id": "sess_abc123",
+  "object": "realtime.session",
+  "model": "gpt-4o-realtime-preview-2024-12-17",
+  "expires_at": 1640995200,
+  "client_secret": {
+    "value": "ephemeral_token_here",
+    "expires_at": 1640995200
+  }
+}
+```
+
+#### Execute realtime tool
+
+```
+POST /wp-json/ai-commander/v1/realtime/tool
+```
+
+Executes a tool with the provided arguments. This endpoint is typically used by the OpenAI Realtime API to execute function calls.
+
+Request body:
+
+```json
+{
+  "tool_name": "create_post",
+  "arguments": "{\"title\": \"Test Post\", \"content\": \"This is a test post.\", \"status\": \"draft\"}"
+}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "post_id": 123,
+  "post_title": "Test Post",
+  "post_url": "https://example.com/?p=123",
+  "edit_url": "https://example.com/wp-admin/post.php?post=123&action=edit"
+}
+```
 
 ### Postman Collection
 
@@ -475,7 +532,7 @@ Bug fixes:
 ## WordPress Metadata
 
 ```wordpress-metadata
-Contributors: ideariasrl, guidopettinari, coccoinomane 
+Contributors: ideariasrl, guidopettinari, coccoinomane
 Tags: ai, chatbot, natural language, openai, ai-agent
 Requires at least: 6.0
 Tested up to: 6.7.2

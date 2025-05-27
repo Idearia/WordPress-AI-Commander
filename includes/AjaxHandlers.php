@@ -1,7 +1,9 @@
 <?php
 
 /**
- * AJAX Handlers Class
+ * AJAX Handlers Class.  When possible, use the ConversationService to interact
+ * with the models.  In general, this class should not include
+ * business logic or calls to get_option() directly.
  *
  * @package AICommander
  */
@@ -266,66 +268,22 @@ class AjaxHandlers
             wp_send_json_error(array('message' => 'Insufficient permissions to start a Realtime session.'), 403);
         }
 
-        // Instantiate the OpenAI client
-        $openai_client = new OpenaiClient();
-
-        // In custom TTS mode, we do not need the model to output audio
-        $custom_tts_enabled = get_option('ai_commander_use_custom_tts', false);
-        $modalities = ['text'];
-        if (!$custom_tts_enabled) {
-            $modalities[] = 'audio';
-        }
-
-        // Get the noise reduction type from the settings
-        $noise_reduction_type = get_option('ai_commander_realtime_input_audio_noise_reduction', 'far_field');
-        $input_audio_noise_reduction = null;
-        if ($noise_reduction_type !== 'none') {
-            $input_audio_noise_reduction = [
-                'type' => $noise_reduction_type,
-            ];
-        }
-
-        // Create session parameters
-        $session_params = [
-            'model' => get_option('ai_commander_openai_realtime_model', 'gpt-4o-realtime-preview-2024-12-17'),
-            'voice' => get_option('ai_commander_realtime_voice', 'verse'),
-            'instructions' => $this->prompt_service->get_realtime_system_prompt(),
-            'tools' => $this->tool_registry->get_tool_definitions('realtime'),
-            'tool_choice' => 'auto',
-            'modalities' => $modalities,
-            // There used to be an OPENAI bug: connection stuck if you enable this (https://community.openai.com/t/realtime-webrtc-ice-connection-stuck-at-checking/1118849/3)
-            // but now it seems to be fixed.
-            'input_audio_noise_reduction' => $input_audio_noise_reduction,
-            // 'max_response_output_tokens' => 4096, // TODO: make this configurable
-            // 'temperature' => 0.8,  // OPENAI BUG: OpenAI Realtime Session API error (400): Invalid 'temperature': max decimal places exceeded. Expected a value with at most 16 decimal places, but got a value with 17 decimal places instead.
-        ];
-
-        // Add input audio transcription only if enabled in settings
-        $input_transcription_enabled = get_option('ai_commander_realtime_input_transcription', false);
-        if ($input_transcription_enabled) {
-            $session_params['input_audio_transcription'] = [
-                "language" => get_option('ai_commander_chatbot_speech_language', ''),
-                "model" => get_option('ai_commander_openai_transcription_model', 'gpt-4o-transcribe')
-                // "prompt" => "expect words related to technology" TODO: make this configurable (only for gpt-4o-transcribe)
-            ];
-        }
-
-        // Create the Realtime session
-        $session_data = $openai_client->create_realtime_session($session_params);
+        // Create the realtime session using the service
+        $result = $this->conversation_service->create_realtime_session();
 
         // Check for errors during session creation
-        if (is_wp_error($session_data)) {
+        if (is_wp_error($result)) {
             wp_send_json_error(
                 array(
-                    'message' => 'Failed to create Realtime session: ' . $session_data->get_error_message(),
-                    'code' => $session_data->get_error_code(),
+                    'message' => 'Failed to create Realtime session: ' . $result->get_error_message(),
+                    'code' => $result->get_error_code(),
                 ),
                 500 // Internal Server Error or specific error code if available
             );
         }
 
         // Return the full session data, including the ephemeral token (client_secret)
-        wp_send_json_success($session_data);
+        wp_send_json_success($result);
     }
 
     /**
@@ -375,13 +333,8 @@ class AjaxHandlers
             $params = array(); // Default to empty array if decoding results in non-array
         }
 
-        // Check if the tool exists using the already instantiated ToolRegistry
-        if (! $this->tool_registry->has_tool($tool_name)) {
-            wp_send_json_error(array('message' => 'Tool not found: ' . $tool_name), 404);
-        }
-
-        // Execute the tool - This method includes the capability check based on the tool's requirement
-        $result = $this->tool_registry->execute_tool($tool_name, $params);
+        // Execute the tool using the service
+        $result = $this->conversation_service->execute_realtime_tool($tool_name, $params);
 
         // The Realtime API expects the function result (even errors) back.
         // We send the raw result. If it's a WP_Error, we format it into a structured error.

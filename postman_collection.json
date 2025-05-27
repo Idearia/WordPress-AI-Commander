@@ -595,6 +595,78 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Create Realtime Session",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/wp-json/ai-commander/v1/realtime/session",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"wp-json",
+						"ai-commander",
+						"v1",
+						"realtime",
+						"session"
+					]
+				},
+				"description": "Creates a new OpenAI Realtime session with the configured model, voice, and tools. Returns session data including an ephemeral token for WebRTC connection."
+			},
+			"response": []
+		},
+		{
+			"name": "Execute Realtime Tool",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"tool_name\": \"create_post\",\n    \"arguments\": \"{\\\"title\\\": \\\"Test Post from Realtime API\\\", \\\"content\\\": \\\"This post was created via the Realtime Tool API endpoint.\\\", \\\"status\\\": \\\"draft\\\"}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/wp-json/ai-commander/v1/realtime/tool",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"wp-json",
+						"ai-commander",
+						"v1",
+						"realtime",
+						"tool"
+					]
+				},
+				"description": "Executes a tool with the provided arguments. The arguments parameter should be a JSON string containing the tool parameters. This endpoint is typically used by the OpenAI Realtime API to execute function calls."
+			},
+			"response": []
 		}
 	],
 	"auth": {
