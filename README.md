@@ -349,6 +349,20 @@ Then use Basic Authentication with your requests:
 Authorization: Basic base64encode(username:application_password)
 ```
 
+***IMPORTANT***: If you have authentication issues, try adding the following to your .htaccess file:
+
+```
+# Preserve the Authorization header for the WordPress REST API
+# BEGIN Authorization header
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{REQUEST_URI} ^/wp-json/
+RewriteCond %{HTTP:Authorization} ^(.*)
+RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
+</IfModule>
+# END Authorization header
+```
+
 ### Endpoints
 
 #### Get all conversations
