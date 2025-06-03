@@ -759,6 +759,11 @@
 
                 const audioBlob = await response.blob();
 
+                // Check if session is still active before playing
+                if (appState.status === 'disconnected' || !elements.remoteAudio) {
+                    return; // Session was stopped, don't play audio
+                }
+
                 // Prepare audio element for playback
                 if (elements.remoteAudio) {
                     // Revoke previous object URL if any
@@ -777,9 +782,32 @@
                     // Play and await end
                     await elements.remoteAudio.play();
 
-                    // Wait for playback to finish
-                    await new Promise((resolve) => {
+                    // Wait for playback to finish, but check if session is still active
+                    await new Promise((resolve, reject) => {
+                        const checkDisconnected = () => {
+                            if (appState.status === 'disconnected') {
+                                elements.remoteAudio.pause();
+                                resolve(); // Resolve immediately if disconnected
+                            }
+                        };
+
                         elements.remoteAudio.onended = resolve;
+                        elements.remoteAudio.onerror = reject;
+
+                        // Check periodically if session was disconnected
+                        const intervalId = setInterval(() => {
+                            checkDisconnected();
+                            if (appState.status === 'disconnected') {
+                                clearInterval(intervalId);
+                            }
+                        }, 100);
+
+                        // Clean up interval when promise resolves
+                        const originalResolve = resolve;
+                        resolve = () => {
+                            clearInterval(intervalId);
+                            originalResolve();
+                        };
                     });
 
                     // Clean up object URL
@@ -789,11 +817,16 @@
 
             } catch (err) {
                 console.error('Error during custom TTS playback:', err);
-                handleError('Errore nella riproduzione audio personalizzato.');
+                // Don't show error if session was intentionally stopped
+                if (appState.status !== 'disconnected') {
+                    handleError('Errore nella riproduzione audio personalizzato.');
+                }
             } finally {
-                // Re-enable microphone and update status
-                unmuteMicrophone();
-                updateStatus('idle');
+                // Re-enable microphone and update status only if session is still active
+                if (appState.status !== 'disconnected') {
+                    unmuteMicrophone();
+                    updateStatus('idle');
+                }
             }
         }
 
@@ -1364,7 +1397,20 @@
                 appState.peerConnection = null;
             }
             if (elements.remoteAudio) {
+                // Stop any playing audio and clear sources
+                elements.remoteAudio.pause();
+                elements.remoteAudio.currentTime = 0;
                 elements.remoteAudio.srcObject = null;
+                elements.remoteAudio.src = '';
+
+                // Clean up any object URL
+                if (elements.remoteAudio.dataset.objectUrl) {
+                    URL.revokeObjectURL(elements.remoteAudio.dataset.objectUrl);
+                    delete elements.remoteAudio.dataset.objectUrl;
+                }
+
+                // Remove event listeners to prevent callbacks
+                elements.remoteAudio.onended = null;
             }
         }
 
