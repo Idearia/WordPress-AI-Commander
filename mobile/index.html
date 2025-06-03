@@ -964,6 +964,18 @@
                 if (!response.ok) {
                     if (response.status === 401) {
                         throw new Error('Credenziali non valide. Verifica nome utente e password.');
+                    } else if (response.status === 403) {
+                        // In multisite, status 403 might be normal
+                        try {
+                            const userData = await response.json();
+                            if (userData && userData.id && userData.name) {
+                                console.log('Authentication successful despite 403 status');
+                            } else {
+                                throw new Error('Accesso negato. Verifica i permessi utente sul sito.');
+                            }
+                        } catch (jsonError) {
+                            throw new Error('Accesso negato. Verifica i permessi utente sul sito.');
+                        }
                     } else {
                         throw new Error('Impossibile connettersi al sito WordPress');
                     }
