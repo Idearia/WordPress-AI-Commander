@@ -1245,7 +1245,7 @@
 
                 const result = await response.json();
 
-                if (result.success) {
+                if (!result.error) {
                     sendFunctionResult(toolCall.call_id, result);
                 } else {
                     sendFunctionResult(toolCall.call_id, {
