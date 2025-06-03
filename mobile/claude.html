@@ -474,7 +474,56 @@
             animation: spin 0.8s linear infinite;
         }
 
+        /* Settings Menu */
+        .settings-menu {
+            position: absolute;
+            top: 60px;
+            right: 1rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            padding: 0.5rem;
+            min-width: 200px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .settings-menu.active {
+            display: block;
+        }
+
+        .settings-item {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #333;
+        }
+
+        .settings-item:hover {
+            background: #f0f0f0;
+        }
+
+        .settings-item svg {
+            width: 18px;
+            height: 18px;
+            opacity: 0.6;
+        }
+
         /* Responsive */
+        @media (max-height: 600px) {
+            .mic-button {
+                width: 60px;
+                height: 60px;
+            }
+
+            .control-panel {
+                padding: 1rem;
+            }
+        }
         @media (max-height: 600px) {
             .mic-button {
                 width: 60px;
@@ -494,7 +543,12 @@
             <div class="config-card">
                 <div class="config-logo">IN</div>
                 <h1 class="config-title">INofficina Voice Assistant</h1>
-                <p class="config-subtitle">Inserisci l'URL del tuo sito WordPress</p>
+                <p class="config-subtitle">Inserisci l'URL del tuo sito WordPress e le credenziali</p>
+
+                <div style="background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; font-size: 0.875rem; color: #4a5568;">
+                    <strong>Nota:</strong> Per la password, utilizza una "Password dell'applicazione" generata dal tuo profilo WordPress, non la password normale.
+                    <a href="https://wordpress.org/documentation/article/application-passwords/" target="_blank" style="color: #667eea; text-decoration: underline;">Come generare una password app →</a>
+                </div>
 
                 <form id="configForm">
                     <div class="form-group">
@@ -507,8 +561,35 @@
                             required
                         >
                         <p class="form-hint">L'URL completo del tuo sito WordPress INofficina</p>
-                        <div id="urlError" class="form-error" style="display: none;"></div>
                     </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="username">Nome utente</label>
+                        <input
+                            type="text"
+                            id="username"
+                            class="form-input"
+                            placeholder="mario.rossi"
+                            autocomplete="username"
+                            required
+                        >
+                        <p class="form-hint">Il tuo nome utente WordPress</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="appPassword">Password dell'app</label>
+                        <input
+                            type="password"
+                            id="appPassword"
+                            class="form-input"
+                            placeholder="xxxx xxxx xxxx xxxx"
+                            autocomplete="current-password"
+                            required
+                        >
+                        <p class="form-hint">La password dell'applicazione generata in WordPress (non la password normale)</p>
+                    </div>
+
+                    <div id="configError" class="form-error" style="display: none;"></div>
 
                     <button type="submit" class="btn-primary" id="connectBtn">
                         Connetti
@@ -529,6 +610,21 @@
                         <path d="M12 15.5A3.5 3.5 0 0 1 8.5 12A3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5a3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97c0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1c0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66Z"/>
                     </svg>
                 </button>
+
+                <div class="settings-menu" id="settingsMenu">
+                    <div class="settings-item" id="changeConfigBtn">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                        </svg>
+                        <span>Cambia configurazione</span>
+                    </div>
+                    <div class="settings-item" id="logoutBtn">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M16 17v-3H9v-4h7V7l5 5-5 5M14 2a2 2 0 0 1 2 2v2h-2V4H5v16h9v-2h2v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9z"/>
+                        </svg>
+                        <span>Disconnetti</span>
+                    </div>
+                </div>
             </header>
 
             <div class="chat-container" id="chatContainer">
@@ -566,6 +662,8 @@
         // App State
         const appState = {
             siteUrl: localStorage.getItem('inofficina_site_url') || '',
+            username: localStorage.getItem('inofficina_username') || '',
+            bearerToken: null,
             sessionToken: null,
             status: 'disconnected',
             messages: [],
@@ -577,15 +675,31 @@
             currentToolCallId: null
         };
 
+        // Generate bearer token from stored credentials
+        function generateBearerToken() {
+            const storedPassword = localStorage.getItem('inofficina_app_password');
+            if (appState.username && storedPassword) {
+                const credentials = `${appState.username}:${storedPassword}`;
+                appState.bearerToken = btoa(credentials);
+                return true;
+            }
+            return false;
+        }
+
         // DOM Elements
         const elements = {
             configScreen: document.getElementById('configScreen'),
             mainApp: document.getElementById('mainApp'),
             configForm: document.getElementById('configForm'),
             siteUrlInput: document.getElementById('siteUrl'),
-            urlError: document.getElementById('urlError'),
+            usernameInput: document.getElementById('username'),
+            appPasswordInput: document.getElementById('appPassword'),
+            configError: document.getElementById('configError'),
             connectBtn: document.getElementById('connectBtn'),
             settingsBtn: document.getElementById('settingsBtn'),
+            settingsMenu: document.getElementById('settingsMenu'),
+            changeConfigBtn: document.getElementById('changeConfigBtn'),
+            logoutBtn: document.getElementById('logoutBtn'),
             micButton: document.getElementById('micButton'),
             statusText: document.getElementById('statusText'),
             chatContainer: document.getElementById('chatContainer'),
@@ -597,8 +711,9 @@
 
         // Initialize app
         function init() {
-            if (appState.siteUrl) {
+            if (appState.siteUrl && generateBearerToken()) {
                 elements.siteUrlInput.value = appState.siteUrl;
+                elements.usernameInput.value = appState.username;
                 showMainApp();
             } else {
                 showConfigScreen();
@@ -606,8 +721,51 @@
 
             // Event listeners
             elements.configForm.addEventListener('submit', handleConfigSubmit);
-            elements.settingsBtn.addEventListener('click', showConfigScreen);
+            elements.settingsBtn.addEventListener('click', toggleSettingsMenu);
+            elements.changeConfigBtn.addEventListener('click', () => {
+                elements.settingsMenu.classList.remove('active');
+                showConfigScreen();
+            });
+            elements.logoutBtn.addEventListener('click', handleLogout);
             elements.micButton.addEventListener('click', toggleRecording);
+
+            // Close settings menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!elements.settingsBtn.contains(e.target) && !elements.settingsMenu.contains(e.target)) {
+                    elements.settingsMenu.classList.remove('active');
+                }
+            });
+        }
+
+        // Toggle settings menu
+        function toggleSettingsMenu(e) {
+            e.stopPropagation();
+            elements.settingsMenu.classList.toggle('active');
+        }
+
+        // Handle logout
+        function handleLogout() {
+            if (confirm('Vuoi disconnetterti e cancellare le credenziali salvate?')) {
+                // Clear all saved data
+                localStorage.removeItem('inofficina_site_url');
+                localStorage.removeItem('inofficina_username');
+                localStorage.removeItem('inofficina_app_password');
+
+                // Reset app state
+                appState.siteUrl = '';
+                appState.username = '';
+                appState.bearerToken = null;
+                appState.sessionToken = null;
+
+                // Clear form
+                elements.siteUrlInput.value = '';
+                elements.usernameInput.value = '';
+                elements.appPasswordInput.value = '';
+
+                // Hide menu and show config screen
+                elements.settingsMenu.classList.remove('active');
+                showConfigScreen();
+            }
         }
 
         // Show/hide screens
@@ -615,6 +773,16 @@
             elements.configScreen.style.display = 'flex';
             elements.mainApp.classList.remove('active');
             stopRecordingSession();
+
+            // Populate form with saved values
+            if (appState.siteUrl) {
+                elements.siteUrlInput.value = appState.siteUrl;
+            }
+            if (appState.username) {
+                elements.usernameInput.value = appState.username;
+            }
+            // Don't populate password for security
+            elements.appPasswordInput.value = '';
         }
 
         function showMainApp() {
@@ -625,7 +793,8 @@
             try {
                 const url = new URL(appState.siteUrl);
                 const subdomain = url.hostname.split('.')[0];
-                elements.officeName.textContent = subdomain.charAt(0).toUpperCase() + subdomain.slice(1);
+                const officeName = subdomain.charAt(0).toUpperCase() + subdomain.slice(1);
+                elements.officeName.textContent = officeName;
             } catch (e) {
                 elements.officeName.textContent = 'INofficina';
             }
@@ -636,7 +805,10 @@
             e.preventDefault();
 
             const url = elements.siteUrlInput.value.trim();
-            if (!url) return;
+            const username = elements.usernameInput.value.trim();
+            const appPassword = elements.appPasswordInput.value.trim();
+
+            if (!url || !username || !appPassword) return;
 
             // Validate URL
             try {
@@ -649,27 +821,43 @@
                 return;
             }
 
-            // Test connection
+            // Generate bearer token
+            const credentials = `${username}:${appPassword}`;
+            const bearerToken = btoa(credentials);
+
+            // Test connection with authentication
             elements.connectBtn.disabled = true;
             elements.connectBtn.textContent = 'Connessione...';
 
             try {
-                const response = await fetch(`${url}/wp-json/`, {
+                const response = await fetch(`${url}/wp-json/wp/v2/users/me`, {
                     method: 'GET',
-                    mode: 'cors'
+                    mode: 'cors',
+                    headers: {
+                        'Authorization': `Basic ${bearerToken}`
+                    }
                 });
 
                 if (!response.ok) {
-                    throw new Error('Impossibile connettersi al sito WordPress');
+                    if (response.status === 401) {
+                        throw new Error('Credenziali non valide. Verifica nome utente e password.');
+                    } else {
+                        throw new Error('Impossibile connettersi al sito WordPress');
+                    }
                 }
 
                 // Save configuration
                 appState.siteUrl = url.replace(/\/$/, ''); // Remove trailing slash
+                appState.username = username;
+                appState.bearerToken = bearerToken;
+
                 localStorage.setItem('inofficina_site_url', appState.siteUrl);
+                localStorage.setItem('inofficina_username', username);
+                localStorage.setItem('inofficina_app_password', appPassword);
 
                 showMainApp();
             } catch (error) {
-                showError('Impossibile connettersi al sito. Verifica l\'URL e riprova.');
+                showError(error.message || 'Impossibile connettersi. Verifica i dati e riprova.');
             } finally {
                 elements.connectBtn.disabled = false;
                 elements.connectBtn.textContent = 'Connetti';
@@ -678,10 +866,10 @@
 
         // Show error message
         function showError(message) {
-            elements.urlError.textContent = message;
-            elements.urlError.style.display = 'block';
+            elements.configError.textContent = message;
+            elements.configError.style.display = 'block';
             setTimeout(() => {
-                elements.urlError.style.display = 'none';
+                elements.configError.style.display = 'none';
             }, 5000);
         }
 
@@ -711,6 +899,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Authorization': `Basic ${appState.bearerToken}`
                     },
                     body: JSON.stringify({})
                 });
@@ -903,6 +1092,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Authorization': `Basic ${appState.bearerToken}`
                     },
                     body: JSON.stringify({
                         tool_name: toolCall.name,
