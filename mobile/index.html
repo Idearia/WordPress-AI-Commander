@@ -898,6 +898,7 @@
                 // Get session token from WordPress
                 const sessionResponse = await fetch(`${appState.siteUrl}/wp-json/ai-commander/v1/realtime/session`, {
                     method: 'POST',
+                    credentials: 'omit',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Basic ${appState.bearerToken}`
@@ -1091,6 +1092,7 @@
             try {
                 const response = await fetch(`${appState.siteUrl}/wp-json/ai-commander/v1/realtime/tool`, {
                     method: 'POST',
+                    credentials: 'omit',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Basic ${appState.bearerToken}`
