@@ -833,6 +833,7 @@
                 const response = await fetch(`${url}/wp-json/wp/v2/users/me`, {
                     method: 'GET',
                     mode: 'cors',
+                    credentials: 'omit',
                     headers: {
                         'Authorization': `Basic ${bearerToken}`
                     }
