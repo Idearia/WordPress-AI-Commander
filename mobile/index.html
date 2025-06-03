@@ -675,7 +675,8 @@
             toolCallQueue: [],
             currentToolCallId: null,
             isCustomTtsEnabled: false,  // Track if custom TTS is enabled
-            sessionModalities: []       // Store session modalities
+            sessionModalities: [],       // Store session modalities
+            isPlayingCustomTts: false    // Track if custom TTS audio is currently playing
         };
 
         // Generate bearer token from stored credentials
@@ -733,10 +734,33 @@
             }
         }
 
+        function interruptCustomTts() {
+            if (appState.isPlayingCustomTts && elements.remoteAudio) {
+                appState.isPlayingCustomTts = false;
+                elements.remoteAudio.pause();
+                elements.remoteAudio.currentTime = 0;
+
+                // Clean up object URL if any
+                if (elements.remoteAudio.dataset.objectUrl) {
+                    URL.revokeObjectURL(elements.remoteAudio.dataset.objectUrl);
+                    delete elements.remoteAudio.dataset.objectUrl;
+                }
+
+                // Re-enable microphone and update status
+                unmuteMicrophone();
+                updateStatus('idle');
+
+                console.log('Custom TTS interrupted by user');
+            }
+        }
+
         async function playCustomTtsAudio(text) {
             if (!text) return;
 
             try {
+                // Set flag to indicate custom TTS is playing
+                appState.isPlayingCustomTts = true;
+
                 // Update UI status
                 updateStatus('speaking');
 
@@ -760,9 +784,9 @@
 
                 const audioBlob = await response.blob();
 
-                // Check if session is still active before playing
-                if (appState.status === 'disconnected' || !elements.remoteAudio) {
-                    return; // Session was stopped, don't play audio
+                // Check if session is still active and not interrupted before playing
+                if (appState.status === 'disconnected' || !elements.remoteAudio || !appState.isPlayingCustomTts) {
+                    return; // Session was stopped or interrupted, don't play audio
                 }
 
                 // Prepare audio element for playback
@@ -783,22 +807,22 @@
                     // Play and await end
                     await elements.remoteAudio.play();
 
-                    // Wait for playback to finish, but check if session is still active
+                    // Wait for playback to finish, but check if session is still active or interrupted
                     await new Promise((resolve, reject) => {
-                        const checkDisconnected = () => {
-                            if (appState.status === 'disconnected') {
+                        const checkDisconnectedOrInterrupted = () => {
+                            if (appState.status === 'disconnected' || !appState.isPlayingCustomTts) {
                                 elements.remoteAudio.pause();
-                                resolve(); // Resolve immediately if disconnected
+                                resolve(); // Resolve immediately if disconnected or interrupted
                             }
                         };
 
                         elements.remoteAudio.onended = resolve;
                         elements.remoteAudio.onerror = reject;
 
-                        // Check periodically if session was disconnected
+                        // Check periodically if session was disconnected or interrupted
                         const intervalId = setInterval(() => {
-                            checkDisconnected();
-                            if (appState.status === 'disconnected') {
+                            checkDisconnectedOrInterrupted();
+                            if (appState.status === 'disconnected' || !appState.isPlayingCustomTts) {
                                 clearInterval(intervalId);
                             }
                         }, 100);
@@ -823,8 +847,9 @@
                     handleError('Errore nella riproduzione audio personalizzato.');
                 }
             } finally {
-                // Re-enable microphone and update status only if session is still active
-                if (appState.status !== 'disconnected') {
+                // Reset flag and re-enable microphone only if not interrupted and session still active
+                if (appState.status !== 'disconnected' && appState.isPlayingCustomTts) {
+                    appState.isPlayingCustomTts = false;
                     unmuteMicrophone();
                     updateStatus('idle');
                 }
@@ -1012,6 +1037,9 @@
         function toggleRecording() {
             if (appState.status === 'disconnected' || appState.status === 'error') {
                 startRecordingSession();
+            } else if (appState.status === 'speaking' && isCustomTtsEnabled() && appState.isPlayingCustomTts) {
+                // Interrupt custom TTS playback when user clicks while AI is speaking
+                interruptCustomTts();
             } else if (appState.status !== 'connecting') {
                 stopRecordingSession();
             }
@@ -1129,6 +1157,12 @@
                 appState.localStream.getTracks().forEach(track => track.stop());
                 appState.localStream = null;
             }
+
+            // Interrupt any ongoing custom TTS playback
+            if (appState.isPlayingCustomTts) {
+                interruptCustomTts();
+            }
+
             closeSession();
             updateStatus('disconnected');
             appState.currentTranscript = '';
@@ -1350,8 +1384,13 @@
                     break;
 
                 case 'speaking':
-                    elements.statusText.textContent = 'Risposta in corso...';
+                    if (isCustomTtsEnabled()) {
+                        elements.statusText.textContent = 'Premi per interrompere';
+                    } else {
+                        elements.statusText.textContent = 'Risposta in corso...';
+                    }
                     elements.statusText.className = 'status-text';
+                    elements.micButton.disabled = false; // Ensure button is clickable for interruption
                     elements.micButton.innerHTML = `
                         <svg viewBox="0 0 24 24" fill="currentColor">
                             <rect x="6" y="6" width="12" height="12" rx="2"/>
@@ -1397,6 +1436,9 @@
 
         // Close session
         function closeSession() {
+            // Reset custom TTS flag
+            appState.isPlayingCustomTts = false;
+
             if (appState.localStream) {
                 appState.localStream.getTracks().forEach(track => track.stop());
                 appState.localStream = null;
