@@ -672,7 +672,9 @@
             dataChannel: null,
             localStream: null,
             toolCallQueue: [],
-            currentToolCallId: null
+            currentToolCallId: null,
+            isCustomTtsEnabled: false,  // Track if custom TTS is enabled
+            sessionModalities: []       // Store session modalities
         };
 
         // Generate bearer token from stored credentials
@@ -708,6 +710,92 @@
             loadingOverlay: document.getElementById('loadingOverlay'),
             officeName: document.getElementById('officeName')
         };
+
+        // Custom TTS Helper Functions
+        function isCustomTtsEnabled() {
+            return appState.isCustomTtsEnabled;
+        }
+
+        function muteMicrophone() {
+            if (appState.localStream) {
+                appState.localStream.getAudioTracks().forEach(track => {
+                    track.enabled = false;
+                });
+            }
+        }
+
+        function unmuteMicrophone() {
+            if (appState.localStream) {
+                appState.localStream.getAudioTracks().forEach(track => {
+                    track.enabled = true;
+                });
+            }
+        }
+
+        async function playCustomTtsAudio(text) {
+            if (!text) return;
+
+            try {
+                // Update UI status
+                updateStatus('speaking');
+
+                // Mute the microphone so that speaker output is not captured
+                muteMicrophone();
+
+                // Call the WordPress TTS endpoint
+                const response = await fetch(`${appState.siteUrl}/wp-json/ai-commander/v1/read-text`, {
+                    method: 'POST',
+                    credentials: 'omit',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Basic ${appState.bearerToken}`
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`TTS request failed with status ${response.status}`);
+                }
+
+                const audioBlob = await response.blob();
+
+                // Prepare audio element for playback
+                if (elements.remoteAudio) {
+                    // Revoke previous object URL if any
+                    if (elements.remoteAudio.dataset.objectUrl) {
+                        URL.revokeObjectURL(elements.remoteAudio.dataset.objectUrl);
+                        delete elements.remoteAudio.dataset.objectUrl;
+                    }
+
+                    // Ensure srcObject is cleared when using blob src
+                    elements.remoteAudio.srcObject = null;
+
+                    const objectUrl = URL.createObjectURL(audioBlob);
+                    elements.remoteAudio.dataset.objectUrl = objectUrl;
+                    elements.remoteAudio.src = objectUrl;
+
+                    // Play and await end
+                    await elements.remoteAudio.play();
+
+                    // Wait for playback to finish
+                    await new Promise((resolve) => {
+                        elements.remoteAudio.onended = resolve;
+                    });
+
+                    // Clean up object URL
+                    URL.revokeObjectURL(objectUrl);
+                    delete elements.remoteAudio.dataset.objectUrl;
+                }
+
+            } catch (err) {
+                console.error('Error during custom TTS playback:', err);
+                handleError('Errore nella riproduzione audio personalizzato.');
+            } finally {
+                // Re-enable microphone and update status
+                unmuteMicrophone();
+                updateStatus('idle');
+            }
+        }
 
         // Initialize app
         function init() {
@@ -918,6 +1006,13 @@
 
                 appState.sessionToken = sessionData.client_secret.value;
 
+                // Check if custom TTS is enabled based on modalities
+                appState.sessionModalities = sessionData.modalities || ['text', 'audio'];
+                appState.isCustomTtsEnabled = !appState.sessionModalities.includes('audio');
+
+                console.log('Session modalities:', appState.sessionModalities);
+                console.log('Custom TTS enabled:', appState.isCustomTtsEnabled);
+
                 // Create RTCPeerConnection
                 const pc = new RTCPeerConnection();
                 appState.peerConnection = pc;
@@ -1001,6 +1096,8 @@
 
                 switch (data.type) {
                     case 'input_audio_buffer.speech_started':
+                        // Ensure mic is unmuted when user speaks again (especially important for Custom TTS)
+                        unmuteMicrophone();
                         updateStatus('recording');
                         break;
 
@@ -1024,7 +1121,9 @@
                         break;
 
                     case 'response.audio.delta':
-                        updateStatus('speaking');
+                        if (!isCustomTtsEnabled()) {
+                            updateStatus('speaking');
+                        }
                         break;
 
                     case 'response.function_call_arguments.delta':
@@ -1048,6 +1147,12 @@
                         }
                         appState.currentTranscript = '';
 
+                        // If custom TTS is enabled, synthesize and play audio now
+                        if (isCustomTtsEnabled() && responseText) {
+                            // Do not rely on Realtime API's audio; instead, call our endpoint
+                            playCustomTtsAudio(responseText);
+                        }
+
                         // Handle function calls
                         data.response.output.forEach(outputItem => {
                             if (outputItem.type === 'function_call' && outputItem.call_id) {
@@ -1065,7 +1170,9 @@
                         break;
 
                     case 'output_audio_buffer.stopped':
-                        updateStatus('idle');
+                        if (!isCustomTtsEnabled()) {
+                            updateStatus('idle');
+                        }
                         break;
 
                     case 'error':
