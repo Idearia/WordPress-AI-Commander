@@ -650,7 +650,7 @@
                 <div class="status-text" id="statusText">Premi per iniziare</div>
             </div>
 
-            <audio id="remoteAudio" style="display: none;" autoplay></audio>
+            <audio id="remoteAudio" style="display: none;" autoplay playsinline></audio>
         </div>
 
         <!-- Loading Overlay -->
@@ -712,6 +712,64 @@
             loadingOverlay: document.getElementById('loadingOverlay'),
             officeName: document.getElementById('officeName')
         };
+
+        /* =========================================================
+         * Mobile Audio Unlock
+         * ---------------------------------------------------------
+         * Many mobile browsers (iOS Safari, Chrome/Edge/Firefox for
+         * Android) block autoplay unless it is triggered by an
+         * explicit user gesture.  The very first tap on our
+         * microphone button is the ideal moment to unlock audio.
+         *
+         * The routine below does two things:
+         *   1. Resumes (or creates) a global AudioContext so that
+         *      WebRTC audio tracks can play.
+         *   2. Performs a quick muted play/pause cycle on the hidden
+         *      <audio> element so future calls to play() succeed.
+         *
+         * After this code has run once, the page is effectively
+         * whitelisted for further audio playback.
+         * =======================================================*/
+        let isMobileAudioUnlocked = false;
+
+        function unlockMobileAudio() {
+            if (isMobileAudioUnlocked) return; // Already unlocked
+            isMobileAudioUnlocked = true;
+
+            // 1️⃣  Ensure an AudioContext is running
+            try {
+                window.globalAudioContext = window.globalAudioContext || new (window.AudioContext || window.webkitAudioContext)();
+                if (window.globalAudioContext.state === 'suspended') {
+                    window.globalAudioContext.resume();
+                }
+            } catch (error) {
+                console.warn('AudioContext initialisation failed:', error);
+            }
+
+            // 2️⃣  Perform a muted play/pause cycle to satisfy autoplay policies
+            const remoteAudioElement = elements.remoteAudio;
+            if (remoteAudioElement) {
+                const wasMuted = remoteAudioElement.muted;
+                remoteAudioElement.muted = true;
+
+                const playPromise = remoteAudioElement.play();
+                if (playPromise && typeof playPromise.then === 'function') {
+                    playPromise.then(() => {
+                        remoteAudioElement.pause();
+                        remoteAudioElement.currentTime = 0;
+                        remoteAudioElement.muted = wasMuted;
+                        console.log('[AI-Commander] Mobile audio unlocked');
+                    }).catch(err => {
+                        // Even if this fails, the AudioContext resume above usually suffices
+                        console.warn('Mobile audio unlock play() rejected:', err);
+                        remoteAudioElement.muted = wasMuted;
+                    });
+                } else {
+                    // Older browsers may return undefined from play()
+                    remoteAudioElement.muted = wasMuted;
+                }
+            }
+        }
 
         // Custom TTS Helper Functions
         function isCustomTtsEnabled() {
@@ -875,6 +933,9 @@
             });
             elements.logoutBtn.addEventListener('click', handleLogout);
             elements.micButton.addEventListener('click', toggleRecording);
+
+            // Unlock mobile audio once, on the very first user tap on the microphone button
+            elements.micButton.addEventListener('click', unlockMobileAudio, { once: true });
 
             // Close settings menu when clicking outside
             document.addEventListener('click', (e) => {
