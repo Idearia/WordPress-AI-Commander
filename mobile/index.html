@@ -1297,8 +1297,26 @@
                     }
                 };
 
+                // Increase bitrate to 96kb/s
+                pc.getTransceivers().forEach(t => {
+                    if (t.sender.track?.kind === 'audio') {
+                        const params = t.sender.getParameters();
+                        params.encodings = [{ maxBitrate: 96000 }];
+                        t.sender.setParameters(params);
+                    }
+                });
+
                 // Get user media
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        sampleRate: 48000,
+                        channelCount: 1,
+                        sampleSize: 16,
+                        echoCancellation: false,
+                        noiseSuppression: false,
+                        autoGainControl: false
+                    }
+                });
                 appState.localStream = stream;
                 stream.getTracks().forEach(track => pc.addTrack(track, stream));
 
