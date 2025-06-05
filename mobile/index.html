@@ -1096,16 +1096,151 @@
             }, 5000);
         }
 
-        // Toggle recording
-        function toggleRecording() {
-            if (appState.status === 'disconnected' || appState.status === 'error') {
-                startRecordingSession();
-            } else if (appState.status === 'speaking' && isCustomTtsEnabled() && appState.isPlayingCustomTts) {
-                // Interrupt custom TTS playback when user clicks while AI is speaking
-                interruptCustomTts();
-            } else if (appState.status !== 'connecting') {
-                stopRecordingSession();
+        // Microphone Button Controller - Centralizes all mic button logic
+        const MicButtonController = {
+            // Current state (same as appState.status)
+            currentState: 'disconnected',
+
+            // Centralizes all button click logic
+            handleClick() {
+                switch (this.currentState) {
+                    case 'disconnected':
+                    case 'error':
+                        startRecordingSession();
+                        break;
+
+                    case 'speaking':
+                        if (isCustomTtsEnabled() && appState.isPlayingCustomTts) {
+                            // Interrupt custom TTS playback when user clicks while AI is speaking
+                            interruptCustomTts();
+                        } else {
+                            stopRecordingSession();
+                        }
+                        break;
+
+                    case 'recording':
+                    case 'processing':
+                    case 'tool_wait':
+                    case 'idle':
+                        stopRecordingSession();
+                        break;
+
+                    case 'connecting':
+                        // Do nothing while connecting
+                        break;
+
+                    default:
+                        console.warn('Unknown mic button state:', this.currentState);
+                }
+            },
+
+            // Updates state and UI (replaces updateStatus)
+            setState(newState, options = {}) {
+                console.log(`Mic button: ${this.currentState} → ${newState}`);
+                this.currentState = newState;
+                appState.status = newState; // Maintain backward compatibility
+                this._updateUI(newState, options);
+            },
+
+            // UI update logic (same as current updateStatus)
+            _updateUI(state, options = {}) {
+                // Update button appearance
+                elements.micButton.className = 'mic-button';
+                elements.micButton.innerHTML = '';
+                elements.micButton.disabled = false;
+
+                switch (state) {
+                    case 'disconnected':
+                        elements.statusText.textContent = 'Premi per iniziare';
+                        elements.statusText.className = 'status-text';
+                        elements.micButton.innerHTML = this._getMicIcon();
+                        break;
+
+                    case 'connecting':
+                        elements.statusText.textContent = 'Connessione in corso...';
+                        elements.statusText.className = 'status-text';
+                        elements.micButton.innerHTML = '<div class="spinner"></div>';
+                        elements.micButton.disabled = true;
+                        break;
+
+                    case 'recording':
+                        elements.statusText.textContent = 'In ascolto...';
+                        elements.statusText.className = 'status-text';
+                        elements.micButton.classList.add('recording');
+                        elements.micButton.innerHTML = this._getSoundWaveIcon();
+                        break;
+
+                    case 'processing':
+                        elements.statusText.textContent = 'Elaborazione...';
+                        elements.statusText.className = 'status-text';
+                        elements.micButton.innerHTML = '<div class="spinner"></div>';
+                        break;
+
+                    case 'speaking':
+                        if (isCustomTtsEnabled()) {
+                            elements.statusText.textContent = 'Premi per interrompere';
+                        } else {
+                            elements.statusText.textContent = 'Risposta in corso...';
+                        }
+                        elements.statusText.className = 'status-text';
+                        elements.micButton.disabled = false; // Ensure button is clickable for interruption
+                        elements.micButton.innerHTML = this._getStopIcon();
+                        break;
+
+                    case 'tool_wait':
+                        elements.statusText.textContent = 'Esecuzione comando...';
+                        elements.statusText.className = 'status-text';
+                        elements.micButton.innerHTML = '<div class="spinner"></div>';
+                        break;
+
+                    case 'idle':
+                        elements.statusText.textContent = 'In attesa...';
+                        elements.statusText.className = 'status-text';
+                        elements.micButton.innerHTML = this._getStopIcon();
+                        break;
+
+                    case 'error':
+                        elements.statusText.textContent = options.message || 'Errore';
+                        elements.statusText.className = 'status-text error';
+                        elements.micButton.innerHTML = this._getMicIcon();
+                        break;
+                }
+            },
+
+            // Helper methods for icons
+            _getMicIcon() {
+                return `
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                    </svg>
+                `;
+            },
+
+            _getStopIcon() {
+                return `
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <rect x="6" y="6" width="12" height="12" rx="2"/>
+                    </svg>
+                `;
+            },
+
+            _getSoundWaveIcon() {
+                return `
+                    <div class="sound-wave">
+                        <span class="sound-bar"></span>
+                        <span class="sound-bar"></span>
+                        <span class="sound-bar"></span>
+                        <span class="sound-bar"></span>
+                        <span class="sound-bar"></span>
+                    </div>
+                `;
             }
+        };
+
+        // Toggle recording (now uses centralized controller)
+        function toggleRecording() {
+            MicButtonController.handleClick();
         }
 
         // Start recording session
@@ -1277,8 +1412,7 @@
                         hideTypingIndicator();
 
                         if (data.response.status === 'failed') {
-                            updateStatus('error');
-                            elements.statusText.textContent = 'Errore nella risposta';
+                            updateStatus('error', { message: 'Errore nella risposta' });
                             break;
                         }
 
@@ -1397,102 +1531,15 @@
             appState.currentToolCallId = null;
         }
 
-        // Update status
-        function updateStatus(status) {
-            appState.status = status;
-
-            // Update button appearance
-            elements.micButton.className = 'mic-button';
-            elements.micButton.innerHTML = '';
-
-            switch (status) {
-                case 'disconnected':
-                    elements.statusText.textContent = 'Premi per iniziare';
-                    elements.statusText.className = 'status-text';
-                    elements.micButton.innerHTML = `
-                        <svg viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-                            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-                        </svg>
-                    `;
-                    break;
-
-                case 'connecting':
-                    elements.statusText.textContent = 'Connessione in corso...';
-                    elements.statusText.className = 'status-text';
-                    elements.micButton.innerHTML = '<div class="spinner"></div>';
-                    elements.micButton.disabled = true;
-                    break;
-
-                case 'recording':
-                    elements.statusText.textContent = 'In ascolto...';
-                    elements.statusText.className = 'status-text';
-                    elements.micButton.classList.add('recording');
-                    elements.micButton.disabled = false;
-                    elements.micButton.innerHTML = `
-                        <div class="sound-wave">
-                            <span class="sound-bar"></span>
-                            <span class="sound-bar"></span>
-                            <span class="sound-bar"></span>
-                            <span class="sound-bar"></span>
-                            <span class="sound-bar"></span>
-                        </div>
-                    `;
-                    break;
-
-                case 'processing':
-                    elements.statusText.textContent = 'Elaborazione...';
-                    elements.statusText.className = 'status-text';
-                    elements.micButton.innerHTML = '<div class="spinner"></div>';
-                    break;
-
-                case 'speaking':
-                    if (isCustomTtsEnabled()) {
-                        elements.statusText.textContent = 'Premi per interrompere';
-                    } else {
-                        elements.statusText.textContent = 'Risposta in corso...';
-                    }
-                    elements.statusText.className = 'status-text';
-                    elements.micButton.disabled = false; // Ensure button is clickable for interruption
-                    elements.micButton.innerHTML = `
-                        <svg viewBox="0 0 24 24" fill="currentColor">
-                            <rect x="6" y="6" width="12" height="12" rx="2"/>
-                        </svg>
-                    `;
-                    break;
-
-                case 'tool_wait':
-                    elements.statusText.textContent = 'Esecuzione comando...';
-                    elements.statusText.className = 'status-text';
-                    break;
-
-                case 'idle':
-                    elements.statusText.textContent = 'In attesa...';
-                    elements.statusText.className = 'status-text';
-                    elements.micButton.innerHTML = `
-                        <svg viewBox="0 0 24 24" fill="currentColor">
-                            <rect x="6" y="6" width="12" height="12" rx="2"/>
-                        </svg>
-                    `;
-                    break;
-
-                case 'error':
-                    elements.statusText.className = 'status-text error';
-                    elements.micButton.innerHTML = `
-                        <svg viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-                            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-                        </svg>
-                    `;
-                    break;
-            }
+        // Update status (now uses centralized controller)
+        function updateStatus(status, options = {}) {
+            MicButtonController.setState(status, options);
         }
 
         // Handle errors
         function handleError(message) {
             console.error('Error:', message);
-            elements.statusText.textContent = message;
-            updateStatus('error');
+            updateStatus('error', { message: message });
             closeSession();
             showLoading(false);
         }
