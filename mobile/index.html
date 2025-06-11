@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1e3c72">
-    <title>INofficina Voice Assistant</title>
+    <title>INofficina.it Voice Assistant</title>
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiSU5vZmZpY2luYSBWb2ljZSBBc3Npc3RhbnQiLCJzaG9ydF9uYW1lIjoiSU5vZmZpY2luYSIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMxZTNjNzIiLCJ0aGVtZV9jb2xvciI6IiMxZTNjNzIiLCJvcmllbnRhdGlvbiI6InBvcnRyYWl0In0=">
@@ -545,7 +545,7 @@
         <div id="configScreen" class="config-screen">
             <div class="config-card">
                 <div class="config-logo">IN</div>
-                <h1 class="config-title">INofficina Voice Assistant</h1>
+                <h1 class="config-title">Assistente Vocale INofficina</h1>
                 <p class="config-subtitle">Inserisci l'URL del tuo sito WordPress e le credenziali</p>
 
                 <div style="background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; font-size: 0.875rem; color: #4a5568;">
@@ -560,7 +560,7 @@
                             type="url"
                             id="siteUrl"
                             class="form-input"
-                            placeholder="https://tuaoffcina.inofficina.it"
+                            placeholder="https://www.tuaofficina.it"
                             required
                         >
                         <p class="form-hint">L'URL completo del tuo sito WordPress INofficina</p>
@@ -606,7 +606,7 @@
             <header class="app-header">
                 <div class="app-title">
                     <div class="logo-small">IN</div>
-                    <span id="officeName">INofficina</span>
+                    <span id="officeName">Assistente INofficina.it</span>
                 </div>
                 <button class="btn-settings" id="settingsBtn">
                     <svg viewBox="0 0 24 24" fill="currentColor">
@@ -633,7 +633,7 @@
             <div class="chat-container" id="chatContainer">
                 <div class="empty-state" id="emptyState">
                     <h2>Ciao! 👋</h2>
-                    <p>Sono l'assistente vocale di INofficina. Posso aiutarti a gestire gli appuntamenti della tua officina.</p>
+                    <p>Sono l'assistente vocale di INofficina.it. Posso aiutarti a gestire gli appuntamenti della tua officina.</p>
                     <div class="suggestions">
                         <div class="suggestion">💬 "La targa XX333TT è nostra cliente?"</div>
                         <div class="suggestion">📅 "Fissa un tagliando per domani"</div>
@@ -712,7 +712,6 @@
             emptyState: document.getElementById('emptyState'),
             remoteAudio: document.getElementById('remoteAudio'),
             loadingOverlay: document.getElementById('loadingOverlay'),
-            officeName: document.getElementById('officeName')
         };
 
         /* =========================================================
@@ -998,16 +997,6 @@
         function showMainApp() {
             elements.configScreen.style.display = 'none';
             elements.mainApp.classList.add('active');
-
-            // Extract office name from URL
-            try {
-                const url = new URL(appState.siteUrl);
-                const subdomain = url.hostname.split('.')[0];
-                const officeName = subdomain.charAt(0).toUpperCase() + subdomain.slice(1);
-                elements.officeName.textContent = officeName;
-            } catch (e) {
-                elements.officeName.textContent = 'INofficina';
-            }
         }
 
         // Handle configuration form submission
@@ -1027,7 +1016,7 @@
                     throw new Error('URL deve iniziare con http:// o https://');
                 }
             } catch (error) {
-                showError('URL non valido. Inserisci un URL completo (es. https://tuaoffcina.inofficina.it)');
+                showError('URL non valido. Inserisci un URL completo (es. https://www.tuaofficina.it)');
                 return;
             }
 
