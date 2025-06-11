@@ -18,6 +18,7 @@ The app can do everything the AI Commander plugin can do; explore the [plugin do
 - **🔊 Custom Text-to-Speech**: Optionally use custom TTS model instead of OpenAI Realtime audio which often has issues with audio quality
 - **💬 Visual Chat Interface**: Shows conversation history with message bubbles
 - **⚡ Real-time Status Updates**: Visual feedback for connection, recording, processing, and speaking states
+- **🎯 Push-to-Talk Mode**: Optional press-and-hold functionality for precise control over voice input
 
 ### Voice Assistant Capabilities
 
@@ -30,6 +31,7 @@ The voice assistant can execute any tools configured in AI Commander. The app co
 - **🎵 Audio Interruption**: When using a custom TTS model, users can interrupt AI responses by tapping the microphone
 - **📶 Connection Management**: Automatic session handling and reconnection
 - **🔇 Smart Audio Management**: Microphone muting during TTS playback to prevent feedback
+- **🎚️ Dual Input Modes**: Automatic Voice Activity Detection (VAD) with optional Push-to-Talk override
 
 ## Architecture
 
@@ -69,6 +71,23 @@ The mobile web app acts as a client interface that:
 5. **Response Generation**: AI generates text and audio responses
 6. **Audio Playback**: Either OpenAI audio or custom TTS playback
 
+#### Push-to-Talk Mode
+
+The app includes an optional Push-to-Talk (PTT) feature that can be enabled via a configuration constant in the code:
+
+```javascript
+const ENABLE_PRESS_TO_TALK = true; // Set to true to enable PTT mode
+```
+
+When PTT is enabled:
+- **Default behavior**: Voice Activity Detection (VAD) remains active for hands-free operation
+- **Press and hold**: Temporarily disables VAD and records only while the button is pressed
+- **Release to send**: Audio is committed and processed when the button is released
+- **Seamless interruption**: During custom TTS playback, pressing and holding immediately interrupts the AI and starts recording
+- **Mixed mode operation**: Users can switch between hands-free (VAD) and push-to-talk within the same session
+
+This hybrid approach provides flexibility for users who need precise control over when their voice is captured, while maintaining the convenience of hands-free operation when desired.
+
 #### State Management
 
 The app maintains a centralized state object (`appState`) containing:
@@ -77,6 +96,7 @@ The app maintains a centralized state object (`appState`) containing:
 - Message history and current interactions
 - Audio stream and WebRTC connection objects
 - Tool call queue and execution state
+- Push-to-talk state and interruption flags
 
 ## Technical Flow
 
