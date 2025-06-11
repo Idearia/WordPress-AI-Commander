@@ -6,6 +6,7 @@ Control WordPress with natural language or voice, with API support.  Uses OpenAI
 
 - **Conversational assistant**: Command WordPress using your voice, powered by OpenAI Realtime API
 - **Chatbot assistant**: In alternative, issue commands via text, using a user-friendly chat interface
+- **Mobile app**: Voice assistant web app optimized for smartphones and tablets
 - **Conversation history**: Maintains context across multiple commands in a conversation
 - **Extensible tool system**: Add new tools and capabilities to control plugins and themes
 - **REST API**: Allows remote interaction with the chatbot via API
@@ -32,6 +33,19 @@ Run the following commands in the chatbot, one after the other:
 > Add a paragraph to the post discussing the role of NVIDIA in GPU manifacturing
 > Publish the post
 ```
+
+## Mobile App
+
+The plugin includes a mobile-optimized web application that provides hands-free voice interaction with AI Commander. This companion app is designed specifically for smartphones and tablets, allowing you to manage your WordPress site through natural voice commands.
+
+Key features:
+- Real-time voice interaction powered by OpenAI's Realtime API
+- Mobile-optimized touch-friendly interface
+- Secure authentication with WordPress application passwords
+- Visual chat interface with conversation history
+- Support for all AI Commander tools and custom tools
+
+For detailed information about the mobile app, including setup instructions and technical documentation, see the [Mobile App README](mobile/README.md).
 
 ## Available Tools
 
