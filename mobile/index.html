@@ -673,6 +673,9 @@
     </div>
 
     <script>
+        // Configuration Constants
+        const ENABLE_PRESS_TO_TALK = true;  // Set to true to enable press-to-talk mode
+
         // App State
         const appState = {
             siteUrl: localStorage.getItem('inofficina_site_url') || '',
@@ -689,7 +692,11 @@
             currentToolCallId: null,
             isCustomTtsEnabled: false,  // Track if custom TTS is enabled
             sessionModalities: [],       // Store session modalities
-            isPlayingCustomTts: false    // Track if custom TTS audio is currently playing
+            isPlayingCustomTts: false,   // Track if custom TTS audio is currently playing
+            isPressToTalkActive: false,  // Track if button is currently pressed in PTT mode
+            isSessionReady: false,       // Track if session is ready for interactions
+            lastPTTRelease: 0,          // Track last PTT release time to prevent spurious clicks
+            isInterruptingTts: false    // Track if we're in the process of interrupting TTS
         };
 
         // Generate bearer token from stored credentials
@@ -804,9 +811,12 @@
             }
         }
 
-        function interruptCustomTts() {
+        function interruptCustomTts(skipDelay = false) {
             if (appState.isPlayingCustomTts && elements.remoteAudio) {
+                // Set flag FIRST to prevent any race conditions
+                appState.isInterruptingTts = true;
                 appState.isPlayingCustomTts = false;
+                
                 elements.remoteAudio.pause();
                 elements.remoteAudio.currentTime = 0;
 
@@ -816,11 +826,51 @@
                     delete elements.remoteAudio.dataset.objectUrl;
                 }
 
-                // Re-enable microphone and update status
-                unmuteMicrophone();
-                updateStatus('idle');
+                // Clear any pending audio buffer BEFORE re-enabling microphone
+                if (appState.dataChannel && appState.dataChannel.readyState === 'open') {
+                    // Clear the audio buffer
+                    const clearEvent = {
+                        type: 'input_audio_buffer.clear'
+                    };
+                    appState.dataChannel.send(JSON.stringify(clearEvent));
+                    console.log('Cleared audio buffer after TTS interruption');
+                    
+                    // Only modify VAD if not in PTT mode (PTT will handle it)
+                    if (!skipDelay) {
+                        // Instead of disabling VAD, make it very insensitive to prevent false triggers
+                        sendSessionUpdate({
+                            turn_detection: {
+                                type: 'server_vad',
+                                threshold: 0.9,  // Very high threshold
+                                prefix_padding_ms: 300,
+                                silence_duration_ms: 2000  // 2 seconds of silence required
+                            }
+                        });
+                        console.log('Set VAD to very low sensitivity after TTS interruption');
+                    }
+                }
 
-                console.log('Custom TTS interrupted by user');
+                if (skipDelay) {
+                    // When called from PTT, skip delay and don't change status
+                    // PTT handler will manage the state
+                    console.log('Custom TTS interrupted by PTT press');
+                } else {
+                    // Normal interruption - set to idle immediately but delay VAD re-enabling
+                    updateStatus('idle');
+                    unmuteMicrophone();
+                    
+                    // Longer delay before re-enabling VAD to ensure no false triggers
+                    setTimeout(() => {
+                        appState.isInterruptingTts = false;  // Clear flag after delay
+                        // Re-enable VAD only if we're still in idle state
+                        if (MicButtonController.currentState === 'idle') {
+                            enableVAD();
+                            console.log('Re-enabled VAD after TTS interruption');
+                        }
+                    }, 500); // Increased delay to 500ms
+                    
+                    console.log('Custom TTS interrupted by user');
+                }
             }
         }
 
@@ -948,6 +998,41 @@
 
             // Unlock mobile audio once, on the very first user tap on the microphone button
             elements.micButton.addEventListener('click', unlockMobileAudio, { once: true });
+
+            // Press-to-talk event listeners
+            if (ENABLE_PRESS_TO_TALK) {
+                // Mouse events
+                elements.micButton.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    MicButtonController.handlePress();
+                });
+
+                elements.micButton.addEventListener('mouseup', (e) => {
+                    e.preventDefault();
+                    MicButtonController.handleRelease();
+                });
+
+                elements.micButton.addEventListener('mouseleave', (e) => {
+                    // Release if mouse leaves button while pressed
+                    MicButtonController.handleRelease();
+                });
+
+                // Touch events
+                elements.micButton.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    MicButtonController.handlePress();
+                }, { passive: false });
+
+                elements.micButton.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    MicButtonController.handleRelease();
+                }, { passive: false });
+
+                elements.micButton.addEventListener('touchcancel', (e) => {
+                    // Release if touch is cancelled
+                    MicButtonController.handleRelease();
+                });
+            }
 
             // Close settings menu when clicking outside
             document.addEventListener('click', (e) => {
@@ -1096,6 +1181,60 @@
             }, 5000);
         }
 
+        // Press-to-Talk Functions
+        function sendSessionUpdate(update) {
+            if (!appState.dataChannel || appState.dataChannel.readyState !== 'open') {
+                console.warn('Cannot send session update: data channel not open');
+                return;
+            }
+
+            const event = {
+                type: 'session.update',
+                session: update
+            };
+
+            appState.dataChannel.send(JSON.stringify(event));
+            console.log('Sent session update:', update);
+        }
+
+        function disableVAD() {
+            sendSessionUpdate({
+                turn_detection: null
+            });
+        }
+
+        function enableVAD() {
+            sendSessionUpdate({
+                turn_detection: {
+                    type: 'server_vad',
+                    threshold: 0.5,
+                    prefix_padding_ms: 300,
+                    silence_duration_ms: 200
+                }
+            });
+        }
+
+        function commitAudioBuffer() {
+            if (!appState.dataChannel || appState.dataChannel.readyState !== 'open') {
+                console.warn('Cannot commit audio buffer: data channel not open');
+                return;
+            }
+
+            // First commit the audio buffer
+            const commitEvent = {
+                type: 'input_audio_buffer.commit'
+            };
+            appState.dataChannel.send(JSON.stringify(commitEvent));
+            console.log('Committed audio buffer');
+
+            // Then trigger a response generation
+            const responseEvent = {
+                type: 'response.create'
+            };
+            appState.dataChannel.send(JSON.stringify(responseEvent));
+            console.log('Triggered response generation');
+        }
+
         // Microphone Button Controller - Centralizes all mic button logic
         const MicButtonController = {
             // Current state (same as appState.status)
@@ -1103,6 +1242,35 @@
 
             // Centralizes all button click logic
             handleClick() {
+                // In press-to-talk mode, click only starts/stops session
+                if (ENABLE_PRESS_TO_TALK) {
+                    switch (this.currentState) {
+                        case 'disconnected':
+                        case 'error':
+                            startRecordingSession();
+                            break;
+
+                        case 'idle':
+                        case 'recording':
+                        case 'processing':
+                        case 'tool_wait':
+                            stopRecordingSession();
+                            break;
+                            
+                        case 'speaking':
+                            // In PTT mode, clicking during speaking should interrupt TTS, not stop session
+                            if (isCustomTtsEnabled() && appState.isPlayingCustomTts) {
+                                interruptCustomTts();
+                                // Stay in idle mode, ready for next interaction
+                            } else {
+                                stopRecordingSession();
+                            }
+                            break;
+                    }
+                    return;
+                }
+
+                // Normal mode behavior
                 switch (this.currentState) {
                     case 'disconnected':
                     case 'error':
@@ -1131,6 +1299,45 @@
 
                     default:
                         console.warn('Unknown mic button state:', this.currentState);
+                }
+            },
+
+            // Press-to-talk handlers
+            handlePress() {
+                if (!ENABLE_PRESS_TO_TALK || !appState.isSessionReady) return;
+
+                // Can press during idle, recording, or while AI is speaking
+                if (this.currentState === 'idle' || this.currentState === 'recording') {
+                    appState.isPressToTalkActive = true;
+                    disableVAD();
+                    this.setState('recording');
+                } else if (this.currentState === 'speaking') {
+                    // When pressing during TTS playback
+                    if (isCustomTtsEnabled() && appState.isPlayingCustomTts) {
+                        // Interrupt TTS and immediately start recording
+                        interruptCustomTts(true); // true = skip delay
+                        // Don't wait for the timeout in interruptCustomTts, start recording immediately
+                        appState.isPressToTalkActive = true;
+                        disableVAD();
+                        this.setState('recording');
+                        // Ensure microphone is unmuted immediately
+                        unmuteMicrophone();
+                    }
+                }
+            },
+
+            handleRelease() {
+                if (!ENABLE_PRESS_TO_TALK || !appState.isPressToTalkActive) return;
+
+                appState.isPressToTalkActive = false;
+                appState.lastPTTRelease = Date.now(); // Track release time to prevent click events
+
+                if (this.currentState === 'recording') {
+                    // Commit audio buffer and re-enable VAD
+                    commitAudioBuffer();
+                    // Don't manually set to processing - let server events handle state
+                    // The server will send appropriate events after processing the audio
+                    enableVAD();
                 }
             },
 
@@ -1164,7 +1371,11 @@
                         break;
 
                     case 'recording':
-                        elements.statusText.textContent = 'In ascolto...';
+                        if (ENABLE_PRESS_TO_TALK && appState.isPressToTalkActive) {
+                            elements.statusText.textContent = 'Tieni premuto per parlare';
+                        } else {
+                            elements.statusText.textContent = 'In ascolto...';
+                        }
                         elements.statusText.className = 'status-text';
                         elements.micButton.classList.add('recording');
                         elements.micButton.innerHTML = this._getSoundWaveIcon();
@@ -1194,7 +1405,11 @@
                         break;
 
                     case 'idle':
-                        elements.statusText.textContent = 'In attesa...';
+                        if (ENABLE_PRESS_TO_TALK) {
+                            elements.statusText.textContent = 'Premi e tieni premuto per parlare';
+                        } else {
+                            elements.statusText.textContent = 'In attesa...';
+                        }
                         elements.statusText.className = 'status-text';
                         elements.micButton.innerHTML = this._getStopIcon();
                         break;
@@ -1239,7 +1454,14 @@
         };
 
         // Toggle recording (now uses centralized controller)
-        function toggleRecording() {
+        function toggleRecording(e) {
+            // In PTT mode, ignore click events that come from press/release
+            if (ENABLE_PRESS_TO_TALK && e && (e.type === 'click')) {
+                // Check if this click is part of a press-release sequence
+                if (Date.now() - (appState.lastPTTRelease || 0) < 200) {
+                    return; // Ignore click events shortly after PTT release
+                }
+            }
             MicButtonController.handleClick();
         }
 
@@ -1325,6 +1547,7 @@
                 appState.dataChannel = dc;
 
                 dc.onopen = () => {
+                    appState.isSessionReady = true;
                     updateStatus('recording');
                     showLoading(false);
                 };
@@ -1401,8 +1624,40 @@
                         updateStatus('processing');
                         break;
 
+                    case 'input_audio_buffer.committed':
+                        // When audio buffer is manually committed
+                        // Skip if we're interrupting TTS to avoid processing residual audio
+                        if (!appState.isInterruptingTts) {
+                            // Always transition to processing when buffer is committed
+                            updateStatus('processing');
+                        } else {
+                            console.log('Ignored buffer commit during TTS interruption');
+                        }
+                        break;
+
                     case 'conversation.item.input_audio_transcription.completed':
-                        addMessage('user', data.transcript);
+                        if (data.transcript) {
+                            addMessage('user', data.transcript);
+                        }
+                        break;
+
+                    case 'conversation.item.input_audio_transcription.failed':
+                        // Handle case where transcription failed (e.g., silence)
+                        console.log('Transcription failed or no speech detected');
+                        updateStatus('idle');
+                        break;
+
+                    case 'conversation.item.created':
+                        // Check if this is an empty input audio item (silence)
+                        if (data.item?.type === 'message' && data.item?.role === 'user' && !data.item?.content?.[0]?.transcript) {
+                            console.log('Empty audio input detected');
+                            // Give it a moment to see if a response is coming
+                            setTimeout(() => {
+                                if (MicButtonController.currentState === 'processing') {
+                                    updateStatus('idle');
+                                }
+                            }, 1000);
+                        }
                         break;
 
                     case 'response.created':
@@ -1461,7 +1716,11 @@
 
                         if (appState.toolCallQueue.length > 0) {
                             processNextToolCall();
+                        } else if (!isCustomTtsEnabled() || !responseText) {
+                            // If no custom TTS or no text to speak, transition to idle
+                            updateStatus('idle');
                         }
+                        // If custom TTS is enabled and there's text, playCustomTtsAudio will handle the transition
                         break;
 
                     case 'output_audio_buffer.stopped':
@@ -1470,9 +1729,22 @@
                         }
                         break;
 
+                    case 'response.cancelled':
+                        // Response was cancelled (e.g., after TTS interruption)
+                        console.log('Response cancelled');
+                        hideTypingIndicator();
+                        appState.currentTranscript = '';
+                        updateStatus('idle');
+                        break;
+
                     case 'error':
-                        console.error('API Error:', data);
-                        handleError(data.message || 'Errore sconosciuto');
+                        // Ignore buffer too small errors during TTS interruption
+                        if (data.error?.code === 'input_audio_buffer_commit_empty' && appState.isInterruptingTts) {
+                            console.log('Ignored buffer too small error during TTS interruption');
+                        } else {
+                            console.error('API Error:', data);
+                            handleError(data.message || 'Errore sconosciuto');
+                        }
                         break;
                 }
             } catch (error) {
@@ -1564,8 +1836,10 @@
 
         // Close session
         function closeSession() {
-            // Reset custom TTS flag
+            // Reset flags
             appState.isPlayingCustomTts = false;
+            appState.isPressToTalkActive = false;
+            appState.isSessionReady = false;
 
             if (appState.localStream) {
                 appState.localStream.getTracks().forEach(track => track.stop());
