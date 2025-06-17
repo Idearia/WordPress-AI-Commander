@@ -27,9 +27,13 @@ export class SessionManager {
 
   async startSession(): Promise<void> {
     try {
-      this.stateManager.updateStatus('connecting');
-      this.stateManager.clearMessages();
-      this.stateManager.setState({ toolCallQueue: [], currentToolCallId: null });
+      // Batch state updates to avoid multiple notifications
+      this.stateManager.setState({
+        status: 'connecting',
+        messages: [],
+        toolCallQueue: [],
+        currentToolCallId: null
+      });
 
       // Get session token from WordPress
       const sessionData = await this.apiService.createSession();
