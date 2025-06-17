@@ -11,7 +11,7 @@ export class App {
   private uiController: UIController;
   private micController: MicButtonController;
   private sessionManager: SessionManager | null = null;
-  // @ts-ignore - Used in handleConfigSubmit
+  // @ts-expect-error - Used in handleConfigSubmit
   private apiService: ApiService | null = null;
   private audioService: AudioService | null = null;
   private lastMessageCount = 0;
@@ -25,6 +25,8 @@ export class App {
       onStartRecording: () => this.startRecordingSession(),
       onStopRecording: () => this.stopRecordingSession(),
       onInterruptTts: () => this.interruptTts(),
+      onPressAndHoldStart: () => this.handlePressAndHoldStart(),
+      onPressAndHoldEnd: () => this.handlePressAndHoldEnd(),
     });
   }
 
@@ -40,7 +42,7 @@ export class App {
     if (state.siteUrl && this.generateBearerToken()) {
       this.elements.siteUrlInput.value = state.siteUrl;
       this.elements.usernameInput.value = state.username;
-      
+
       // Just show the main app without testing connection
       // Services will be initialized on first mic button click
       this.uiController.showMainApp();
@@ -247,13 +249,31 @@ export class App {
     }
   }
 
+  private handlePressAndHoldStart(): void {
+    console.log('[App] handlePressAndHoldStart called, sessionManager exists:', !!this.sessionManager);
+    if (this.sessionManager) {
+      this.sessionManager.setVadEnabled(false);
+    } else {
+      console.log('[App] No sessionManager available');
+    }
+  }
+
+  private handlePressAndHoldEnd(): void {
+    console.log('[App] handlePressAndHoldEnd called, sessionManager exists:', !!this.sessionManager);
+    if (this.sessionManager) {
+      this.sessionManager.setVadEnabled(true);
+    } else {
+      console.log('[App] No sessionManager available');
+    }
+  }
+
   private async initializeServices(siteUrl: string, bearerToken: string): Promise<void> {
     const apiService = new ApiService(siteUrl, bearerToken);
-    
+
     // Only test connection when actually needed
     // This will throw if credentials are invalid
     await apiService.testConnection();
-    
+
     this.apiService = apiService;
     this.audioService = new AudioService(apiService);
     this.sessionManager = new SessionManager(

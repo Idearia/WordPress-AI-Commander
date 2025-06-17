@@ -116,6 +116,26 @@ export class WebRTCService {
     }
   }
 
+  updateTurnDetection(mode: 'server_vad' | 'none'): void {
+    console.log(`[WebRTCService] updateTurnDetection called with mode:`, mode);
+    const event: RealtimeEvent = {
+      type: 'session.update',
+      session: {
+        turn_detection:
+          mode === 'server_vad'
+            ? {
+                type: 'server_vad',
+                threshold: 0.5,
+                prefix_padding_ms: 300,
+                silence_duration_ms: 200,
+              }
+            : null,
+      },
+    };
+    console.log('[WebRTCService] Sending session.update event:', event);
+    this.sendEvent(event);
+  }
+
   closeSession(): void {
     if (this.localStream) {
       this.localStream.getTracks().forEach((track) => track.stop());

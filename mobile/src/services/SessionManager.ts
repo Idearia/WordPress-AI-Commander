@@ -32,7 +32,7 @@ export class SessionManager {
         status: 'connecting',
         messages: [],
         toolCallQueue: [],
-        currentToolCallId: null
+        currentToolCallId: null,
       });
 
       // Get session token from WordPress
@@ -81,6 +81,30 @@ export class SessionManager {
     this.stateManager.updateTranscript('');
   }
 
+  setVadEnabled(enabled: boolean): void {
+    console.log(`[SessionManager] setVadEnabled called with:`, enabled);
+    try {
+      this.webrtcService.updateTurnDetection(enabled ? 'server_vad' : 'none');
+      console.log(`[SessionManager] VAD ${enabled ? 'enabled' : 'disabled'} - session update sent`);
+      
+      // When re-enabling VAD after press-to-talk, commit the audio buffer and create response
+      if (enabled) {
+        console.log('[SessionManager] Committing audio buffer after press-to-talk');
+        this.webrtcService.sendEvent({
+          type: 'input_audio_buffer.commit'
+        });
+        
+        // Create a response after committing the buffer
+        console.log('[SessionManager] Creating response after press-to-talk');
+        this.webrtcService.sendEvent({
+          type: 'response.create'
+        });
+      }
+    } catch (error) {
+      console.error('[SessionManager] Failed to update VAD:', error);
+    }
+  }
+
   private async handleServerEvent(event: MessageEvent): Promise<void> {
     try {
       const data: RealtimeEvent = JSON.parse(event.data);
@@ -99,7 +123,10 @@ export class SessionManager {
           break;
 
         case 'conversation.item.input_audio_transcription.completed':
-          this.stateManager.addMessage({ type: 'user', content: (data as TranscriptionEvent).transcript });
+          this.stateManager.addMessage({
+            type: 'user',
+            content: (data as TranscriptionEvent).transcript,
+          });
           break;
 
         case 'response.created':
@@ -118,7 +145,10 @@ export class SessionManager {
           break;
 
         case 'response.function_call_arguments.delta':
-          this.stateManager.updateStatus('tool_wait');
+          // Only update to tool_wait if not already in that state
+          if (state.status !== 'tool_wait') {
+            this.stateManager.updateStatus('tool_wait');
+          }
           break;
 
         case 'response.done':
@@ -166,7 +196,12 @@ export class SessionManager {
     // Handle function calls
     if (data.response.output) {
       data.response.output.forEach((outputItem) => {
-        if (outputItem.type === 'function_call' && outputItem.call_id && outputItem.name && outputItem.arguments) {
+        if (
+          outputItem.type === 'function_call' &&
+          outputItem.call_id &&
+          outputItem.name &&
+          outputItem.arguments
+        ) {
           this.stateManager.queueToolCall({
             name: outputItem.name,
             arguments: outputItem.arguments,
@@ -201,7 +236,7 @@ export class SessionManager {
           if (state.status !== 'disconnected') {
             this.stateManager.setPlayingCustomTts(false);
             this.webrtcService.unmuteMicrophone();
-            this.stateManager.updateStatus('idle');
+            this.stateManager.updateStatus('recording');
           }
         }
       );
@@ -214,8 +249,7 @@ export class SessionManager {
   }
 
   private async processToolCall(toolCall: ToolCall): Promise<void> {
-    this.stateManager.updateStatus('tool_wait');
-
+    // Status is already set to 'tool_wait' when receiving function_call_arguments.delta
     try {
       const result = await this.apiService.executeTool({
         tool_name: toolCall.name,
