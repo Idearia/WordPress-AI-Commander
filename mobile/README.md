@@ -1,181 +1,187 @@
-# Voice Assistant Mobile Web App
+# AI Commander Mobile App
 
-A mobile-optimized web application that provides hands-free voice interaction with the AI Commander WordPress plugin. Designed specifically for smartphones and tablets, this web app allows users to manage their WordPress sites using natural voice commands through any tools configured in the AI Commander plugin.
+This is the TypeScript-based mobile voice assistant for AI Commander WordPress plugin.
 
-## Overview
+## Development Setup
 
-The Voice Assistant Mobile Web App is a companion application to the AI Commander WordPress plugin, specifically designed for mobile devices. It enables users to interact with their WordPress-powered systems through voice commands, making it ideal for hands-free operation in environments where typing is impractical.
+1. Install dependencies:
+```bash
+npm install
+```
 
-The app can do everything the AI Commander plugin can do; explore the [plugin documentation](../README.md) for more details.
+2. Start development server:
+```bash
+npm run dev
+```
 
-## Features
+3. Build for production:
+```bash
+npm run build
+```
 
-### Core Features
+## Project Structure
 
-- **🎙️ Real-time Voice Interaction**: Powered by OpenAI's Realtime API for natural, conversational voice commands
-- **📱 Mobile-Optimized Interface**: Designed specifically for smartphones and tablets with touch-friendly controls
-- **🔐 Secure Authentication**: Uses WordPress application passwords for secure API access
-- **🔊 Custom Text-to-Speech**: Optionally use custom TTS model instead of OpenAI Realtime audio which often has issues with audio quality
-- **💬 Visual Chat Interface**: Shows conversation history with message bubbles
-- **⚡ Real-time Status Updates**: Visual feedback for connection, recording, processing, and speaking states
+```
+mobile/
+├── src/
+│   ├── components/     # UI components
+│   ├── services/       # Business logic services
+│   ├── types/          # TypeScript type definitions
+│   ├── utils/          # Utility functions and constants
+│   ├── styles/         # CSS styles
+│   ├── main.ts         # Application entry point
+│   └── index.html      # HTML template
+├── public/             # Static assets (manifest, icons)
+├── dist/               # Build output
+└── package.json        # Dependencies and scripts
+```
 
-### Voice Assistant Capabilities
+## Available Scripts
 
-The voice assistant can execute any tools configured in AI Commander. The app comes with a set of built-in tools, but plugin developers can add any custom tools they want using the [`ToolRegistry`](../includes/ToolRegistry.php) class.
+- `npm run dev` - Start Vite development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run type-check` - Run TypeScript type checking
+- `npm run lint` - Run ESLint
+- `npm run lint:fix` - Fix ESLint issues
+- `npm run format` - Format code with Prettier
+- `npm run format:check` - Check code formatting
 
-### Technical Features
+## Key Features
 
-- **🔗 WebRTC Integration**: Real-time audio streaming with OpenAI
-- **🛠️ Tool Call Processing**: Seamless execution of WordPress actions via voice commands
-- **🎵 Audio Interruption**: When using a custom TTS model, users can interrupt AI responses by tapping the microphone
-- **📶 Connection Management**: Automatic session handling and reconnection
-- **🔇 Smart Audio Management**: Microphone muting during TTS playback to prevent feedback
+- **TypeScript** for type safety
+- **Vite** for fast development and optimized builds
+- **ESLint & Prettier** for code quality
+- **Modular architecture** for maintainability
+- **PWA support** for offline capabilities
 
 ## Architecture
 
-### High-Level Architecture
+The app is split into several modules:
 
-```
-[Mobile Web App] ←→ [WordPress + AI Commander] ←→ [OpenAI Realtime API]
-                           ↕
-                    [WordPress Database]
-                           ↕
-                    [ToolRegistry + Custom Tools]
-```
+### Services
+- **StateManager**: Centralized state management with observers
+- **ApiService**: WordPress REST API client with authentication
+- **AudioService**: Mobile audio unlocking and custom TTS playback
+- **WebRTCService**: OpenAI Realtime API WebRTC connection handling
+- **SessionManager**: Orchestrates WebRTC sessions and tool execution
 
-The mobile web app acts as a client interface that:
-1. Authenticates with WordPress using application passwords
-2. Creates sessions with OpenAI Realtime API via WordPress backend
-3. Establishes WebRTC connections for real-time audio communication
-4. Processes tool calls through WordPress REST API endpoints
-5. Provides fallback TTS synthesis when needed
+### Components
+- **App**: Main application controller and initialization
+- **UIController**: DOM manipulation and UI state updates
+- **MicButtonController**: Microphone button state machine
 
-### Component Architecture
+### Key Technologies
+- **WebRTC**: Real-time audio streaming with OpenAI
+- **Web Audio API**: Mobile audio unlocking for iOS/Android
+- **MediaStream API**: Microphone access and control
+- **Service Worker**: PWA offline support (via manifest)
 
-#### Frontend Components
+## Voice Interaction Flow
 
-- **Configuration Screen** (`configScreen`): Handles WordPress site connection setup
-- **Main Application** (`mainApp`): Primary voice interface with chat and controls
-- **Chat Container** (`chatContainer`): Message display and conversation history
-- **Control Panel** (`controlPanel`): Voice recording button and status display
-- **Settings Management**: Configuration changes and logout functionality
-
-#### Audio Processing Pipeline
-
-1. **Audio Capture**: Browser MediaDevices API captures microphone input
-2. **WebRTC Streaming**: Real-time audio sent to OpenAI via WebRTC
-3. **Speech Recognition**: OpenAI transcribes speech to text
-4. **Command Processing**: AI processes commands and executes tool calls
-5. **Response Generation**: AI generates text and audio responses
-6. **Audio Playback**: Either OpenAI audio or custom TTS playback
-
-#### State Management
-
-The app maintains a centralized state object (`appState`) containing:
-- Connection credentials and tokens
-- Session status and modalities
-- Message history and current interactions
-- Audio stream and WebRTC connection objects
-- Tool call queue and execution state
-
-## Technical Flow
-
-### Session Initialization
-
-1. **Configuration**: User enters WordPress site URL, username, and application password
-2. **Authentication Test**: App validates credentials against WordPress REST API
-3. **Credential Storage**: Valid credentials stored in localStorage for future sessions
-4. **Session Creation**: When voice interaction starts, app requests session token from WordPress
-5. **WebRTC Setup**: Establishes peer connection with OpenAI using session token
-
-### Voice Interaction Flow (open with Mermaid)
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant MobileApp
-    participant WordPress
-    participant OpenAI
-
-    User->>MobileApp: Tap microphone button
-    MobileApp->>WordPress: POST /realtime/session
-    WordPress->>OpenAI: Create session with tools
-    OpenAI-->>WordPress: Session token
-    WordPress-->>MobileApp: Session configuration
-    MobileApp->>OpenAI: WebRTC connection
-    User->>MobileApp: Speak command
-    MobileApp->>OpenAI: Audio stream
-    OpenAI-->>MobileApp: Transcription & response
-
-    alt Tool call required
-        OpenAI->>MobileApp: Function call data
-        MobileApp->>WordPress: POST /realtime/tool
-        WordPress-->>MobileApp: Tool execution result
-        MobileApp->>OpenAI: Function result
-        OpenAI-->>MobileApp: Final response
-    end
-
-    alt Custom TTS enabled
-        MobileApp->>WordPress: POST /read-text
-        WordPress-->>MobileApp: Audio data
-        MobileApp->>User: Play audio
-    else OpenAI Audio
-        OpenAI-->>MobileApp: Audio stream
-        MobileApp->>User: Play audio
-    end
-```
-
-### Tool Call Processing
-
-1. **Function Detection**: OpenAI identifies when a tool call is needed based on ToolRegistry configuration
-2. **Queue Management**: Tool calls are queued for sequential processing
-3. **Execution**: Each tool call is sent to WordPress `/realtime/tool` endpoint
-4. **Tool Resolution**: WordPress ToolRegistry resolves and executes the appropriate tool
-5. **Result Handling**: Tool results are formatted and sent back to OpenAI
-6. **Response Generation**: OpenAI uses tool results to generate final response
-
-### Audio Management
-
-#### Standard Audio Flow (OpenAI Realtime)
-- Audio streams directly through WebRTC
-- Real-time processing with immediate feedback
-- Built-in echo cancellation and noise reduction
-
-#### Custom TTS Flow (Fallback)
-- Text responses sent to WordPress TTS endpoint
-- Audio file generated server-side
-- Microphone muted during playback to prevent feedback
-- Playback can be interrupted by user interaction
+1. **Authentication**: User enters WordPress credentials
+2. **Session Creation**: App requests session token from WordPress
+3. **WebRTC Connection**: Establishes peer connection with OpenAI
+4. **Audio Streaming**: Real-time bidirectional audio
+5. **Tool Execution**: Processes commands through WordPress backend
+6. **Response Handling**: Either OpenAI audio or custom TTS
 
 ## API Integration
 
 ### WordPress REST API Endpoints
 
-The mobile app interacts with these AI Commander endpoints:
-
-- **`POST /wp-json/ai-commander/v1/realtime/session`**: Create OpenAI session with registered tools
-- **`POST /wp-json/ai-commander/v1/realtime/tool`**: Execute tool calls via ToolRegistry
-- **`POST /wp-json/ai-commander/v1/read-text`**: Generate TTS audio
-- **`GET /wp-json/wp/v2/users/me`**: Validate authentication
+- `POST /wp-json/ai-commander/v1/realtime/session` - Create OpenAI session
+- `POST /wp-json/ai-commander/v1/realtime/tool` - Execute tool calls
+- `POST /wp-json/ai-commander/v1/read-text` - Generate TTS audio
+- `GET /wp-json/wp/v2/users/me` - Validate authentication
 
 ### Authentication
 
 Uses WordPress Application Passwords with Basic Authentication:
-```javascript
+```typescript
 Authorization: Basic base64(username:app_password)
 ```
 
-## Installation and Setup
+## Features
 
-### Prerequisites
-1. WordPress site with AI Commander plugin installed and configured
-2. Valid OpenAI API key configured in AI Commander settings
-3. WordPress user account with appropriate permissions
-4. Generated WordPress application password
+### Core Features
+- 🎙️ **Real-time Voice Interaction** - OpenAI Realtime API integration
+- 📱 **Mobile-Optimized** - Touch-friendly interface for smartphones
+- 🔐 **Secure Authentication** - WordPress application passwords
+- 🔊 **Custom TTS** - Fallback when OpenAI audio is disabled
+- 💬 **Visual Chat** - Message history with typing indicators
+- ⚡ **Real-time Status** - Visual feedback for all states
 
-### Deployment
-1. Upload the mobile web app files to your web server
-2. Access the app URL from a mobile device
-3. Configure with your WordPress site credentials
-4. Test voice functionality and tool execution
+### Technical Features
+- 🔄 **Lazy Initialization** - Services initialized on demand
+- 🎵 **Audio Interruption** - Stop TTS playback with button tap
+- 📶 **Connection Recovery** - Automatic reconnection handling
+- 🔇 **Smart Audio** - Microphone muting during TTS playback
+- 📱 **PWA Ready** - Installable as standalone app
 
+## State Management
+
+The app uses a centralized `StateManager` with observer pattern:
+
+```typescript
+interface AppState {
+  siteUrl: string;
+  username: string;
+  bearerToken: string | null;
+  sessionToken: string | null;
+  status: AppStatus;
+  messages: Message[];
+  // ... more state
+}
+```
+
+Components subscribe to state changes for reactive updates.
+
+## Building for Production
+
+The production build outputs to the `dist/` directory:
+
+```bash
+npm run build
+```
+
+Output structure:
+```
+dist/
+├── index.html          # Main HTML file
+├── manifest.json       # PWA manifest
+└── assets/
+    ├── main-*.css      # Minified styles
+    └── main-*.js       # Minified JavaScript
+```
+
+## Deployment
+
+1. Build the app: `npm run build`
+2. Upload contents of `dist/` to your web server
+3. Ensure CORS headers are configured for your WordPress site
+4. Access the app from a mobile device
+
+## Development Notes
+
+### Mobile Audio
+The app includes special handling for mobile browsers:
+- Audio context unlocking on first user interaction
+- Muted play/pause cycle for iOS Safari compatibility
+- WebRTC audio track management
+
+### CORS Configuration
+The WordPress plugin includes CORS headers for `/ai-commander/v1/` endpoints.
+Special handling for the `/read-text` endpoint which returns binary audio data.
+
+### Error Handling
+- Connection failures show user-friendly messages
+- Session expiry redirects to login
+- Tool execution errors are passed to OpenAI for response
+
+## Contributing
+
+1. Follow the existing TypeScript patterns
+2. Run linting before committing: `npm run lint`
+3. Ensure types are properly defined
+4. Test on actual mobile devices

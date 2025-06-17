@@ -9,6 +9,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Generate WordPress readme**: `composer readme`
 - **Build distribution package**: `composer build`
 
+### Mobile App Development
+- **Install dependencies**: `cd mobile && npm install`
+- **Development server**: `cd mobile && npm run dev`
+- **Build for production**: `cd mobile && npm run build`
+- **Lint code**: `cd mobile && npm run lint`
+- **Format code**: `cd mobile && npm run format`
+
 ### Testing
 - **Static analysis**: `composer phpstan` (PHPStan level 3 with WordPress rules)
 
@@ -44,14 +51,47 @@ Two custom tables created on activation:
 ### Frontend Components
 - **Chat interface**: React component in `assets/js/react-chat-interface.js`
 - **Realtime interface**: React component in `assets/js/react-realtime-interface.js`
-- **Mobile app**: Standalone PWA in `mobile/index.html`
+- **Mobile app**: TypeScript PWA in `mobile/` directory
+  - Built with Vite and TypeScript
+  - Entry point: `mobile/src/main.ts`
+  - Production build: `mobile/dist/`
 
 ### API Endpoints
 - **AJAX handlers**: `wp-admin/admin-ajax.php` actions prefixed with `ai_commander_`
 - **REST API**: Custom endpoints under `/wp-json/ai-commander/v1/`
+  - `/command`: Process text commands
+  - `/transcribe`: Transcribe audio to text
+  - `/voice-command`: Process voice commands
+  - `/conversations`: Get user conversations
+  - `/read-text`: Text-to-speech (returns MP3 audio)
+  - `/realtime/session`: Create OpenAI Realtime session
+  - `/realtime/tool`: Execute tools for Realtime API
+
+### Mobile App Architecture
+The mobile app (`mobile/` directory) is a TypeScript-based PWA:
+
+**Services**:
+- `ApiService`: WordPress REST API client
+- `AudioService`: Mobile audio unlocking and custom TTS playback
+- `WebRTCService`: OpenAI Realtime API WebRTC handling
+- `SessionManager`: Orchestrates WebRTC sessions and tool execution
+- `StateManager`: Centralized state management with observers
+
+**Components**:
+- `App`: Main application controller
+- `UIController`: DOM manipulation and UI updates
+- `MicButtonController`: Microphone button state machine
+
+**Key Features**:
+- WebRTC connection to OpenAI Realtime API
+- Custom TTS when audio modality is disabled
+- Mobile audio unlocking for iOS/Android
+- Tool execution through WordPress backend
+- Lazy service initialization for better performance
 
 ### Security
 - WordPress nonce verification for AJAX requests
 - Capability checks for tool execution (default: `edit_posts`)
 - Application password authentication for REST API
 - User-specific conversation isolation
+- CORS headers restricted to `/ai-commander/v1/` endpoints only
