@@ -39,6 +39,42 @@ class RestApi
 
         // Register REST API routes
         add_action('rest_api_init', array($this, 'register_routes'));
+
+        // Add CORS headers only for our endpoints
+        add_filter('rest_pre_serve_request', array($this, 'add_cors_headers'), 10, 4);
+    }
+
+    /**
+     * Add CORS headers to REST API responses.
+     * Only applies to ai-commander/v1 endpoints.
+     *
+     * @param mixed $served Whether the request has already been served.
+     * @param \WP_HTTP_Response $result Result to send to the client.
+     * @param \WP_REST_Request $request Request used to generate the response.
+     * @param \WP_REST_Server $server Server instance.
+     * @return mixed
+     */
+    public function add_cors_headers($served, $result, $request, $server)
+    {
+        // Only add CORS headers for our plugin's endpoints
+        $route = $request->get_route();
+        error_log('Route: ' . $route);
+        if (strpos($route, '/ai-commander/v1/') !== 0) {
+            return $served;
+        }
+
+        // Add CORS headers
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+        header('Access-Control-Allow-Headers: Authorization, Content-Type');
+
+        // Handle preflight requests
+        if ('OPTIONS' === $request->get_method()) {
+            status_header(200);
+            exit();
+        }
+
+        return $served;
     }
 
     /**
@@ -396,6 +432,13 @@ class RestApi
                 array('status' => 500)
             );
         }
+
+        // Below we'll bypass normal REST API flow, so we have to manually
+        // add CORS headers, because we cannot rely on the rest_pre_serve_request
+        // hook.
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: POST, OPTIONS');
+        header('Access-Control-Allow-Headers: Authorization, Content-Type');
 
         // Send binary directly bypassing WP's JSON encoding
         // which corrupts binary data

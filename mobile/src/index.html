@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1e3c72">
+    <title>INofficina.it Voice Assistant</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Styles will be injected by Vite -->
+    <link rel="stylesheet" href="./styles/main.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Configuration Screen -->
+        <div id="configScreen" class="config-screen">
+            <div class="config-card">
+                <div class="config-logo">IN</div>
+                <h1 class="config-title">Assistente Vocale INofficina</h1>
+                <p class="config-subtitle">Inserisci l'URL del tuo sito WordPress e le credenziali</p>
+
+                <div style="background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; font-size: 0.875rem; color: #4a5568;">
+                    <strong>Nota:</strong> Per la password, utilizza una "Password dell'applicazione" generata dal tuo profilo WordPress, non la password normale.
+                    <a href="https://wordpress.org/documentation/article/application-passwords/" target="_blank" style="color: #667eea; text-decoration: underline;">Come generare una password app →</a>
+                </div>
+
+                <form id="configForm">
+                    <div class="form-group">
+                        <label class="form-label" for="siteUrl">URL del sito</label>
+                        <input
+                            type="url"
+                            id="siteUrl"
+                            class="form-input"
+                            placeholder="https://www.tuaofficina.it"
+                            required
+                        >
+                        <p class="form-hint">L'URL completo del tuo sito WordPress INofficina</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="username">Nome utente</label>
+                        <input
+                            type="text"
+                            id="username"
+                            class="form-input"
+                            placeholder="mario.rossi"
+                            autocomplete="username"
+                            required
+                        >
+                        <p class="form-hint">Il tuo nome utente WordPress</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="appPassword">Password dell'app</label>
+                        <input
+                            type="password"
+                            id="appPassword"
+                            class="form-input"
+                            placeholder="xxxx xxxx xxxx xxxx"
+                            autocomplete="current-password"
+                            required
+                        >
+                        <p class="form-hint">La password dell'applicazione generata in WordPress (non la password normale)</p>
+                    </div>
+
+                    <div id="configError" class="form-error" style="display: none;"></div>
+
+                    <button type="submit" class="btn-primary" id="connectBtn">
+                        Connetti
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Main App -->
+        <div id="mainApp" class="app-container">
+            <header class="app-header">
+                <div class="app-title">
+                    <div class="logo-small">IN</div>
+                    <span id="officeName">Assistente INofficina.it</span>
+                </div>
+                <button class="btn-settings" id="settingsBtn">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 15.5A3.5 3.5 0 0 1 8.5 12A3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5a3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97c0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1c0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66Z"/>
+                    </svg>
+                </button>
+
+                <div class="settings-menu" id="settingsMenu">
+                    <div class="settings-item" id="changeConfigBtn">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                        </svg>
+                        <span>Cambia configurazione</span>
+                    </div>
+                    <div class="settings-item" id="logoutBtn">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M16 17v-3H9v-4h7V7l5 5-5 5M14 2a2 2 0 0 1 2 2v2h-2V4H5v16h9v-2h2v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9z"/>
+                        </svg>
+                        <span>Disconnetti</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="chat-container" id="chatContainer">
+                <div class="empty-state" id="emptyState">
+                    <h2>Ciao! 👋</h2>
+                    <p>Sono l'assistente vocale di INofficina.it. Posso aiutarti a gestire gli appuntamenti della tua officina.</p>
+                    <div class="suggestions">
+                        <div class="suggestion">💬 "La targa XX333TT è nostra cliente?"</div>
+                        <div class="suggestion">📅 "Fissa un tagliando per domani"</div>
+                        <div class="suggestion">🔍 "Mostra gli appuntamenti di oggi"</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <button class="mic-button" id="micButton">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                    </svg>
+                </button>
+                <div class="status-text" id="statusText">Premi per iniziare</div>
+            </div>
+
+            <audio id="remoteAudio" style="display: none;" autoplay playsinline></audio>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+    
+    <!-- TypeScript entry point -->
+    <script type="module" src="./main.ts"></script>
+</body>
+</html>
