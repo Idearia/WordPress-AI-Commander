@@ -110,10 +110,23 @@ export class App {
     }
 
     // Handle messages
-    if (state.messages.length > this.lastMessageCount) {
-      const newMessages = state.messages.slice(this.lastMessageCount);
-      newMessages.forEach((msg) => this.uiController.addMessage(msg));
-      this.lastMessageCount = state.messages.length;
+    if (state.messages.length !== this.lastMessageCount) {
+      if (state.messages.length === 0) {
+        // Messages were cleared
+        this.uiController.clearMessages();
+        this.lastMessageCount = 0;
+      } else if (state.messages.length > this.lastMessageCount) {
+        // New messages were added
+        const newMessages = state.messages.slice(this.lastMessageCount);
+        newMessages.forEach((msg) => this.uiController.addMessage(msg));
+        this.lastMessageCount = state.messages.length;
+      } else {
+        // Messages were removed (shouldn't happen normally)
+        // Rebuild the entire message list
+        this.uiController.clearMessages();
+        state.messages.forEach((msg) => this.uiController.addMessage(msg));
+        this.lastMessageCount = state.messages.length;
+      }
     }
   }
 
@@ -209,7 +222,7 @@ export class App {
       }
     }
 
-    this.uiController.clearMessages();
+    // Show loading while starting session
     this.uiController.showLoading(true);
 
     try {
