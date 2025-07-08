@@ -12,9 +12,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Mobile App Development
 - **Install dependencies**: `cd mobile && npm install`
 - **Development server**: `cd mobile && npm run dev`
-- **Build for production**: `cd mobile && npm run build`
+- **Build for production**: `cd mobile && npm run build` (outputs to `mobile/app/`)
 - **Lint code**: `cd mobile && npm run lint`
 - **Format code**: `cd mobile && npm run format`
+- **Access URL**: `mobile/index.html` (redirects to `mobile/app/index.html`)
 
 ### Testing
 - **Static analysis**: `composer phpstan` (PHPStan level 3 with WordPress rules)
@@ -54,7 +55,8 @@ Two custom tables created on activation:
 - **Mobile app**: TypeScript PWA in `mobile/` directory
   - Built with Vite and TypeScript
   - Entry point: `mobile/src/main.ts`
-  - Production build: `mobile/dist/`
+  - Production build: `mobile/app/` (committed to repo)
+  - User access: `mobile/index.html` (redirects to app)
 
 ### API Endpoints
 - **AJAX handlers**: `wp-admin/admin-ajax.php` actions prefixed with `ai_commander_`

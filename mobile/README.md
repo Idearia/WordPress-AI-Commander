@@ -32,7 +32,8 @@ mobile/
 │   ├── main.ts         # Application entry point
 │   └── index.html      # HTML template
 ├── public/             # Static assets (manifest, icons)
-├── dist/               # Build output
+├── app/                # Production build (committed to repo)
+├── index.html          # Redirect to app/index.html
 └── package.json        # Dependencies and scripts
 ```
 
@@ -139,7 +140,7 @@ Components subscribe to state changes for reactive updates.
 
 ## Building for Production
 
-The production build outputs to the `dist/` directory:
+The production build outputs to the `app/` directory:
 
 ```bash
 npm run build
@@ -147,7 +148,7 @@ npm run build
 
 Output structure:
 ```
-dist/
+app/
 ├── index.html          # Main HTML file
 ├── manifest.json       # PWA manifest
 └── assets/
@@ -157,10 +158,16 @@ dist/
 
 ## Deployment
 
-1. Build the app: `npm run build`
-2. Upload contents of `dist/` to your web server
-3. Ensure CORS headers are configured for your WordPress site
-4. Access the app from a mobile device
+The mobile app is pre-built and committed to the repository, so no build step is required on production servers:
+
+1. The app is accessible at `mobile/index.html` (redirects to `mobile/app/index.html`)
+2. No Node.js or npm required on production server
+3. CORS headers are automatically configured by the WordPress plugin
+
+For developers who want to rebuild the app:
+1. Make your changes in the `src/` directory
+2. Run `npm run build` to build the app
+3. Commit the changes including the `app/` directory
 
 ## Development Notes
 
