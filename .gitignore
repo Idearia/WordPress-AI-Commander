@@ -2,3 +2,4 @@ vendor
 .DS_Store
 *.zip
 prompts
+mobile/dist
