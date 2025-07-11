@@ -6,6 +6,7 @@ export class AudioService {
   private globalAudioContext: AudioContext | null = null;
   private isPlayingCustomTts = false;
   private currentAudioElement: HTMLAudioElement | null = null;
+  private currentAbortController: AbortController | null = null;
 
   constructor(private apiService: ApiService) {}
 
@@ -77,7 +78,11 @@ export class AudioService {
       if (onStart) onStart();
 
       console.log('[AudioService] Fetching TTS audio from API...');
-      const audioBlob = await this.apiService.getTextToSpeech(text);
+      
+      // Create a new AbortController for this request
+      this.currentAbortController = new AbortController();
+      
+      const audioBlob = await this.apiService.getTextToSpeech(text, this.currentAbortController.signal);
       console.log('[AudioService] Received audio blob, size:', audioBlob.size);
 
       // Check if playback was interrupted
@@ -130,9 +135,15 @@ export class AudioService {
       URL.revokeObjectURL(objectUrl);
       delete audioElement.dataset.objectUrl;
     } catch (err) {
-      console.error('Error during custom TTS playback:', err);
-      throw new Error(ERROR_MESSAGES.TTS_FAILED);
+      // Don't throw error if it was aborted
+      if (err instanceof Error && err.name === 'AbortError') {
+        console.log('[AudioService] TTS request was aborted');
+      } else {
+        console.error('Error during custom TTS playback:', err);
+        throw new Error(ERROR_MESSAGES.TTS_FAILED);
+      }
     } finally {
+      this.currentAbortController = null;
       this.isPlayingCustomTts = false;
       this.currentAudioElement = null;
       if (onEnd) onEnd();
@@ -143,6 +154,13 @@ export class AudioService {
    * Interrupts ongoing custom TTS playback
    */
   interruptCustomTts(): void {
+    // Abort any pending TTS request
+    if (this.currentAbortController) {
+      this.currentAbortController.abort();
+      this.currentAbortController = null;
+      console.log('[AudioService] Aborted TTS request');
+    }
+
     if (this.isPlayingCustomTts && this.currentAudioElement) {
       this.isPlayingCustomTts = false;
       this.currentAudioElement.pause();

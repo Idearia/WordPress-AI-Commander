@@ -77,7 +77,7 @@ export class ApiService {
     return result;
   }
 
-  async getTextToSpeech(text: string): Promise<Blob> {
+  async getTextToSpeech(text: string, signal?: AbortSignal): Promise<Blob> {
     const response = await fetch(`${this.siteUrl}${API_ENDPOINTS.READ_TEXT}`, {
       method: 'POST',
       credentials: 'omit',
@@ -86,6 +86,7 @@ export class ApiService {
         Authorization: `Basic ${this.bearerToken}`,
       },
       body: JSON.stringify({ text }),
+      signal: signal,
     });
 
     if (!response.ok) {
