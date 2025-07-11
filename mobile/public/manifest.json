@@ -1,7 +1,7 @@
 {
-  "name": "INofficina Voice Assistant",
-  "short_name": "INofficina",
-  "description": "Assistente vocale per la gestione degli appuntamenti INofficina",
+  "name": "AI Commander Voice Assistant",
+  "short_name": "Voice Assistant",
+  "description": "Tool-enabled Voice Assistant for WordPress",
   "display": "standalone",
   "background_color": "#1e3c72",
   "theme_color": "#1e3c72",

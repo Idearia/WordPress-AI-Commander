@@ -5,7 +5,7 @@ import { SessionManager } from '@/services/SessionManager';
 import { AudioService } from '@/services/AudioService';
 import { UIController } from './UIController';
 import { MicButtonController } from './MicButtonController';
-import { ERROR_MESSAGES, STORAGE_KEYS } from '@/utils/constants';
+import { ERROR_MESSAGES, STORAGE_KEYS, UI_TEXT } from '@/utils/constants';
 
 export class App {
   private uiController: UIController;
@@ -157,7 +157,7 @@ export class App {
     try {
       const validUrl = new URL(url);
       if (!validUrl.protocol.startsWith('http')) {
-        throw new Error('URL deve iniziare con http:// o https://');
+        throw new Error(ERROR_MESSAGES.URL_MUST_START_WITH_HTTP);
       }
     } catch (error) {
       this.uiController.showError(ERROR_MESSAGES.INVALID_URL);
@@ -168,10 +168,14 @@ export class App {
     const bearerToken = ApiService.generateBearerToken(username, appPassword);
 
     // Test connection
-    this.uiController.disableConnectButton(true, 'Connessione...');
+    this.uiController.disableConnectButton(true, UI_TEXT.CONNECTING_BUTTON);
 
     try {
       const apiService = new ApiService(url, bearerToken);
+
+      // Fetch translations first (non-blocking)
+      apiService.fetchTranslations().catch(console.warn);
+
       await apiService.testConnection();
 
       // Save configuration
@@ -184,16 +188,14 @@ export class App {
 
       this.uiController.showMainApp();
     } catch (error) {
-      this.uiController.showError(
-        (error as Error).message || 'Impossibile connettersi. Verifica i dati e riprova.'
-      );
+      this.uiController.showError((error as Error).message || ERROR_MESSAGES.CONNECTION_GENERIC);
     } finally {
-      this.uiController.disableConnectButton(false, 'Connetti');
+      this.uiController.disableConnectButton(false, UI_TEXT.CONNECT_BUTTON);
     }
   }
 
   private handleLogout(): void {
-    if (confirm('Vuoi disconnetterti e cancellare le credenziali salvate?')) {
+    if (confirm(UI_TEXT.DISCONNECT_CONFIRM)) {
       this.stateManager.clearSiteConfig();
       this.uiController.clearConfigForm();
       this.uiController.hideSettingsMenu();
@@ -214,6 +216,7 @@ export class App {
 
       try {
         this.uiController.showLoading(true);
+        console.log('initializeServices');
         await this.initializeServices(state.siteUrl, state.bearerToken);
       } catch (error) {
         console.error('Failed to initialize services:', error);
@@ -250,7 +253,10 @@ export class App {
   }
 
   private handlePressAndHoldStart(): void {
-    console.log('[App] handlePressAndHoldStart called, sessionManager exists:', !!this.sessionManager);
+    console.log(
+      '[App] handlePressAndHoldStart called, sessionManager exists:',
+      !!this.sessionManager
+    );
     if (this.sessionManager) {
       this.sessionManager.setVadEnabled(false);
     } else {
@@ -259,7 +265,10 @@ export class App {
   }
 
   private handlePressAndHoldEnd(): void {
-    console.log('[App] handlePressAndHoldEnd called, sessionManager exists:', !!this.sessionManager);
+    console.log(
+      '[App] handlePressAndHoldEnd called, sessionManager exists:',
+      !!this.sessionManager
+    );
     if (this.sessionManager) {
       this.sessionManager.setVadEnabled(true);
     } else {
@@ -269,6 +278,9 @@ export class App {
 
   private async initializeServices(siteUrl: string, bearerToken: string): Promise<void> {
     const apiService = new ApiService(siteUrl, bearerToken);
+
+    // Fetch translations (non-blocking)
+    apiService.fetchTranslations().catch(console.warn);
 
     // Only test connection when actually needed
     // This will throw if credentials are invalid

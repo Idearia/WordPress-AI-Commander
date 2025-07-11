@@ -189,6 +189,13 @@ class RestApi
                 ),
             ),
         ));
+
+        // Register route for getting mobile app translations
+        register_rest_route('ai-commander/v1', '/translations', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_translations'),
+            'permission_callback' => '__return_true', // Public endpoint
+        ));
     }
 
     /**
@@ -527,5 +534,92 @@ class RestApi
         } else {
             return rest_ensure_response($result);
         }
+    }
+
+    /**
+     * Get translations for the mobile app.
+     *
+     * @param \WP_REST_Request $request The request object.
+     * @return \WP_REST_Response The response object.
+     */
+    public function get_translations($request)
+    {
+        $translations = array(
+            // Status messages
+            'status' => array(
+                'disconnected' => __('Press to start', 'ai-commander'),
+                'connecting' => __('Connecting...', 'ai-commander'),
+                'recording' => __('Listening...', 'ai-commander'),
+                'processing' => __('Processing...', 'ai-commander'),
+                'speaking' => __('Responding...', 'ai-commander'),
+                'speaking_interruptible' => __('Press to interrupt', 'ai-commander'),
+                'tool_wait' => __('Executing command...', 'ai-commander'),
+                'idle' => __('Waiting...', 'ai-commander'),
+                'error' => __('Error', 'ai-commander'),
+            ),
+
+            // Error messages
+            'errors' => array(
+                'invalid_url' => __('Invalid URL. Enter a complete URL (e.g. https://www.yourshop.com)', 'ai-commander'),
+                'invalid_credentials' => __('Invalid credentials. Check username and password.', 'ai-commander'),
+                'access_denied' => __('Access denied. Check user permissions on the site.', 'ai-commander'),
+                'connection_failed' => __('Unable to connect to WordPress site', 'ai-commander'),
+                'session_failed' => __('Unable to start session', 'ai-commander'),
+                'tool_execution_failed' => __('Tool execution failed', 'ai-commander'),
+                'network_error' => __('Network error', 'ai-commander'),
+                'data_channel_not_open' => __('Data channel not open', 'ai-commander'),
+                'tts_failed' => __('Error in custom audio playback.', 'ai-commander'),
+                'communication_error' => __('Communication error', 'ai-commander'),
+                'unknown_error' => __('Unknown error', 'ai-commander'),
+                'url_must_start_with_http' => __('URL must start with http:// or https://', 'ai-commander'),
+                'connection_generic' => __('Unable to connect. Check your data and try again.', 'ai-commander'),
+            ),
+
+            // UI text
+            'ui' => array(
+                // Page titles and headers
+                'page_title' => __('AI Commander Voice Assistant', 'ai-commander'),
+                'config_title' => __('AI Commander Voice Assistant', 'ai-commander'),
+                'config_subtitle' => __('Enter your WordPress site URL and credentials', 'ai-commander'),
+
+                // Configuration form
+                'note_label' => __('Note:', 'ai-commander'),
+                'note_text' => __('For the password, use an "Application Password" generated from your WordPress profile, not your regular password.', 'ai-commander'),
+                'how_to_generate_link' => __('How to generate an app password →', 'ai-commander'),
+
+                // Form labels and placeholders
+                'site_url_label' => __('Site URL', 'ai-commander'),
+                'site_url_placeholder' => __('https://www.yourshop.com', 'ai-commander'),
+                'site_url_hint' => __('The complete URL of your WordPress INofficina site', 'ai-commander'),
+                'username_label' => __('Username', 'ai-commander'),
+                'username_placeholder' => __('john.doe', 'ai-commander'),
+                'username_hint' => __('Your WordPress username', 'ai-commander'),
+                'app_password_label' => __('App password', 'ai-commander'),
+                'app_password_hint' => __('The application password generated in WordPress (not your regular password)', 'ai-commander'),
+
+                // Buttons
+                'connect_button' => __('Connect', 'ai-commander'),
+                'connecting_button' => __('Connecting...', 'ai-commander'),
+
+                // Main interface
+                'office_name' => __('INofficina.it Assistant', 'ai-commander'),
+                'change_config' => __('Change configuration', 'ai-commander'),
+                'disconnect' => __('Disconnect', 'ai-commander'),
+
+                // Chat interface
+                'greeting_title' => __('Hello! 👋', 'ai-commander'),
+                'greeting_text' => __("I'm the INofficina.it voice assistant. I can help you manage your workshop appointments.", 'ai-commander'),
+
+                // Suggestions
+                'suggestion_1' => __('💬 "Is license plate XX333TT our customer?"', 'ai-commander'),
+                'suggestion_2' => __('📅 "Schedule maintenance for tomorrow"', 'ai-commander'),
+                'suggestion_3' => __('🔍 "Show today\'s appointments"', 'ai-commander'),
+
+                // Confirmation dialogs
+                'disconnect_confirm' => __('Do you want to disconnect and delete saved credentials?', 'ai-commander'),
+            ),
+        );
+
+        return rest_ensure_response($translations);
     }
 }

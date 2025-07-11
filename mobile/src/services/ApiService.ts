@@ -1,4 +1,5 @@
-import { API_ENDPOINTS, ERROR_MESSAGES } from '@/utils/constants';
+import { API_ENDPOINTS, ERROR_MESSAGES, setTranslations } from '@/utils/constants';
+import { updateUIWithTranslations } from '@/utils/dom';
 import { SessionResponse, ToolExecutionRequest, ToolExecutionResponse } from '@/types';
 
 export class ApiService {
@@ -99,5 +100,27 @@ export class ApiService {
   static generateBearerToken(username: string, appPassword: string): string {
     const credentials = `${username}:${appPassword}`;
     return btoa(credentials);
+  }
+
+  async fetchTranslations(): Promise<void> {
+    try {
+      const response = await fetch(`${this.siteUrl}/wp-json/ai-commander/v1/translations`, {
+        method: 'GET',
+        credentials: 'omit',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const translations = await response.json();
+        setTranslations(translations);
+        updateUIWithTranslations();
+      } else {
+        console.warn('Failed to fetch translations, using defaults');
+      }
+    } catch (error) {
+      console.warn('Error fetching translations, using defaults:', error);
+    }
   }
 }
