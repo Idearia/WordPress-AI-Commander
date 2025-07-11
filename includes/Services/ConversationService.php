@@ -400,7 +400,7 @@ class ConversationService {
 
         // Create session parameters
         $session_params = [
-            'model' => get_option('ai_commander_openai_realtime_model', 'gpt-4o-realtime-preview-2024-12-17'),
+            'model' => get_option('ai_commander_openai_realtime_model', 'gpt-4o-realtime-preview-2025-06-03'),
             'voice' => get_option('ai_commander_realtime_voice', 'verse'),
             'instructions' => $this->prompt_service->get_realtime_system_prompt(),
             'tools' => $tool_registry->get_tool_definitions('realtime'),

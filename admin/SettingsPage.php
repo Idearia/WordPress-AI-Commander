@@ -101,7 +101,7 @@ class SettingsPage extends AdminPage
             array(
                 'type' => 'string',
                 'sanitize_callback' => 'sanitize_text_field',
-                'default' => 'gpt-4o-realtime-preview-2024-12-17',
+                'default' => 'gpt-4o-realtime-preview-2025-06-03',
             )
         );
 
@@ -508,11 +508,11 @@ class SettingsPage extends AdminPage
      */
     public function render_openai_realtime_model_field()
     {
-        $model = get_option('ai_commander_openai_realtime_model', 'gpt-4o-realtime-preview-2024-12-17');
+        $model = get_option('ai_commander_openai_realtime_model', 'gpt-4o-realtime-preview-2025-06-03');
     ?>
         <input type="text" id="ai_commander_openai_realtime_model" name="ai_commander_openai_realtime_model" value="<?php echo esc_attr($model); ?>" class="regular-text" />
         <p class="description">
-            <?php esc_html_e('Enter the OpenAI Realtime model to use (e.g., gpt-4o-realtime-preview-2024-12-17).', 'ai-commander'); ?>
+            <?php esc_html_e('Enter the OpenAI Realtime model to use (e.g., gpt-4o-realtime-preview-2025-06-03).', 'ai-commander'); ?>
         </p>
     <?php
     }

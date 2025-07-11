@@ -8,7 +8,7 @@ export const API_ENDPOINTS = {
 
 export const OPENAI_API = {
   REALTIME_URL: 'https://api.openai.com/v1/realtime',
-  DEFAULT_MODEL: 'gpt-4o-realtime-preview-2024-12-17',
+  DEFAULT_MODEL: 'gpt-4o-realtime-preview-2025-06-03',
 } as const;
 
 // Audio Configuration

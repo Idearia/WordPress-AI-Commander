@@ -465,7 +465,7 @@ Response:
 {
   "id": "sess_abc123",
   "object": "realtime.session",
-  "model": "gpt-4o-realtime-preview-2024-12-17",
+  "model": "gpt-4o-realtime-preview-2025-06-03",
   "expires_at": 1640995200,
   "client_secret": {
     "value": "ephemeral_token_here",
