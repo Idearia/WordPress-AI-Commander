@@ -84,6 +84,33 @@ class AdminPage
     }
 
     /**
+     * Render the tab navigation
+     */
+    public function render_tab_wrapper()
+    {
+        $screen = get_current_screen();
+        $current_page = $screen->base;
+?>
+            <h2 class="nav-tab-wrapper">
+                <a href="<?php echo esc_url(admin_url('admin.php?page=ai-commander')); ?>" class="nav-tab <?php echo $current_page === 'toplevel_page_ai-commander' ? 'nav-tab-active' : ''; ?>">
+                    <?php esc_html_e('Overview', 'ai-commander'); ?>
+                </a>
+                <a href="<?php echo esc_url(admin_url('admin.php?page=ai-commander-chatbot')); ?>" class="nav-tab <?php echo $current_page === 'ai-commander_page_ai-commander-chatbot' ? 'nav-tab-active' : ''; ?>">
+                    <?php esc_html_e('Chatbot', 'ai-commander'); ?>
+                </a>
+                <a href="<?php echo esc_url(admin_url('admin.php?page=ai-commander-realtime')); ?>" class="nav-tab <?php echo $current_page === 'ai-commander_page_ai-commander-realtime' ? 'nav-tab-active' : ''; ?>">
+                    <?php esc_html_e('Realtime', 'ai-commander'); ?>
+                </a>
+                <?php if (current_user_can('manage_options')): ?>
+                    <a href="<?php echo esc_url(admin_url('admin.php?page=ai-commander-settings')); ?>" class="nav-tab <?php echo $current_page === 'ai-commander_page_ai-commander-settings' ? 'nav-tab-active' : ''; ?>">
+                        <?php esc_html_e('Settings', 'ai-commander'); ?>
+                    </a>
+                <?php endif; ?>
+            </h2>
+<?php
+    }
+
+    /**
      * Render the admin page.
      */
     public function render_page()
@@ -93,20 +120,7 @@ class AdminPage
             <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
             <p><?php esc_html_e('Welcome to AI Commander! Use the tabs below to navigate.', 'ai-commander'); ?></p>
 
-            <h2 class="nav-tab-wrapper">
-                <a href="<?php echo esc_url(admin_url('admin.php?page=' . $this->parent_slug)); ?>" class="nav-tab nav-tab-active">
-                    <?php esc_html_e('Overview', 'ai-commander'); ?>
-                </a>
-                <a href="<?php echo esc_url(admin_url('admin.php?page=ai-commander-chatbot')); ?>" class="nav-tab">
-                    <?php esc_html_e('Chatbot', 'ai-commander'); ?>
-                </a>
-                <a href="<?php echo esc_url(admin_url('admin.php?page=ai-commander-realtime')); ?>" class="nav-tab">
-                    <?php esc_html_e('Realtime', 'ai-commander'); ?>
-                </a>
-                <a href="<?php echo esc_url(admin_url('admin.php?page=ai-commander-settings')); ?>" class="nav-tab">
-                    <?php esc_html_e('Settings', 'ai-commander'); ?>
-                </a>
-            </h2>
+            <?php $this->render_tab_wrapper(); ?>
 
             <div class="tab-content">
                 <div class="card">

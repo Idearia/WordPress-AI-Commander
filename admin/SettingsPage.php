@@ -398,20 +398,7 @@ class SettingsPage extends AdminPage
         <div class="wrap">
             <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
 
-            <h2 class="nav-tab-wrapper">
-                <a href="<?php echo esc_url(admin_url('admin.php?page=' . $this->parent_slug)); ?>" class="nav-tab">
-                    <?php esc_html_e('Overview', 'ai-commander'); ?>
-                </a>
-                <a href="<?php echo esc_url(admin_url('admin.php?page=ai-commander-chatbot')); ?>" class="nav-tab">
-                    <?php esc_html_e('Chatbot', 'ai-commander'); ?>
-                </a>
-                <a href="<?php echo esc_url(admin_url('admin.php?page=ai-commander-realtime')); ?>" class="nav-tab">
-                    <?php esc_html_e('Realtime', 'ai-commander'); ?>
-                </a>
-                <a href="<?php echo esc_url(admin_url('admin.php?page=ai-commander-settings')); ?>" class="nav-tab nav-tab-active">
-                    <?php esc_html_e('Settings', 'ai-commander'); ?>
-                </a>
-            </h2>
+            <?php $this->render_tab_wrapper(); ?>
 
             <form method="post" action="options.php">
                 <?php
