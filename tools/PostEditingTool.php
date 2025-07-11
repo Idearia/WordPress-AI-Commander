@@ -23,7 +23,7 @@ class PostEditingTool extends BaseTool {
      */
     public function __construct() {
         $this->name = 'edit_post';
-        $this->description = 'Edits an existing WordPress post';
+        $this->description = __( 'Edits an existing WordPress post', 'ai-commander' );
         $this->required_capability = 'edit_others_posts';
         
         parent::__construct();
@@ -38,38 +38,38 @@ class PostEditingTool extends BaseTool {
         return array(
             'post_id' => array(
                 'type' => 'integer',
-                'description' => 'The ID of the post to edit',
+                'description' => __( 'The ID of the post to edit', 'ai-commander' ),
                 'required' => false,
             ),
             'post_title' => array(
                 'type' => 'string',
-                'description' => 'The title of the post to find (if post_id is not provided)',
+                'description' => __( 'The title of the post to find (if post_id is not provided)', 'ai-commander' ),
                 'required' => false,
             ),
             'title' => array(
                 'type' => 'string',
-                'description' => 'The new title for the post',
+                'description' => __( 'The new title for the post', 'ai-commander' ),
                 'required' => false,
             ),
             'content' => array(
                 'type' => 'string',
-                'description' => 'The new content for the post',
+                'description' => __( 'The new content for the post', 'ai-commander' ),
                 'required' => false,
             ),
             'excerpt' => array(
                 'type' => 'string',
-                'description' => 'The new excerpt for the post',
+                'description' => __( 'The new excerpt for the post', 'ai-commander' ),
                 'required' => false,
             ),
             'status' => array(
                 'type' => 'string',
-                'description' => 'The new status for the post (draft, publish, pending, future)',
+                'description' => __( 'The new status for the post (draft, publish, pending, future)', 'ai-commander' ),
                 'enum' => array( 'draft', 'publish', 'pending', 'future' ),
                 'required' => false,
             ),
             'categories' => array(
                 'type' => 'array',
-                'description' => 'The categories to assign to the post',
+                'description' => __( 'The categories to assign to the post', 'ai-commander' ),
                 'items' => array(
                     'type' => 'string',
                 ),
@@ -77,7 +77,7 @@ class PostEditingTool extends BaseTool {
             ),
             'tags' => array(
                 'type' => 'array',
-                'description' => 'The tags to assign to the post',
+                'description' => __( 'The tags to assign to the post', 'ai-commander' ),
                 'items' => array(
                     'type' => 'string',
                 ),
@@ -85,7 +85,7 @@ class PostEditingTool extends BaseTool {
             ),
             'date' => array(
                 'type' => 'string',
-                'description' => 'The new date to publish the post (format: YYYY-MM-DD HH:MM:SS)',
+                'description' => __( 'The new date to publish the post (format: YYYY-MM-DD HH:MM:SS)', 'ai-commander' ),
                 'required' => false,
             ),
         );
@@ -102,7 +102,7 @@ class PostEditingTool extends BaseTool {
         if ( empty( $params['post_id'] ) && empty( $params['post_title'] ) ) {
             return new \WP_Error(
                 'missing_post_identifier',
-                'Either post_id or post_title is required to identify the post to edit.'
+                __( 'Either post_id or post_title is required to identify the post to edit.', 'ai-commander' )
             );
         }
 
@@ -119,7 +119,7 @@ class PostEditingTool extends BaseTool {
         if ( ! $post ) {
             return new \WP_Error(
                 'post_not_found',
-                sprintf( 'Post with ID %d not found.', $post_id )
+                sprintf( __( 'Post with ID %d not found.', 'ai-commander' ), $post_id )
             );
         }
 
@@ -221,13 +221,13 @@ class PostEditingTool extends BaseTool {
         $summary = '';
 
         if ( $post_type === 'post' ) {
-            $summary = sprintf( 'Post "%s" updated successfully with ID %d.', $post_title, $post_id );
+            $summary = sprintf( __( 'Post "%s" updated successfully with ID %d.', 'ai-commander' ), $post_title, $post_id );
         }
         else if ( $post_type === 'page' ) {
-            $summary = sprintf( 'Page "%s" updated successfully with ID %d.', $post_title, $post_id );
+            $summary = sprintf( __( 'Page "%s" updated successfully with ID %d.', 'ai-commander' ), $post_title, $post_id );
         }
         else {
-            $summary = sprintf( 'Post of type "%s" updated successfully with ID %d.', $post_type, $post_id );
+            $summary = sprintf( __( 'Post of type "%s" updated successfully with ID %d.', 'ai-commander' ), $post_type, $post_id );
         }
 
         return $summary;
@@ -253,7 +253,7 @@ class PostEditingTool extends BaseTool {
         if ( !empty( $post_url ) ) {
             $buttons[] = array(
                 'type' => 'link',
-                'label' => 'View post',
+                'label' => __( 'View post', 'ai-commander' ),
                 'url' => $post_url,
                 'target' => '_blank',
             );
@@ -262,7 +262,7 @@ class PostEditingTool extends BaseTool {
         if ( !empty( $edit_url ) ) {
             $buttons[] = array(
                 'type' => 'link',
-                'label' => 'Edit post',
+                'label' => __( 'Edit post', 'ai-commander' ),
                 'url' => $edit_url,
                 'target' => '_blank',
             );
@@ -298,7 +298,7 @@ class PostEditingTool extends BaseTool {
         if ( ! $query->have_posts() ) {
             return new \WP_Error(
                 'post_not_found',
-                sprintf( 'No post found with title "%s".', $params['post_title'] )
+                sprintf( __( 'No post found with title "%s".', 'ai-commander' ), $params['post_title'] )
             );
         }
 

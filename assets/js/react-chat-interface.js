@@ -14,7 +14,13 @@
             return;
         }
 
+        if (typeof wp.i18n === 'undefined') {
+            console.error('wp.i18n not loaded');
+            return;
+        }
+
         const { useState, useEffect, useRef, createElement: e } = wp.element;
+        const { __, sprintf } = wp.i18n;
 
         /**
          * ToolCallDetailsPopup Component
@@ -31,18 +37,18 @@
                     'div',
                     { className: 'ai-commander-popup-content' },
                     e('div', { className: 'ai-commander-popup-header' },
-                        e('h3', null, `Tool: ${action.tool}`),
+                        e('h3', null, sprintf(__('Tool: %s', 'ai-commander'), action.tool)),
                         e('button', {
                             className: 'ai-commander-popup-close',
                             onClick: onClose
                         }, '×')
                     ),
                     e('div', { className: 'ai-commander-popup-body' },
-                        e('h4', null, 'Tool call ID:'),
+                        e('h4', null, __('Tool call ID:', 'ai-commander')),
                         e('pre', null, action.tool_call_id),
-                        e('h4', null, 'Arguments:'),
+                        e('h4', null, __('Arguments:', 'ai-commander')),
                         e('pre', null, JSON.stringify(action.arguments, null, 2)),
-                        e('h4', null, 'Result:'),
+                        e('h4', null, __('Result:', 'ai-commander')),
                         e('pre', null, JSON.stringify(action.result, null, 2))
                     )
                 )
@@ -82,7 +88,7 @@
                         modalOverlay.innerHTML = `
                     <div class="ai-commander-popup-content">
                         <div class="ai-commander-popup-header">
-                            <h3>${button.title || 'Details'}</h3>
+                            <h3>${button.title || __('Details', 'ai-commander')}</h3>
                             <button class="ai-commander-popup-close">×</button>
                         </div>
                         <div class="ai-commander-popup-body">
@@ -111,7 +117,7 @@
                         // Disable the button and show spinner
                         const originalText = buttonElement.textContent;
                         buttonElement.disabled = true;
-                        buttonElement.innerHTML = '<span class="ai-commander-spinner"></span> ' + (button.loadingText || 'Processing...');
+                        buttonElement.innerHTML = '<span class="ai-commander-spinner"></span> ' + (button.loadingText || __('Processing...', 'ai-commander'));
 
                         // Confirm if needed
                         if (button.confirmMessage && !window.confirm(button.confirmMessage)) {
@@ -140,7 +146,7 @@
                                 buttonElement.textContent = originalText;
 
                                 // Show error message
-                                alert('Error: ' + (xhr.responseJSON?.message || error || 'Unknown error'));
+                                alert(__('Error: ', 'ai-commander') + (xhr.responseJSON?.message || error || __('Unknown error', 'ai-commander')));
                                 console.error('AJAX error:', error);
                             }
                         });
@@ -155,7 +161,7 @@
             const handleAjaxResponse = (response, button) => {
                 // Check if response is successful
                 if (!response.success) {
-                    alert('Error: ' + (response.data?.message || 'Unknown error'));
+                    alert(__('Error: ', 'ai-commander') + (response.data?.message || __('Unknown error', 'ai-commander')));
                     return;
                 }
 
@@ -178,7 +184,7 @@
 
                     case 'message':
                         // Display a success message
-                        const message = response.data?.message || button.successMessage || 'Operation completed successfully';
+                        const message = response.data?.message || button.successMessage || __('Operation completed successfully', 'ai-commander');
                         alert(message);
                         break;
 
@@ -197,7 +203,7 @@
                     case 'modal':
                         // Show response in a modal
                         const modalContent = response.data?.content || JSON.stringify(response.data);
-                        const modalTitle = response.data?.title || button.modalTitle || 'Response';
+                        const modalTitle = response.data?.title || button.modalTitle || __('Response', 'ai-commander');
 
                         // Create modal with the response content
                         const modalOverlay = document.createElement('div');
@@ -272,7 +278,7 @@
                         e('button', {
                             className: 'ai-commander-tool-details-button',
                             onClick: toggleDetails
-                        }, 'Debug')
+                        }, __('Debug', 'ai-commander'))
                     )
                 ),
                 showDetails && e(ToolCallDetailsPopup, {
@@ -393,7 +399,7 @@
                 'div',
                 { className: 'ai-commander-recording-status' },
                 e('div', { className: 'ai-commander-recording-status-dot' }),
-                'Recording...'
+                __('Recording...', 'ai-commander')
             );
         };
 
@@ -443,17 +449,17 @@
                     window.location.hostname === '127.0.0.1';
 
                 if (!isSecureContext) {
-                    alert('Microphone access requires a secure connection (HTTPS). Please contact your administrator to enable HTTPS for this site.');
+                    alert(__('Microphone access requires a secure connection (HTTPS). Please contact your administrator to enable HTTPS for this site.', 'ai-commander'));
                     return false;
                 }
 
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    alert('Your browser does not support audio recording. Please use a modern browser like Chrome, Edge, or Firefox.');
+                    alert(__('Your browser does not support audio recording. Please use a modern browser like Chrome, Edge, or Firefox.', 'ai-commander'));
                     return false;
                 }
 
                 if (typeof MediaRecorder === 'undefined') {
-                    alert('Your browser does not support the MediaRecorder API. Please use a modern browser like Chrome, Edge, or Firefox.');
+                    alert(__('Your browser does not support the MediaRecorder API. Please use a modern browser like Chrome, Edge, or Firefox.', 'ai-commander'));
                     return false;
                 }
 
@@ -502,14 +508,13 @@
 
                     // Provide more specific error messages
                     if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-                        alert('Microphone access was denied. Please try again but this time allow microphone access.\n\n' +
-                            'In alternative, in most browsers, you can click on the camera/microphone icon in the address bar to change permissions.');
+                        alert(__('Microphone access was denied. Please try again but this time allow microphone access.\n\nIn alternative, in most browsers, you can click on the camera/microphone icon in the address bar to change permissions.', 'ai-commander'));
                     } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-                        alert('No microphone was found. Please connect a microphone and try again.');
+                        alert(__('No microphone was found. Please connect a microphone and try again.', 'ai-commander'));
                     } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
-                        alert('Your microphone is busy or not available. Please close other applications that might be using your microphone.');
+                        alert(__('Your microphone is busy or not available. Please close other applications that might be using your microphone.', 'ai-commander'));
                     } else {
-                        alert('Could not access your microphone: ' + error.message);
+                        alert(__('Could not access your microphone: ', 'ai-commander') + error.message);
                     }
                 }
             };
@@ -559,13 +564,13 @@
                             }
                         } else {
                             console.error('Transcription error:', response.data ? response.data.message : 'Unknown error');
-                            alert('Error transcribing audio: ' + (response.data ? response.data.message : 'Unknown error'));
+                            alert(__('Error transcribing audio: ', 'ai-commander') + (response.data ? response.data.message : __('Unknown error', 'ai-commander')));
                         }
                     },
                     error: function (xhr, status, error) {
                         setIsTranscribing(false);
                         console.error('AJAX error:', error);
-                        alert('Error sending audio: ' + error);
+                        alert(__('Error sending audio: ', 'ai-commander') + error);
                     }
                 });
             };
@@ -575,7 +580,7 @@
                 { className: 'ai-commander-input-container' },
                 e('textarea', {
                     className: 'ai-commander-message-input',
-                    placeholder: 'Type your command here...',
+                    placeholder: __('Type your command here...', 'ai-commander'),
                     value: inputValue,
                     onChange: handleInputChange,
                     onKeyDown: handleKeyDown,
@@ -588,7 +593,7 @@
                         className: `ai-commander-mic-button ${isRecording ? 'recording' : ''} ${isTranscribing ? 'transcribing' : ''}`,
                         onClick: toggleRecording,
                         disabled: isProcessing || isTranscribing,
-                        title: isRecording ? 'Stop recording' : (isTranscribing ? 'Transcribing...' : 'Start recording'),
+                        title: isRecording ? __('Stop recording', 'ai-commander') : (isTranscribing ? __('Transcribing...', 'ai-commander') : __('Start recording', 'ai-commander')),
                         type: 'button'
                     },
                     e(MicrophoneIcon)
@@ -601,13 +606,13 @@
                         disabled: isProcessing || isTranscribing || !inputValue.trim(),
                         type: 'button'
                     },
-                    'Send'
+                    __('Send', 'ai-commander')
                 ),
                 isRecording && e(RecordingStatus),
                 isTranscribing && e(
                     'div',
                     { className: 'ai-commander-transcribing-status' },
-                    'Transcribing audio...'
+                    __('Transcribing audio...', 'ai-commander')
                 )
             );
         };
@@ -664,7 +669,7 @@
                         } else {
                             // Handle error
                             setMessages([
-                                { role: 'assistant', content: `Error: ${response.data.message || 'Failed to create conversation'}` }
+                                { role: 'assistant', content: sprintf(__('Error: %s', 'ai-commander'), response.data.message || __('Failed to create conversation', 'ai-commander')) }
                             ]);
                         }
                     },
@@ -673,7 +678,7 @@
 
                         // Handle error
                         setMessages([
-                            { role: 'assistant', content: `Error: ${error || 'Failed to create conversation'}` }
+                            { role: 'assistant', content: sprintf(__('Error: %s', 'ai-commander'), error || __('Failed to create conversation', 'ai-commander')) }
                         ]);
                     }
                 });
@@ -773,7 +778,7 @@
                             // Add error message to the chat
                             setMessages(prevMessages => [
                                 ...prevMessages,
-                                { role: 'assistant', content: `Error: ${response.data.message || 'Unknown error'}` }
+                                { role: 'assistant', content: sprintf(__('Error: %s', 'ai-commander'), response.data.message || __('Unknown error', 'ai-commander')) }
                             ]);
                         }
                     },
@@ -783,7 +788,7 @@
                         // Add error message to the chat
                         setMessages(prevMessages => [
                             ...prevMessages,
-                            { role: 'assistant', content: `Error: ${error || 'Failed to process command'}` }
+                            { role: 'assistant', content: sprintf(__('Error: %s', 'ai-commander'), error || __('Failed to process command', 'ai-commander')) }
                         ]);
                     }
                 });
@@ -833,7 +838,7 @@
                 e(
                     'div',
                     { className: 'ai-commander-chat-header' },
-                    e('h3', null, 'WordPress Assistant'),
+                    e('h3', null, __('WordPress Assistant', 'ai-commander')),
                     e(
                         'button',
                         {
@@ -841,7 +846,7 @@
                             onClick: startNewConversation,
                             disabled: isProcessing
                         },
-                        'New Conversation'
+                        __('New Conversation', 'ai-commander')
                     )
                 ),
                 e(MessageList, { messages: messages }),
@@ -854,7 +859,7 @@
                     'div',
                     { className: 'ai-commander-loading' },
                     e('span', { className: 'spinner is-active' }),
-                    'Processing your command...'
+                    __('Processing your command...', 'ai-commander')
                 )
             );
         };

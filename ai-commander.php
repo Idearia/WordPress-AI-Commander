@@ -188,6 +188,19 @@ function ai_commander_init()
 add_action('plugins_loaded', 'ai_commander_init');
 
 /**
+ * Load plugin text domain for translations.
+ */
+function ai_commander_load_textdomain()
+{
+    load_plugin_textdomain(
+        'ai-commander',
+        false,
+        dirname(plugin_basename(__FILE__)) . '/languages/'
+    );
+}
+add_action('init', 'ai_commander_load_textdomain');
+
+/**
  * Register all available tools.
  */
 function ai_commander_register_tools()

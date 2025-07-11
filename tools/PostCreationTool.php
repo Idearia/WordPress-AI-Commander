@@ -23,7 +23,7 @@ class PostCreationTool extends BaseTool {
      */
     public function __construct() {
         $this->name = 'create_post';
-        $this->description = 'Creates a new WordPress post';
+        $this->description = __( 'Creates a new WordPress post', 'ai-commander' );
         $this->required_capability = 'publish_posts';
         
         parent::__construct();
@@ -38,35 +38,35 @@ class PostCreationTool extends BaseTool {
         return array(
             'title' => array(
                 'type' => 'string',
-                'description' => 'The title of the post',
+                'description' => __( 'The title of the post', 'ai-commander' ),
                 'required' => true,
             ),
             'content' => array(
                 'type' => 'string',
-                'description' => 'The content of the post',
+                'description' => __( 'The content of the post', 'ai-commander' ),
                 'required' => false,
             ),
             'excerpt' => array(
                 'type' => 'string',
-                'description' => 'The excerpt of the post',
+                'description' => __( 'The excerpt of the post', 'ai-commander' ),
                 'required' => false,
             ),
             'status' => array(
                 'type' => 'string',
-                'description' => 'The status of the post (draft, publish, pending, future)',
+                'description' => __( 'The status of the post (draft, publish, pending, future)', 'ai-commander' ),
                 'enum' => array( 'draft', 'publish', 'pending', 'future' ),
                 'required' => false,
                 'default' => 'draft',
             ),
             'post_type' => array(
                 'type' => 'string',
-                'description' => 'The type of post to create',
+                'description' => __( 'The type of post to create', 'ai-commander' ),
                 'required' => false,
                 'default' => 'post',
             ),
             'categories' => array(
                 'type' => 'array',
-                'description' => 'The categories to assign to the post',
+                'description' => __( 'The categories to assign to the post', 'ai-commander' ),
                 'items' => array(
                     'type' => 'string',
                 ),
@@ -74,7 +74,7 @@ class PostCreationTool extends BaseTool {
             ),
             'tags' => array(
                 'type' => 'array',
-                'description' => 'The tags to assign to the post',
+                'description' => __( 'The tags to assign to the post', 'ai-commander' ),
                 'items' => array(
                     'type' => 'string',
                 ),
@@ -82,7 +82,7 @@ class PostCreationTool extends BaseTool {
             ),
             'date' => array(
                 'type' => 'string',
-                'description' => 'The date to publish the post (format: YYYY-MM-DD HH:MM:SS)',
+                'description' => __( 'The date to publish the post (format: YYYY-MM-DD HH:MM:SS)', 'ai-commander' ),
                 'required' => false,
             ),
         );
@@ -182,11 +182,11 @@ class PostCreationTool extends BaseTool {
         $post_type = isset( $result['post_type'] ) ? $result['post_type'] : 'unknown';
         
         if ( $post_type === 'post' ) {
-            return sprintf( 'Post "%s" created successfully with ID %d.', $post_title, $post_id );
+            return sprintf( __( 'Post "%s" created successfully with ID %d.', 'ai-commander' ), $post_title, $post_id );
         } elseif ( $post_type === 'page' ) {
-            return sprintf( 'Page "%s" created successfully with ID %d.', $post_title, $post_id );
+            return sprintf( __( 'Page "%s" created successfully with ID %d.', 'ai-commander' ), $post_title, $post_id );
         } else {
-            return sprintf( 'Post of type "%s" created successfully with ID %d.', $post_type, $post_id );
+            return sprintf( __( 'Post of type "%s" created successfully with ID %d.', 'ai-commander' ), $post_type, $post_id );
         }
     }
     
@@ -210,7 +210,7 @@ class PostCreationTool extends BaseTool {
         if ( !empty( $post_url ) ) {
             $buttons[] = array(
                 'type' => 'link',
-                'label' => 'View post',
+                'label' => __( 'View post', 'ai-commander' ),
                 'url' => $post_url,
                 'target' => '_blank',
             );
@@ -219,7 +219,7 @@ class PostCreationTool extends BaseTool {
         if ( !empty( $edit_url ) ) {
             $buttons[] = array(
                 'type' => 'link',
-                'label' => 'Edit post',
+                'label' => __( 'Edit post', 'ai-commander' ),
                 'url' => $edit_url,
                 'target' => '_blank',
             );

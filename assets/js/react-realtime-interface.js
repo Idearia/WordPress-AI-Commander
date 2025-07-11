@@ -13,7 +13,13 @@
         return;
     }
 
+    if (typeof wp.i18n === 'undefined') {
+        console.error('wp.i18n not loaded');
+        return;
+    }
+
     const { useState, useRef, useCallback, createElement: e } = wp.element;
+    const { __, sprintf } = wp.i18n;
 
     // --- Helper Components ---
 
@@ -38,7 +44,7 @@
         const niceStatus = status.charAt(0).toUpperCase() + status.replace(/[-_]/g, ' ').slice(1);
         return e(
             'div', { className: `ai-commander-realtime-status ${status === 'error' ? 'error-message' : ''}` },
-            message || 'Status: ' + niceStatus
+            message || sprintf(__('Status: %s', 'ai-commander'), niceStatus)
         );
     };
 
@@ -143,7 +149,7 @@
 
             } catch (err) {
                 console.error('Error during custom TTS playback:', err);
-                handleError('Failed to play synthesized audio.');
+                handleError(__('Failed to play synthesized audio.', 'ai-commander'));
             } finally {
                 // Re-enable microphone and update status
                 unmuteMicrophone();
@@ -177,7 +183,7 @@
                 });
 
                 if (!tokenResponse.success || !tokenResponse.data.client_secret.value) {
-                    throw new Error(tokenResponse.data.message || 'Failed to create realtime session.');
+                    throw new Error(tokenResponse.data.message || __('Failed to create realtime session.', 'ai-commander'));
                 }
                 console.log('Realtime Session created successfully. Token received.');
 
@@ -212,21 +218,21 @@
                 pc.onconnectionstatechange = () => {
                     console.log('Peer Connection State:', pc.connectionState);
                     if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected' || pc.connectionState === 'closed') {
-                        handleDisconnect('Connection lost.');
+                        handleDisconnect(__('Connection lost.', 'ai-commander'));
                     }
                 };
 
                 pc.oniceconnectionstatechange = () => {
                     console.log('ICE Connection State:', pc.iceConnectionState);
                     if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'closed') {
-                        handleDisconnect('ICE connection failed.');
+                        handleDisconnect(__('ICE connection failed.', 'ai-commander'));
                     }
                 };
 
                 // 4. Get User Media (Microphone)
                 console.log('Requesting microphone access...');
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    throw new Error('Browser does not support audio recording.');
+                    throw new Error(__('Browser does not support audio recording.', 'ai-commander'));
                 }
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 localStreamRef.current = stream;
@@ -253,13 +259,13 @@
                     console.log('Data Channel closed.');
                     // Only handle disconnect if not initiated by user stop
                     if (status !== 'disconnected') {
-                        handleDisconnect('Data channel closed unexpectedly.');
+                        handleDisconnect(__('Data channel closed unexpectedly.', 'ai-commander'));
                     }
                 };
 
                 dc.onerror = (error) => {
                     console.error('Data Channel Error:', error);
-                    handleError('Data channel communication error.');
+                    handleError(__('Data channel communication error.', 'ai-commander'));
                 };
 
                 dc.onmessage = handleServerEvent;
@@ -297,9 +303,9 @@
             } catch (error) {
                 console.error('Session start/recording error:', error);
                 if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-                    handleError('Microphone permission denied. Please allow access in your browser settings.');
+                    handleError(__('Microphone permission denied. Please allow access in your browser settings.', 'ai-commander'));
                 } else {
-                    handleError(error.message || 'Failed to start session and recording.');
+                    handleError(error.message || __('Failed to start session and recording.', 'ai-commander'));
                 }
                 closeSession(); // Ensure cleanup on error
             }
@@ -393,7 +399,7 @@
                         if (event.response.status === 'failed') {
                             setStatus('error');
                             const errorMessage = event.response?.status_details?.error?.message || 'Unknown error';
-                            setErrorMessage("Error from AI: " + errorMessage);
+                            setErrorMessage(sprintf(__('Error from AI: %s', 'ai-commander'), errorMessage));
                             break;
                         }
 
@@ -493,7 +499,7 @@
                         console.error(`Tool execution failed on backend for ${toolCall.name}:`, response.data.message);
                         const errorResult = {
                             error: true,
-                            message: `Backend Error: ${response.data.message || 'Unknown execution error'}`,
+                            message: sprintf(__('Backend Error: %s', 'ai-commander'), response.data.message || __('Unknown execution error', 'ai-commander')),
                             code: response.data.code || 'tool_execution_failed'
                         };
                         sendFunctionResult(toolCall.call_id, errorResult);
@@ -504,7 +510,7 @@
                     console.error(`AJAX error executing tool ${toolCall.name}:`, error);
                     const errorResult = {
                         error: true,
-                        message: `AJAX Error: ${error || 'Failed to contact backend'}`,
+                        message: sprintf(__('AJAX Error: %s', 'ai-commander'), error || __('Failed to contact backend', 'ai-commander')),
                         code: 'ajax_error'
                     };
                     sendFunctionResult(toolCall.call_id, errorResult);
@@ -514,7 +520,7 @@
 
         const sendFunctionResult = (callId, result) => {
             if (!dataChannelRef.current || dataChannelRef.current.readyState !== 'open') {
-                handleError('Data channel not open, cannot send function result.');
+                handleError(__('Data channel not open, cannot send function result.', 'ai-commander'));
                 return;
             }
 
@@ -571,7 +577,7 @@
             console.warn('Disconnected:', message);
             // Only transition to disconnected if not already in error or disconnected
             if (status !== 'error' && status !== 'disconnected') {
-                setErrorMessage(message || 'Connection closed unexpectedly.');
+                setErrorMessage(message || __('Connection closed unexpectedly.', 'ai-commander'));
                 setStatus('disconnected'); // Go back to disconnected
                 closeSession(false); // Clean up refs without resetting state again
             }
@@ -615,23 +621,23 @@
         const getButton = () => {
             switch (status) {
                 case 'disconnected':
-                    return { text: 'Start Conversation', icon: e(MicrophoneIcon), disabled: false };
+                    return { text: __('Start Conversation', 'ai-commander'), icon: e(MicrophoneIcon), disabled: false };
 
                 case 'connecting':
-                    return { text: 'Start Conversation', icon: e(Spinner), disabled: true };
+                    return { text: __('Start Conversation', 'ai-commander'), icon: e(Spinner), disabled: true };
 
                 case 'recording':
                 case 'processing':
                 case 'speaking':
                 case 'tool_wait':
                 case 'idle':
-                    return { text: 'Stop Conversation', icon: e(MicrophoneIcon), disabled: false };
+                    return { text: __('Stop Conversation', 'ai-commander'), icon: e(MicrophoneIcon), disabled: false };
 
                 case 'error':
-                    return { text: 'Please refresh page', icon: null, disabled: true };
+                    return { text: __('Please refresh page', 'ai-commander'), icon: null, disabled: true };
 
                 default:
-                    return { text: 'Please refresh page', icon: null, disabled: true };
+                    return { text: __('Please refresh page', 'ai-commander'), icon: null, disabled: true };
             }
         };
 
@@ -655,7 +661,7 @@
             errorMessage ? e(StatusIndicator, { status: 'error', message: errorMessage }) : e(StatusIndicator, { status: status }),
 
             e('div', { className: 'ai-commander-realtime-transcript' },
-                e('h3', null, 'Conversation Transcript:'),
+                e('h3', null, __('Conversation Transcript:', 'ai-commander')),
                 e('div', {
                     id: 'ai-commander-transcript-output',
                     className: 'ai-commander-chat-container'
@@ -679,7 +685,7 @@
                                 e('div', {
                                     className: 'ai-commander-bubble ai-bubble tool-call'
                                 },
-                                    e('strong', {}, `Called tool: ${message.name}`),
+                                    e('strong', {}, sprintf(__('Called tool: %s', 'ai-commander'), message.name)),
                                     e('pre', {}, JSON.stringify(message.arguments, null, 2))
                                 )
                             );
@@ -691,7 +697,7 @@
                                 e('div', {
                                     className: 'ai-commander-bubble ai-bubble tool-result'
                                 },
-                                    e('strong', {}, 'Tool result:'),
+                                    e('strong', {}, __('Tool result:', 'ai-commander')),
                                     e('pre', {}, JSON.stringify(message.result, null, 2))
                                 )
                             );
@@ -726,7 +732,7 @@
         // Get configuration from localized script
         if (typeof aiCommanderRealtimeData === 'undefined') {
             console.error('Realtime interface data (aiCommanderRealtimeData) not found.');
-            container.innerHTML = '<p>Error: Plugin configuration data is missing.</p>';
+            container.innerHTML = '<p>' + __('Error: Plugin configuration data is missing.', 'ai-commander') + '</p>';
             return;
         }
 

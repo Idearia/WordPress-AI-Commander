@@ -171,14 +171,14 @@ class ConversationService {
             if ( ! $conversation ) {
                 return new \WP_Error(
                     'conversation_not_found',
-                    'Conversation not found'
+                    __( 'Conversation not found', 'ai-commander' )
                 );
             }
 
             if ( $user_id !== null && $conversation->user_id != $user_id ) {
                 return new \WP_Error(
                     'conversation_not_authorized',
-                    'Conversation not authorized'
+                    __( 'Conversation not authorized', 'ai-commander' )
                 );
             }
         }
@@ -224,7 +224,7 @@ class ConversationService {
         } else {
             return new \WP_Error(
                 'file_save_error',
-                isset( $movefile['error'] ) ? $movefile['error'] : 'Failed to save audio file'
+                isset( $movefile['error'] ) ? $movefile['error'] : __( 'Failed to save audio file', 'ai-commander' )
             );
         }
     }
@@ -238,21 +238,21 @@ class ConversationService {
     private function get_upload_error_message( $error_code ) {
         switch ( $error_code ) {
             case UPLOAD_ERR_INI_SIZE:
-                return 'The uploaded file exceeds the upload_max_filesize directive in php.ini';
+                return __( 'The uploaded file exceeds the upload_max_filesize directive in php.ini', 'ai-commander' );
             case UPLOAD_ERR_FORM_SIZE:
-                return 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form';
+                return __( 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form', 'ai-commander' );
             case UPLOAD_ERR_PARTIAL:
-                return 'The uploaded file was only partially uploaded';
+                return __( 'The uploaded file was only partially uploaded', 'ai-commander' );
             case UPLOAD_ERR_NO_FILE:
-                return 'No file was uploaded';
+                return __( 'No file was uploaded', 'ai-commander' );
             case UPLOAD_ERR_NO_TMP_DIR:
-                return 'Missing a temporary folder';
+                return __( 'Missing a temporary folder', 'ai-commander' );
             case UPLOAD_ERR_CANT_WRITE:
-                return 'Failed to write file to disk';
+                return __( 'Failed to write file to disk', 'ai-commander' );
             case UPLOAD_ERR_EXTENSION:
-                return 'A PHP extension stopped the file upload';
+                return __( 'A PHP extension stopped the file upload', 'ai-commander' );
             default:
-                return 'Unknown upload error';
+                return __( 'Unknown upload error', 'ai-commander' );
         }
     }
 
@@ -291,7 +291,7 @@ class ConversationService {
         if ( ! file_exists( $audio_file_path ) ) {
             return new \WP_Error(
                 'file_not_found',
-                'Audio file not found'
+                __( 'Audio file not found', 'ai-commander' )
             );
         }
 
@@ -337,7 +337,7 @@ class ConversationService {
         if ( ! $result ) {
             return array(
                 'success' => false,
-                'message' => 'Conversation not found or you do not have permission to access it',
+                'message' => __( 'Conversation not found or you do not have permission to access it', 'ai-commander' ),
                 'transcription' => $transcription,
             );
         }
@@ -358,7 +358,7 @@ class ConversationService {
         if (empty($text)) {
             return new \WP_Error(
                 'empty_text',
-                'Text to convert to speech cannot be empty.'
+                __( 'Text to convert to speech cannot be empty.', 'ai-commander' )
             );
         }
 
@@ -437,14 +437,14 @@ class ConversationService {
         if (empty($tool_name)) {
             return new \WP_Error(
                 'missing_tool_name',
-                'No tool name specified.'
+                __( 'No tool name specified.', 'ai-commander' )
             );
         }
 
         if (!is_array($params)) {
             return new \WP_Error(
                 'invalid_params',
-                'Tool parameters must be an array.'
+                __( 'Tool parameters must be an array.', 'ai-commander' )
             );
         }
 
@@ -455,7 +455,7 @@ class ConversationService {
         if (!$tool_registry->has_tool($tool_name)) {
             return new \WP_Error(
                 'tool_not_found',
-                'Tool not found: ' . $tool_name
+                sprintf( __( 'Tool not found: %s', 'ai-commander' ), $tool_name )
             );
         }
 

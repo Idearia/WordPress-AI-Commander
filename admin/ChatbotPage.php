@@ -62,7 +62,10 @@ class ChatbotPage extends AdminPage
 
         // Enqueue chat interface assets
         wp_enqueue_style('ai-commander-chat-interface', AI_COMMANDER_PLUGIN_URL . 'assets/css/chat-interface.css', array(), AI_COMMANDER_VERSION);
-        wp_enqueue_script('ai-commander-react-chat-interface', AI_COMMANDER_PLUGIN_URL . 'assets/js/react-chat-interface.js', array('jquery', 'wp-element'), AI_COMMANDER_VERSION, true);
+        wp_enqueue_script('ai-commander-react-chat-interface', AI_COMMANDER_PLUGIN_URL . 'assets/js/react-chat-interface.js', array('jquery', 'wp-element', 'wp-i18n'), AI_COMMANDER_VERSION, true);
+
+        // Set up translations for JavaScript
+        wp_set_script_translations('ai-commander-react-chat-interface', 'ai-commander', plugin_dir_path(dirname(__FILE__)) . 'languages');
 
         // Localize script with necessary data
         wp_localize_script('ai-commander-react-chat-interface', 'aiCommanderData', array(

@@ -23,7 +23,7 @@ class ContentRetrievalTool extends BaseTool {
      */
     public function __construct() {
         $this->name = 'retrieve_content';
-        $this->description = 'Retrieves WordPress content based on various criteria';
+        $this->description = __( 'Retrieves WordPress content based on various criteria', 'ai-commander' );
         $this->required_capability = 'read_private_posts';
         
         parent::__construct();
@@ -38,58 +38,58 @@ class ContentRetrievalTool extends BaseTool {
         return array(
             'post_type' => array(
                 'type' => 'string',
-                'description' => 'The type of post to retrieve (post, page, or any custom post type)',
+                'description' => __( 'The type of post to retrieve (post, page, or any custom post type)', 'ai-commander' ),
                 'required' => false,
                 'default' => 'post',
             ),
             'search' => array(
                 'type' => 'string',
-                'description' => 'Search term to find in posts',
+                'description' => __( 'Search term to find in posts', 'ai-commander' ),
                 'required' => false,
             ),
             'author' => array(
                 'type' => 'string',
-                'description' => 'Author name or ID to filter by',
+                'description' => __( 'Author name or ID to filter by', 'ai-commander' ),
                 'required' => false,
             ),
             'category' => array(
                 'type' => 'string',
-                'description' => 'Category name or ID to filter by',
+                'description' => __( 'Category name or ID to filter by', 'ai-commander' ),
                 'required' => false,
             ),
             'tag' => array(
                 'type' => 'string',
-                'description' => 'Tag name or ID to filter by',
+                'description' => __( 'Tag name or ID to filter by', 'ai-commander' ),
                 'required' => false,
             ),
             'status' => array(
                 'type' => 'string',
-                'description' => 'Post status to filter by (publish, draft, pending, future, etc.)',
+                'description' => __( 'Post status to filter by (publish, draft, pending, future, etc.)', 'ai-commander' ),
                 'required' => false,
                 'default' => 'publish',
             ),
             'order_by' => array(
                 'type' => 'string',
-                'description' => 'Field to order results by (date, title, modified, etc.)',
+                'description' => __( 'Field to order results by (date, title, modified, etc.)', 'ai-commander' ),
                 'required' => false,
                 'default' => 'date',
             ),
             'order' => array(
                 'type' => 'string',
-                'description' => 'Order direction (ASC or DESC)',
+                'description' => __( 'Order direction (ASC or DESC)', 'ai-commander' ),
                 'enum' => array( 'ASC', 'DESC' ),
                 'required' => false,
                 'default' => 'DESC',
             ),
             'limit' => array(
                 'type' => 'integer',
-                'description' => 'Maximum number of posts to retrieve',
+                'description' => __( 'Maximum number of posts to retrieve', 'ai-commander' ),
                 'required' => false,
                 'default' => 10,
             ),
             'include_content' => array(
                 'type' => 'boolean',
-                'description' => 'Whether to include the full content of posts',
+                'description' => __( 'Whether to include the full content of posts', 'ai-commander' ),
                 'required' => false,
                 'default' => false,
             ),
@@ -136,7 +136,7 @@ class ContentRetrievalTool extends BaseTool {
                 } else {
                     return new \WP_Error(
                         'author_not_found',
-                        sprintf( 'Author "%s" not found.', $params['author'] )
+                        sprintf( __( 'Author "%s" not found.', 'ai-commander' ), $params['author'] )
                     );
                 }
             }
@@ -158,7 +158,7 @@ class ContentRetrievalTool extends BaseTool {
                 } else {
                     return new \WP_Error(
                         'category_not_found',
-                        sprintf( 'Category "%s" not found.', $params['category'] )
+                        sprintf( __( 'Category "%s" not found.', 'ai-commander' ), $params['category'] )
                     );
                 }
             }
@@ -180,7 +180,7 @@ class ContentRetrievalTool extends BaseTool {
                 } else {
                     return new \WP_Error(
                         'tag_not_found',
-                        sprintf( 'Tag "%s" not found.', $params['tag'] )
+                        sprintf( __( 'Tag "%s" not found.', 'ai-commander' ), $params['tag'] )
                     );
                 }
             }
@@ -301,11 +301,11 @@ class ContentRetrievalTool extends BaseTool {
         $count = count( $posts );
         
         if ( $count === 0 ) {
-            return 'No posts found matching the criteria.';
+            return __( 'No posts found matching the criteria.', 'ai-commander' );
         }
         
         $summary = sprintf(
-            'Found %d %s matching the criteria:',
+            __( 'Found %d %s matching the criteria:', 'ai-commander' ),
             $count,
             $count === 1 ? $params['post_type'] : $params['post_type'] . 's'
         );
@@ -318,8 +318,8 @@ class ContentRetrievalTool extends BaseTool {
             $summary .= sprintf(
                 "<li>%s (%s | %s)</li>",
                 $post['title'],
-                "<a href='" . esc_url( $post['post_url'] ) . "' target='_blank'>View</a>",
-                "<a href='" . esc_url( $post['edit_url'] ) . "' target='_blank'>Edit</a>"
+                "<a href='" . esc_url( $post['post_url'] ) . "' target='_blank'>" . __( 'View', 'ai-commander' ) . "</a>",
+                "<a href='" . esc_url( $post['edit_url'] ) . "' target='_blank'>" . __( 'Edit', 'ai-commander' ) . "</a>"
             );
         }
         if ( $count > 0 ) {

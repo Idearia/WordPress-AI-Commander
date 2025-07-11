@@ -23,7 +23,7 @@ class ContentOrganizationTool extends BaseTool {
      */
     public function __construct() {
         $this->name = 'organize_content';
-        $this->description = 'Organizes WordPress content by assigning categories, tags, and other taxonomies';
+        $this->description = __( 'Organizes WordPress content by assigning categories, tags, and other taxonomies', 'ai-commander' );
         $this->required_capability = 'manage_categories';
         
         parent::__construct();
@@ -38,17 +38,17 @@ class ContentOrganizationTool extends BaseTool {
         return array(
             'post_id' => array(
                 'type' => 'integer',
-                'description' => 'The ID of the post to organize',
+                'description' => __( 'The ID of the post to organize', 'ai-commander' ),
                 'required' => false,
             ),
             'post_title' => array(
                 'type' => 'string',
-                'description' => 'The title of the post to find (if post_id is not provided)',
+                'description' => __( 'The title of the post to find (if post_id is not provided)', 'ai-commander' ),
                 'required' => false,
             ),
             'categories' => array(
                 'type' => 'array',
-                'description' => 'The categories to assign to the post',
+                'description' => __( 'The categories to assign to the post', 'ai-commander' ),
                 'items' => array(
                     'type' => 'string',
                 ),
@@ -56,7 +56,7 @@ class ContentOrganizationTool extends BaseTool {
             ),
             'tags' => array(
                 'type' => 'array',
-                'description' => 'The tags to assign to the post',
+                'description' => __( 'The tags to assign to the post', 'ai-commander' ),
                 'items' => array(
                     'type' => 'string',
                 ),
@@ -64,12 +64,12 @@ class ContentOrganizationTool extends BaseTool {
             ),
             'featured_image' => array(
                 'type' => 'string',
-                'description' => 'The URL or ID of the featured image to set for the post',
+                'description' => __( 'The URL or ID of the featured image to set for the post', 'ai-commander' ),
                 'required' => false,
             ),
             'action' => array(
                 'type' => 'string',
-                'description' => 'The action to perform (add, remove, replace)',
+                'description' => __( 'The action to perform (add, remove, replace)', 'ai-commander' ),
                 'enum' => array( 'add', 'remove', 'replace' ),
                 'required' => false,
                 'default' => 'add',
@@ -88,7 +88,7 @@ class ContentOrganizationTool extends BaseTool {
         if ( empty( $params['post_id'] ) && empty( $params['post_title'] ) ) {
             return new \WP_Error(
                 'missing_post_identifier',
-                'Either post_id or post_title is required to identify the post to organize.'
+                __( 'Either post_id or post_title is required to identify the post to organize.', 'ai-commander' )
             );
         }
 
@@ -96,7 +96,7 @@ class ContentOrganizationTool extends BaseTool {
         if ( empty( $params['categories'] ) && empty( $params['tags'] ) && empty( $params['featured_image'] ) ) {
             return new \WP_Error(
                 'missing_organization_parameters',
-                'At least one of categories, tags, or featured_image is required.'
+                __( 'At least one of categories, tags, or featured_image is required.', 'ai-commander' )
             );
         }
 
@@ -113,7 +113,7 @@ class ContentOrganizationTool extends BaseTool {
         if ( ! $post ) {
             return new \WP_Error(
                 'post_not_found',
-                sprintf( 'Post with ID %d not found.', $post_id )
+                sprintf( __( 'Post with ID %d not found.', 'ai-commander' ), $post_id )
             );
         }
 
@@ -182,7 +182,7 @@ class ContentOrganizationTool extends BaseTool {
             $post_title = get_the_title( $result['post_id'] );
             $post_id = $result['post_id'];
             
-            $summary_parts[] = sprintf( 'Post "%s" (ID: %d) organized', $post_title, $post_id );
+            $summary_parts[] = sprintf( __( 'Post "%s" (ID: %d) organized', 'ai-commander' ), $post_title, $post_id );
             
             if ( isset( $result['changes'] ) && is_array( $result['changes'] ) ) {
                 foreach ( $result['changes'] as $change ) {
@@ -192,7 +192,7 @@ class ContentOrganizationTool extends BaseTool {
                                 if ( isset( $change['action'], $change['after'] ) ) {
                                     $categories = implode( ', ', $change['after'] );
                                     if ( ! empty( $categories ) ) {
-                                        $summary_parts[] = sprintf( 'Categories set to: %s', $categories );
+                                        $summary_parts[] = sprintf( __( 'Categories set to: %s', 'ai-commander' ), $categories );
                                     }
                                 }
                                 break;
@@ -201,14 +201,14 @@ class ContentOrganizationTool extends BaseTool {
                                 if ( isset( $change['action'], $change['after'] ) ) {
                                     $tags = implode( ', ', $change['after'] );
                                     if ( ! empty( $tags ) ) {
-                                        $summary_parts[] = sprintf( 'Tags set to: %s', $tags );
+                                        $summary_parts[] = sprintf( __( 'Tags set to: %s', 'ai-commander' ), $tags );
                                     }
                                 }
                                 break;
                                 
                             case 'featured_image':
                                 if ( isset( $change['after'] ) && ! empty( $change['after'] ) ) {
-                                    $summary_parts[] = 'Featured image updated';
+                                    $summary_parts[] = __( 'Featured image updated', 'ai-commander' );
                                 }
                                 break;
                         }
@@ -240,7 +240,7 @@ class ContentOrganizationTool extends BaseTool {
         if ( !empty( $post_url ) ) {
             $buttons[] = array(
                 'type' => 'link',
-                'label' => 'View post',
+                'label' => __( 'View post', 'ai-commander' ),
                 'url' => $post_url,
                 'target' => '_blank',
             );
@@ -249,7 +249,7 @@ class ContentOrganizationTool extends BaseTool {
         if ( !empty( $edit_url ) ) {
             $buttons[] = array(
                 'type' => 'link',
-                'label' => 'Edit post',
+                'label' => __( 'Edit post', 'ai-commander' ),
                 'url' => $edit_url,
                 'target' => '_blank',
             );
@@ -285,7 +285,7 @@ class ContentOrganizationTool extends BaseTool {
         if ( ! $query->have_posts() ) {
             return new \WP_Error(
                 'post_not_found',
-                sprintf( 'No post found with title "%s".', $params['post_title'] )
+                sprintf( __( 'No post found with title "%s".', 'ai-commander' ), $params['post_title'] )
             );
         }
 
@@ -352,7 +352,7 @@ class ContentOrganizationTool extends BaseTool {
         if ( false === $result ) {
             return new \WP_Error(
                 'category_update_failed',
-                'Failed to update post categories.'
+                __( 'Failed to update post categories.', 'ai-commander' )
             );
         }
         
@@ -401,7 +401,7 @@ class ContentOrganizationTool extends BaseTool {
         if ( false === $result ) {
             return new \WP_Error(
                 'tag_update_failed',
-                'Failed to update post tags.'
+                __( 'Failed to update post tags.', 'ai-commander' )
             );
         }
         
@@ -452,7 +452,7 @@ class ContentOrganizationTool extends BaseTool {
         if ( false === $result ) {
             return new \WP_Error(
                 'featured_image_update_failed',
-                'Failed to update featured image.'
+                __( 'Failed to update featured image.', 'ai-commander' )
             );
         }
         

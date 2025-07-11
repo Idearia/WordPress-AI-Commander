@@ -58,10 +58,13 @@ class RealtimePage extends AdminPage
         wp_enqueue_script(
             'ai-commander-realtime-interface',
             AI_COMMANDER_PLUGIN_URL . 'assets/js/react-realtime-interface.js',
-            array('wp-element', 'jquery'), // Add wp-element for React
+            array('wp-element', 'jquery', 'wp-i18n'), // Add wp-element for React and wp-i18n for translations
             AI_COMMANDER_VERSION,
             true // Load in footer
         );
+
+        // Set up translations for JavaScript
+        wp_set_script_translations('ai-commander-realtime-interface', 'ai-commander', plugin_dir_path(dirname(__FILE__)) . 'languages');
 
         // Enqueue styles
         wp_enqueue_style(

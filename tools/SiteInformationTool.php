@@ -23,7 +23,7 @@ class SiteInformationTool extends BaseTool {
      */
     public function __construct() {
         $this->name = 'get_site_info';
-        $this->description = 'Retrieves basic WordPress site information';
+        $this->description = __( 'Retrieves basic WordPress site information', 'ai-commander' );
         $this->required_capability = 'read';
         
         parent::__construct();
@@ -97,24 +97,24 @@ class SiteInformationTool extends BaseTool {
             $site_info = $result['site_info'];
             
             if ( isset( $site_info['title'] ) ) {
-                $summary_parts[] = sprintf( 'Site Title: %s', $site_info['title'] );
+                $summary_parts[] = sprintf( __( 'Site Title: %s', 'ai-commander' ), $site_info['title'] );
             }
             
             if ( isset( $site_info['url'] ) ) {
-                $summary_parts[] = sprintf( 'Site URL: %s', $site_info['url'] );
+                $summary_parts[] = sprintf( __( 'Site URL: %s', 'ai-commander' ), $site_info['url'] );
             }
             
             if ( isset( $site_info['tagline'] ) && ! empty( $site_info['tagline'] ) ) {
-                $summary_parts[] = sprintf( 'Site Tagline: %s', $site_info['tagline'] );
+                $summary_parts[] = sprintf( __( 'Site Tagline: %s', 'ai-commander' ), $site_info['tagline'] );
             }
             
             if ( isset( $site_info['is_multisite'] ) && $site_info['is_multisite'] ) {
                 if ( isset( $site_info['site_id'] ) ) {
-                    $summary_parts[] = sprintf( 'Site ID: %d', $site_info['site_id'] );
+                    $summary_parts[] = sprintf( __( 'Site ID: %d', 'ai-commander' ), $site_info['site_id'] );
                 }
                 
                 if ( isset( $site_info['network_name'] ) ) {
-                    $summary_parts[] = sprintf( 'Network Name: %s', $site_info['network_name'] );
+                    $summary_parts[] = sprintf( __( 'Network Name: %s', 'ai-commander' ), $site_info['network_name'] );
                 }
             }
         }

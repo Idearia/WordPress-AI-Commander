@@ -130,7 +130,7 @@ abstract class BaseTool {
             return new \WP_Error(
                 'insufficient_permissions',
                 sprintf(
-                    'You do not have permission to use the %s tool. This operation requires the "%s" capability.',
+                    __( 'You do not have permission to use the %s tool. This operation requires the "%s" capability.', 'ai-commander' ),
                     $this->get_name(),
                     $this->get_required_capability()
                 )
@@ -162,7 +162,7 @@ abstract class BaseTool {
             if ( ! isset( $params[ $name ] ) || empty( $params[ $name ] ) ) {
                 return new \WP_Error(
                     'missing_required_parameter',
-                    sprintf( 'Missing required parameter: %s', $name )
+                    sprintf( __( 'Missing required parameter: %s', 'ai-commander' ), $name )
                 );
             }
         }
@@ -212,7 +212,7 @@ abstract class BaseTool {
         }
         
         // Default generic summary
-        return sprintf( 'Executed %s successfully.', $this->get_name() );
+        return sprintf( __( 'Executed %s successfully.', 'ai-commander' ), $this->get_name() );
     }
     
     /**
