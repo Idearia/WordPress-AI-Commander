@@ -24,8 +24,10 @@ export function App() {
     setSessionData, 
     setPlayingCustomTts 
   } = useAppContext();
-  const [currentScreen, setCurrentScreen] = useState<'config' | 'main'>('config');
-  const [isLoading, setIsLoading] = useState(false);
+  // Determine initial screen based on stored credentials
+  const hasStoredCredentials = state.siteUrl && state.username && localStorage.getItem(STORAGE_KEYS.APP_PASSWORD);
+  const [currentScreen, setCurrentScreen] = useState<'config' | 'main'>(hasStoredCredentials ? 'main' : 'config');
+  const [isLoading, setIsLoading] = useState(hasStoredCredentials);
   const [translationService] = useState(() => new TranslationService());
   
   // Service references
@@ -60,12 +62,19 @@ export function App() {
   };
 
   const initializeApp = async () => {
-    // Check if we have saved credentials
-    if (state.siteUrl && generateBearerToken() && state.bearerToken) {
+    // Check if we have saved credentials and regenerate bearer token
+    if (state.siteUrl && state.username && localStorage.getItem(STORAGE_KEYS.APP_PASSWORD)) {
       try {
-        // Test connection with existing credentials
-        const apiService = new ApiService(state.siteUrl, state.bearerToken);
+        // Generate bearer token from stored credentials
+        const storedPassword = localStorage.getItem(STORAGE_KEYS.APP_PASSWORD);
+        const bearerToken = ApiService.generateBearerToken(state.username, storedPassword!);
+        
+        // Test connection with regenerated credentials
+        const apiService = new ApiService(state.siteUrl, bearerToken);
         await apiService.testConnection();
+        
+        // Update state with valid bearer token
+        setSiteConfig(state.siteUrl, state.username, bearerToken);
         
         // Load translations separately
         await ensureTranslationsLoaded(apiService);
@@ -75,30 +84,23 @@ export function App() {
         
         // Show main app (services will be initialized on first mic click)
         setCurrentScreen('main');
+        setIsLoading(false);
         console.log('[App] Initialized with stored credentials');
       } catch (error) {
         console.warn('[App] Stored credentials invalid or connection failed:', error);
         // Clear invalid credentials and show config screen
         clearSiteConfig();
         setCurrentScreen('config');
+        setIsLoading(false);
       }
     } else {
       // No stored credentials or invalid format
       console.log('[App] No valid stored credentials found');
       setCurrentScreen('config');
+      setIsLoading(false);
     }
   };
 
-  const generateBearerToken = (): boolean => {
-    const storedPassword = localStorage.getItem(STORAGE_KEYS.APP_PASSWORD);
-    
-    if (state.username && storedPassword) {
-      const bearerToken = ApiService.generateBearerToken(state.username, storedPassword);
-      setSiteConfig(state.siteUrl, state.username, bearerToken);
-      return true;
-    }
-    return false;
-  };
 
   const handleConfigSuccess = async (apiService: ApiService) => {
     // Always ensure translations are loaded after successful config
