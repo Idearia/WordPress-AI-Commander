@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAppContext } from '@/context/AppContext';
 import { TranslationProvider } from '@/hooks/useTranslation';
 import { ApiService } from '@/services/ApiService';
@@ -25,9 +25,9 @@ export function App() {
     setPlayingCustomTts 
   } = useAppContext();
   // Determine initial screen based on stored credentials
-  const hasStoredCredentials = state.siteUrl && state.username && localStorage.getItem(STORAGE_KEYS.APP_PASSWORD);
+  const hasStoredCredentials = !!(state.siteUrl && state.username && localStorage.getItem(STORAGE_KEYS.APP_PASSWORD));
   const [currentScreen, setCurrentScreen] = useState<'config' | 'main'>(hasStoredCredentials ? 'main' : 'config');
-  const [isLoading, setIsLoading] = useState(hasStoredCredentials);
+  const [isLoading, setIsLoading] = useState<boolean>(hasStoredCredentials);
   const [translationService] = useState(() => new TranslationService());
   
   // Service references

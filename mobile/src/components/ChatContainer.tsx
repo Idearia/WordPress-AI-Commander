@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAppContext } from '@/context/AppContext';
 import { Message } from '@/types';
