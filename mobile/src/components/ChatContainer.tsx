@@ -18,9 +18,7 @@ export function ChatContainer() {
 
   const renderMessage = (message: Message, index: number) => (
     <div key={index} className={`chat-message ${message.type}`}>
-      <div className="message-bubble">
-        {message.content}
-      </div>
+      <div className="message-bubble">{message.content}</div>
     </div>
   );
 
@@ -45,7 +43,12 @@ export function ChatContainer() {
   const renderEmptyState = () => (
     <div className="empty-state">
       <h2>{t('mobile.ui.greeting', 'Hello! 👋')}</h2>
-      <p>{t('mobile.ui.greeting_text', 'I am the voice assistant for INofficina.it. I can help you manage your workshop appointments.')}</p>
+      <p>
+        {t(
+          'mobile.ui.greeting_text',
+          'I am your Voice Assistant by AI Commander. I can help you interact with your WordPress site.'
+        )}
+      </p>
       <div className="suggestions">
         <div className="suggestion">
           {t('mobile.suggestion.customer_check', '💬 "Is license plate XX333TT our customer?"')}

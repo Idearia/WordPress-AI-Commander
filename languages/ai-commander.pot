@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-12T09:17:36+00:00\n"
+"POT-Creation-Date: 2025-07-12T15:48:23+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.8.1\n"
 "X-Domain: ai-commander\n"
@@ -633,7 +633,7 @@ msgid "Unknown error"
 msgstr ""
 
 #: includes/Services/MobileTranslations.php:60
-msgid "INofficina Voice Assistant"
+msgid "AI Commander Voice Assistant"
 msgstr ""
 
 #: includes/Services/MobileTranslations.php:61
@@ -653,7 +653,7 @@ msgid "https://www.yoursite.com"
 msgstr ""
 
 #: includes/Services/MobileTranslations.php:65
-msgid "The complete URL of your WordPress INofficina site"
+msgid "The complete URL of your WordPress site"
 msgstr ""
 
 #: includes/Services/MobileTranslations.php:66
@@ -685,7 +685,7 @@ msgid "Connect"
 msgstr ""
 
 #: includes/Services/MobileTranslations.php:74
-msgid "INofficina.it Assistant"
+msgid "AI Commander Assistant"
 msgstr ""
 
 #: includes/Services/MobileTranslations.php:75
@@ -701,19 +701,19 @@ msgid "Hello! 👋"
 msgstr ""
 
 #: includes/Services/MobileTranslations.php:78
-msgid "I am the voice assistant for INofficina.it. I can help you manage your workshop appointments."
+msgid "I am your Voice Assistant by AI Commander. I can help you interact with your WordPress site."
 msgstr ""
 
 #: includes/Services/MobileTranslations.php:81
-msgid "Is license plate XX333TT our customer?"
+msgid "💬 \"Is license plate XX333TT our customer?\""
 msgstr ""
 
 #: includes/Services/MobileTranslations.php:82
-msgid "Schedule a service for tomorrow"
+msgid "📅 \"Schedule a service for tomorrow\""
 msgstr ""
 
 #: includes/Services/MobileTranslations.php:83
-msgid "Show today's appointments"
+msgid "🔍 \"Show today's appointments\""
 msgstr ""
 
 #: includes/Services/MobileTranslations.php:86

@@ -14,7 +14,7 @@ export function ConfigScreen({ onConfigSuccess }: ConfigScreenProps) {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     const formData = new FormData(e.currentTarget);
     const url = formData.get('siteUrl') as string;
     const username = formData.get('username') as string;
@@ -52,9 +52,7 @@ export function ConfigScreen({ onConfigSuccess }: ConfigScreenProps) {
       // Notify parent of successful config
       onConfigSuccess(apiService);
     } catch (error) {
-      setError(
-        (error as Error).message || 'Unable to connect. Check your data and try again.'
-      );
+      setError((error as Error).message || 'Unable to connect. Check your data and try again.');
     } finally {
       setIsConnecting(false);
     }
@@ -76,19 +74,22 @@ export function ConfigScreen({ onConfigSuccess }: ConfigScreenProps) {
         <h1 className="config-title">INofficina Voice Assistant</h1>
         <p className="config-subtitle">Enter the URL of your WordPress site and credentials</p>
 
-        <div style={{
-          background: '#f7fafc',
-          border: '1px solid #e2e8f0',
-          borderRadius: '8px',
-          padding: '1rem',
-          marginBottom: '1.5rem',
-          fontSize: '0.875rem',
-          color: '#4a5568'
-        }}>
-          <strong>Note:</strong> For the password, use an "Application Password" generated from your WordPress profile, not the normal password.
-          <a 
-            href="https://wordpress.org/documentation/article/application-passwords/" 
-            target="_blank" 
+        <div
+          style={{
+            background: '#f7fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '8px',
+            padding: '1rem',
+            marginBottom: '1.5rem',
+            fontSize: '0.875rem',
+            color: '#4a5568',
+          }}
+        >
+          <strong>Note:</strong> For the password, use an "Application Password" generated from your
+          WordPress profile, not the normal password.
+          <a
+            href="https://wordpress.org/documentation/article/application-passwords/"
+            target="_blank"
             style={{ color: '#667eea', textDecoration: 'underline' }}
           >
             How to generate an app password →
@@ -97,7 +98,9 @@ export function ConfigScreen({ onConfigSuccess }: ConfigScreenProps) {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label" htmlFor="siteUrl">Site URL</label>
+            <label className="form-label" htmlFor="siteUrl">
+              Site URL
+            </label>
             <input
               type="url"
               id="siteUrl"
@@ -107,11 +110,13 @@ export function ConfigScreen({ onConfigSuccess }: ConfigScreenProps) {
               defaultValue={state.siteUrl}
               required
             />
-            <p className="form-hint">The complete URL of your WordPress INofficina site</p>
+            <p className="form-hint">The complete URL of your WordPress site</p>
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="username">Username</label>
+            <label className="form-label" htmlFor="username">
+              Username
+            </label>
             <input
               type="text"
               id="username"
@@ -126,7 +131,9 @@ export function ConfigScreen({ onConfigSuccess }: ConfigScreenProps) {
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="appPassword">App password</label>
+            <label className="form-label" htmlFor="appPassword">
+              App password
+            </label>
             <input
               type="password"
               id="appPassword"
@@ -136,7 +143,9 @@ export function ConfigScreen({ onConfigSuccess }: ConfigScreenProps) {
               autoComplete="current-password"
               required
             />
-            <p className="form-hint">The application password generated in WordPress (not the normal password)</p>
+            <p className="form-hint">
+              The application password generated in WordPress (not the normal password)
+            </p>
           </div>
 
           {error && (

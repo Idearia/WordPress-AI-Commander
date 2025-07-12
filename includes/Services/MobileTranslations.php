@@ -57,12 +57,12 @@ class MobileTranslations
             'mobile.error.unknown_error' => __('Unknown error', 'ai-commander'),
 
             // User Interface labels and text - main app interface
-            'mobile.ui.title' => __('INofficina Voice Assistant', 'ai-commander'),
+            'mobile.ui.title' => __('AI Commander Voice Assistant', 'ai-commander'),
             'mobile.ui.subtitle' => __('Enter the URL of your WordPress site and credentials', 'ai-commander'),
             'mobile.ui.note' => __('Note: For the password, use an "Application Password" generated from your WordPress profile, not the normal password.', 'ai-commander'),
             'mobile.ui.site_url_label' => __('Site URL', 'ai-commander'),
             'mobile.ui.site_url_placeholder' => __('https://www.yoursite.com', 'ai-commander'),
-            'mobile.ui.site_url_hint' => __('The complete URL of your WordPress INofficina site', 'ai-commander'),
+            'mobile.ui.site_url_hint' => __('The complete URL of your WordPress site', 'ai-commander'),
             'mobile.ui.username_label' => __('Username', 'ai-commander'),
             'mobile.ui.username_placeholder' => __('mario.rossi', 'ai-commander'),
             'mobile.ui.username_hint' => __('Your WordPress username', 'ai-commander'),
@@ -71,11 +71,12 @@ class MobileTranslations
             'mobile.ui.app_password_hint' => __('The application password generated in WordPress (not the normal password)', 'ai-commander'),
             'mobile.ui.connect_btn' => __('Connect', 'ai-commander'),
             'mobile.ui.connecting_btn' => __('Connecting...', 'ai-commander'),
-            'mobile.ui.assistant_name' => __('INofficina.it Assistant', 'ai-commander'),
+            'mobile.ui.text_logo' => __('AI', 'ai-commander'),
+            'mobile.ui.assistant_name' => __('AI Commander Assistant', 'ai-commander'),
             'mobile.ui.change_config' => __('Change configuration', 'ai-commander'),
             'mobile.ui.disconnect' => __('Disconnect', 'ai-commander'),
             'mobile.ui.greeting' => __('Hello! 👋', 'ai-commander'),
-            'mobile.ui.greeting_text' => __('I am the voice assistant for INofficina.it. I can help you manage your workshop appointments.', 'ai-commander'),
+            'mobile.ui.greeting_text' => __('I am your Voice Assistant by AI Commander. I can help you interact with your WordPress site.', 'ai-commander'),
 
             // Suggestion examples - shown to help users understand what they can ask
             'mobile.suggestion.customer_check' => __('💬 "Is license plate XX333TT our customer?"', 'ai-commander'),

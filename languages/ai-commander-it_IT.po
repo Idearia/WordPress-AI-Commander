@@ -1,5 +1,3 @@
-# Copyright (C) 2025 Idearia Web Agency
-# This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
 "Project-Id-Version: AI Commander 1.0.0\n"
@@ -11,6 +9,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2025-07-12T09:01:47+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Language: \n"
 "X-Generator: WP-CLI 2.8.1\n"
 "X-Domain: ai-commander\n"
 
@@ -465,208 +464,196 @@ msgstr ""
 msgid "Hello! I'm your WordPress assistant. How can I help you today?"
 msgstr ""
 
-#: includes/RestApi.php:213
+#: includes/RestApi.php:214
 msgid "You do not have permission to use this API."
 msgstr ""
 
-#: includes/RestApi.php:259
+#: includes/RestApi.php:260
 msgid "Conversation not found or you do not have permission to access it."
 msgstr ""
 
-#: includes/RestApi.php:307
-#: includes/RestApi.php:372
+#: includes/RestApi.php:308
+#: includes/RestApi.php:373
 msgid "No audio file provided."
 msgstr ""
 
-#: includes/RestApi.php:552
+#: includes/Services/MobileTranslations.php:36
 msgid "Press to start"
-msgstr ""
+msgstr "Premi per iniziare"
 
-#: includes/RestApi.php:553
-#: includes/RestApi.php:589
+#: includes/Services/MobileTranslations.php:37
+#: includes/Services/MobileTranslations.php:73
 msgid "Connecting..."
-msgstr ""
+msgstr "Connettendomi..."
 
-#: includes/RestApi.php:554
+#: includes/Services/MobileTranslations.php:38
 msgid "Listening..."
-msgstr ""
+msgstr "Ascoltando..."
 
-#: includes/RestApi.php:555
+#: includes/Services/MobileTranslations.php:39
 #: assets/js/react-chat-interface.js:120
 msgid "Processing..."
-msgstr ""
+msgstr "Sto elaborando..."
 
-#: includes/RestApi.php:556
+#: includes/Services/MobileTranslations.php:40
 msgid "Response in progress..."
-msgstr ""
+msgstr "Sto elaborando la risposta..."
 
-#: includes/RestApi.php:557
+#: includes/Services/MobileTranslations.php:41
 msgid "Press to interrupt"
-msgstr ""
+msgstr "Premi per interrompere"
 
-#: includes/RestApi.php:558
+#: includes/Services/MobileTranslations.php:42
 msgid "Executing command..."
-msgstr ""
+msgstr "Sto eseguendo il comando..."
 
-#: includes/RestApi.php:559
+#: includes/Services/MobileTranslations.php:43
 msgid "Waiting..."
-msgstr ""
+msgstr "Sto aspettando..."
 
-#: includes/RestApi.php:560
+#: includes/Services/MobileTranslations.php:44
 msgid "Error"
-msgstr ""
+msgstr "Errore"
 
-#: includes/RestApi.php:563
+#: includes/Services/MobileTranslations.php:47
 msgid "Invalid URL. Enter a complete URL (e.g. https://www.yoursite.com)"
-msgstr ""
+msgstr "URL non valido. Inserisci un URL completo (es. https://www.tuaofficina.it)"
 
-#: includes/RestApi.php:564
+#: includes/Services/MobileTranslations.php:48
 msgid "Invalid credentials. Check username and password."
-msgstr ""
+msgstr "Credenziali non valide. Controlla username e password."
 
-#: includes/RestApi.php:565
+#: includes/Services/MobileTranslations.php:49
 msgid "Access denied. Check user permissions on the site."
-msgstr ""
+msgstr "Accesso negato. Controlla i permessi dell'utente sul sito."
 
-#: includes/RestApi.php:566
+#: includes/Services/MobileTranslations.php:50
 msgid "Unable to connect to WordPress site"
-msgstr ""
+msgstr "Impossibile connettersi a INofficina.it"
 
-#: includes/RestApi.php:567
+#: includes/Services/MobileTranslations.php:51
 msgid "Unable to start session"
-msgstr ""
+msgstr "Impossibile avviare la sessione"
 
-#: includes/RestApi.php:568
+#: includes/Services/MobileTranslations.php:52
 msgid "Tool execution failed"
-msgstr ""
+msgstr "Esecuzione strumento fallita"
 
-#: includes/RestApi.php:569
+#: includes/Services/MobileTranslations.php:53
 msgid "Network error"
-msgstr ""
+msgstr "Errore di rete"
 
-#: includes/RestApi.php:570
+#: includes/Services/MobileTranslations.php:54
 msgid "Data channel not open"
-msgstr ""
+msgstr "Canale dati non aperto"
 
-#: includes/RestApi.php:571
+#: includes/Services/MobileTranslations.php:55
 msgid "Error in custom audio playback."
-msgstr ""
+msgstr "Errore nella riproduzione audio personalizzata."
 
-#: includes/RestApi.php:572
+#: includes/Services/MobileTranslations.php:56
 msgid "Communication error"
-msgstr ""
+msgstr "Errore di comunicazione"
 
-#: includes/RestApi.php:573
+#: includes/Services/MobileTranslations.php:57
 #: assets/js/react-chat-interface.js:149
 #: assets/js/react-chat-interface.js:164
 #: assets/js/react-chat-interface.js:567
 #: assets/js/react-chat-interface.js:781
 msgid "Unknown error"
-msgstr ""
+msgstr "Errore sconosciuto"
 
-#: includes/RestApi.php:576
-msgid "INofficina Voice Assistant"
-msgstr ""
+#: includes/Services/MobileTranslations.php:60
+msgid "AI Commander Voice Assistant"
+msgstr "Assistente vocale INofficina.it"
 
-#: includes/RestApi.php:577
+#: includes/Services/MobileTranslations.php:61
 msgid "Enter the URL of your WordPress site and credentials"
-msgstr ""
+msgstr "Inserisci l'indirizzo del tuo sito INofficina.it e le tue credenziali"
 
-#: includes/RestApi.php:578
+#: includes/Services/MobileTranslations.php:62
 msgid "Note: For the password, use an \"Application Password\" generated from your WordPress profile, not the normal password."
-msgstr ""
+msgstr "Nota: La password che ti serve qui è diversa dalla password del sito, contatta Idearia per ottenere la password corretta!"
 
-#: includes/RestApi.php:579
+#: includes/Services/MobileTranslations.php:63
 msgid "Site URL"
-msgstr ""
+msgstr "Indirizzo del sito"
 
-#: includes/RestApi.php:580
+#: includes/Services/MobileTranslations.php:64
 msgid "https://www.yoursite.com"
-msgstr ""
+msgstr "https://www.tuaofficina.it"
 
-#: includes/RestApi.php:581
-msgid "The complete URL of your WordPress INofficina site"
-msgstr ""
+#: includes/Services/MobileTranslations.php:65
+msgid "The complete URL of your WordPress site"
+msgstr "L'indirizzo completo del tuo sito INofficina.it"
 
-#: includes/RestApi.php:582
+#: includes/Services/MobileTranslations.php:66
 msgid "Username"
-msgstr ""
+msgstr "Nome utente"
 
-#: includes/RestApi.php:583
-msgid "mario.rossi"
-msgstr ""
+#: includes/Services/MobileTranslations.php:67
+msgid "john.doe"
+msgstr "mario.rossi"
 
-#: includes/RestApi.php:584
+#: includes/Services/MobileTranslations.php:68
 msgid "Your WordPress username"
-msgstr ""
+msgstr "Il tuo nome utente INofficina.it"
 
-#: includes/RestApi.php:585
+#: includes/Services/MobileTranslations.php:69
 msgid "App password"
-msgstr ""
+msgstr "Password applicazione (diversa da quella del sito)"
 
-#: includes/RestApi.php:586
+#: includes/Services/MobileTranslations.php:70
 msgid "xxxx xxxx xxxx xxxx"
-msgstr ""
+msgstr "xxxx xxxx xxxx xxxx"
 
-#: includes/RestApi.php:587
+#: includes/Services/MobileTranslations.php:71
 msgid "The application password generated in WordPress (not the normal password)"
-msgstr ""
+msgstr "La password dell'applicazione, non la password normale (chiedere a Idearia)"
 
-#: includes/RestApi.php:588
+#: includes/Services/MobileTranslations.php:72
 msgid "Connect"
-msgstr ""
+msgstr "Connettiti"
 
-#: includes/RestApi.php:590
-msgid "INofficina.it Assistant"
-msgstr ""
+#: includes/Services/MobileTranslations.php:74
+msgid "AI Commander Assistant"
+msgstr "Assistente INofficina.it"
 
-#: includes/RestApi.php:591
+#: includes/Services/MobileTranslations.php:75
 msgid "Change configuration"
-msgstr ""
+msgstr "Cambia configurazione"
 
-#: includes/RestApi.php:592
+#: includes/Services/MobileTranslations.php:76
 msgid "Disconnect"
-msgstr ""
+msgstr "Disconnetti"
 
-#: includes/RestApi.php:593
+#: includes/Services/MobileTranslations.php:77
 msgid "Hello! 👋"
-msgstr ""
+msgstr "Ciao! 👋"
 
-#: includes/RestApi.php:594
-msgid "I am the voice assistant for INofficina.it. I can help you manage your workshop appointments."
-msgstr ""
+#: includes/Services/MobileTranslations.php:78
+msgid "I am your Voice Assistant by AI Commander. I can help you interact with your WordPress site."
+msgstr "Sono l'assistente vocale di INofficina.it. Posso aiutarti a gestire gli appuntamenti della tua officina."
 
-#: includes/RestApi.php:597
-msgid "Is license plate XX333TT our customer?"
-msgstr ""
-
-#: includes/RestApi.php:598
-msgid "Schedule a service for tomorrow"
-msgstr ""
-
-#: includes/RestApi.php:599
-msgid "Show today's appointments"
-msgstr ""
-
-#: includes/RestApi.php:602
+#: includes/Services/MobileTranslations.php:86
 msgid "Do you want to disconnect and delete saved credentials?"
-msgstr ""
+msgstr "Vuoi disconnetterti e cancellare le credenziali salvate?"
 
-#: includes/RestApi.php:605
+#: includes/Services/MobileTranslations.php:89
 msgid "Session expired. Please log in again."
-msgstr ""
+msgstr "Sessione scaduta. Per favore, accedi di nuovo."
 
-#: includes/RestApi.php:606
+#: includes/Services/MobileTranslations.php:90
 msgid "Credentials not found. Please log in again."
-msgstr ""
+msgstr "Credenziali non trovate. Per favore, accedi di nuovo."
 
-#: includes/RestApi.php:607
+#: includes/Services/MobileTranslations.php:91
 msgid "URL must start with http:// or https://"
-msgstr ""
+msgstr "L'URL deve iniziare con http:// o https://"
 
-#: includes/RestApi.php:608
+#: includes/Services/MobileTranslations.php:92
 msgid "Unable to connect. Check your data and try again."
-msgstr ""
+msgstr "Impossibile connettersi. Controlla i tuoi dati e prova di nuovo."
 
 #: includes/Services/ConversationService.php:174
 msgid "Conversation not found"
@@ -1256,3 +1243,15 @@ msgstr ""
 #: assets/js/react-realtime-interface.js:735
 msgid "Error: Plugin configuration data is missing."
 msgstr ""
+
+#: includes/Services/MobileTranslations.php:81
+msgid "💬 \"Is license plate XX333TT our customer?\""
+msgstr "💬 \"La targa XX333TT è nostra cliente?\""
+
+#: includes/Services/MobileTranslations.php:82
+msgid "📅 \"Schedule a service for tomorrow\""
+msgstr "📅 \"Fissa un tagliando per domani\""
+
+#: includes/Services/MobileTranslations.php:83
+msgid "🔍 \"Show today's appointments\""
+msgstr "🔍 \"Mostra gli appuntamenti di oggi\""
