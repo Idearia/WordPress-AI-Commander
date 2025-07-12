@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-11T17:29:10+00:00\n"
+"POT-Creation-Date: 2025-07-12T08:41:11+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.8.1\n"
 "X-Domain: ai-commander\n"
@@ -459,6 +459,10 @@ msgstr ""
 
 #: admin/SettingsPage.php:784
 msgid "Configure input audio noise reduction. \"Near field\" is for close-talking microphones such as headphones. \"Far field\" is for laptop or conference room microphones. Select \"None\" to turn off noise reduction."
+msgstr ""
+
+#: includes/ConversationManager.php:29
+msgid "Hello! I'm your WordPress assistant. How can I help you today?"
 msgstr ""
 
 #: includes/RestApi.php:206

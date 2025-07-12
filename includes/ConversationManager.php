@@ -26,7 +26,7 @@ class ConversationManager
      */
     public static function get_default_assistant_greeting()
     {
-        return 'Hello! I\'m your WordPress assistant. How can I help you today?';
+        return __("Hello! I'm your WordPress assistant. How can I help you today?", 'ai-commander');
     }
 
     /**
@@ -253,7 +253,7 @@ class ConversationManager
 
     /**
      * Format messages for frontend display.
-     * 
+     *
      * This is used to popolate an existing conversation at page load
      * or when a new conversation is created from the frontend.
      *

@@ -1,17 +1,15 @@
-# Copyright (C) 2025 Idearia Web Agency
-# This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
 "Project-Id-Version: AI Commander 1.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/ai-commander\n"
 "Last-Translator: Test User <test@example.com>\n"
 "Language-Team: Italian <it@li.org>\n"
-"Language: it_IT\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2025-07-11T17:29:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Language: it_IT\n"
 "X-Generator: WP-CLI 2.8.1\n"
 "X-Domain: ai-commander\n"
 
@@ -25,7 +23,7 @@ msgstr ""
 
 #. Description of the plugin
 msgid "Control WordPress with natural language or voice, with API support"
-msgstr ""
+msgstr "Controlla WordPress con linguaggio naturale o voce, con supporto API"
 
 #. Author of the plugin
 msgid "Idearia Web Agency"
@@ -51,7 +49,7 @@ msgstr "Chatbot"
 #: admin/RealtimePage.php:39
 #: admin/RealtimePage.php:40
 msgid "Realtime"
-msgstr ""
+msgstr "Tempo reale"
 
 #: admin/AdminPage.php:106
 #: admin/ChatbotPage.php:100
@@ -62,841 +60,845 @@ msgstr "Impostazioni"
 
 #: admin/AdminPage.php:121
 msgid "Welcome to AI Commander! Use the tabs below to navigate."
-msgstr ""
+msgstr "Benvenuto in AI Commander! Usa le schede qui sotto per navigare."
 
 #: admin/AdminPage.php:127
 msgid "About AI Commander"
-msgstr ""
+msgstr "Informazioni su AI Commander"
 
 #: admin/AdminPage.php:128
 msgid "This plugin allows you to issue commands to WordPress using natural language through a chatbot interface."
-msgstr ""
+msgstr "Questo plugin ti permette di impartire comandi a WordPress usando il linguaggio naturale tramite un'interfaccia chatbot."
 
 #: admin/AdminPage.php:129
 msgid "You can create and edit posts, manage categories and tags, and more, all using simple, conversational language."
-msgstr ""
+msgstr "Puoi creare e modificare articoli, gestire categorie e tag, e molto altro, tutto usando un linguaggio semplice e conversazionale."
 
 #: admin/AdminPage.php:133
 msgid "Getting Started"
-msgstr ""
+msgstr "Primi passi"
 
 #: admin/AdminPage.php:135
 msgid "Go to the Settings tab and enter your OpenAI API key."
-msgstr ""
+msgstr "Vai alla scheda Impostazioni e inserisci la tua chiave API OpenAI."
 
 #: admin/AdminPage.php:136
 msgid "Navigate to the Chatbot tab to start issuing commands."
-msgstr ""
+msgstr "Naviga alla scheda Chatbot per iniziare a impartire comandi."
 
 #: admin/AdminPage.php:137
 msgid "Try saying something like \"Create a post on the topic 'Best practices to index a website on Google' and tag it as 'SEO' and 'How-to'."
-msgstr ""
+msgstr "Prova a dire qualcosa come \"Crea un articolo sull'argomento 'Best practices per indicizzare un sito web su Google' e taggalo come 'SEO' e 'How-to'."
 
 #: admin/AdminPage.php:142
 msgid "Available Commands"
-msgstr ""
+msgstr "Comandi disponibili"
 
 #: admin/AdminPage.php:143
 msgid "You can use natural language to perform the following actions:"
-msgstr ""
+msgstr "Puoi usare il linguaggio naturale per eseguire le seguenti azioni:"
 
 #: admin/AdminPage.php:168
 msgid "No commands available. Please check your plugin configuration."
-msgstr ""
+msgstr "Nessun comando disponibile. Verifica la configurazione del plugin."
 
 #. translators: %s: URL to settings page
 #: admin/ChatbotPage.php:99
 msgid "OpenAI API key is not set. Please configure it in the %s."
-msgstr ""
+msgstr "La chiave API OpenAI non è impostata. Configurala nelle %s."
 
 #: admin/ChatbotPage.php:113
 msgid "Loading chatbot interface..."
-msgstr ""
+msgstr "Caricamento interfaccia chatbot..."
 
 #: admin/ChatbotPage.php:118
 msgid "Please set your OpenAI API key in the Settings page to use the chatbot."
-msgstr ""
+msgstr "Imposta la tua chiave API OpenAI nella pagina Impostazioni per usare il chatbot."
 
 #: admin/ChatbotPage.php:124
 msgid "Tips for Using the Chatbot"
-msgstr ""
+msgstr "Suggerimenti per usare il Chatbot"
 
 #: admin/ChatbotPage.php:126
 msgid "Be specific about what you want to create or edit."
-msgstr ""
+msgstr "Sii specifico/a su cosa vuoi creare o modificare."
 
 #: admin/ChatbotPage.php:127
 msgid "You can use voice input by clicking the microphone button next to the send button."
-msgstr ""
+msgstr "Puoi usare l'input vocale cliccando il pulsante microfono accanto al pulsante invia."
 
 #: admin/ChatbotPage.php:128
 msgid "To record a voice message, click the microphone button, speak your command, then click the button again to stop recording and send."
-msgstr ""
+msgstr "Per registrare un messaggio vocale, clicca il pulsante microfono, pronuncia il tuo comando, poi clicca di nuovo il pulsante per fermare la registrazione e inviare."
 
 #: admin/ChatbotPage.php:129
 msgid "For best results with voice input, speak clearly and use natural language."
-msgstr ""
+msgstr "Per ottenere i migliori risultati con l'input vocale, parla chiaramente e usa il linguaggio naturale."
 
 #: admin/ChatbotPage.php:130
 msgid "Example commands:"
-msgstr ""
+msgstr "Comandi di esempio:"
 
 #: admin/ChatbotPage.php:132
 msgid "\"Create a new draft post titled 'Summer Recipes' with three Italian recipes\""
-msgstr ""
+msgstr "\"Crea una nuova bozza di articolo intitolata 'Ricette estive' con tre ricette italiane\""
 
 #: admin/ChatbotPage.php:133
 msgid "\"Edit the title into 'Italian Summer Recipes\" and publish it\""
-msgstr ""
+msgstr "\"Modifica il titolo in 'Ricette estive italiane' e pubblicalo\""
 
 #: admin/ChatbotPage.php:134
 msgid "\"Add the tag 'recipes' to the post"
-msgstr ""
+msgstr "\"Aggiungi il tag 'ricette' all'articolo"
 
 #: admin/ChatbotPage.php:141
 msgid "Requirements for voice input"
-msgstr ""
+msgstr "Requisiti per l'input vocale"
 
 #: admin/ChatbotPage.php:142
 msgid "To use the realtime or speech-to-text features, please ensure:"
-msgstr ""
+msgstr "Per utilizzare le funzionalità tempo reale o speech-to-text, assicurati che:"
 
 #: admin/ChatbotPage.php:144
 msgid "Your site is served over HTTPS (required for microphone access in most browsers)."
-msgstr ""
+msgstr "Il tuo sito sia servito tramite HTTPS (richiesto per l'accesso al microfono nella maggior parte dei browser)."
 
 #: admin/ChatbotPage.php:145
 msgid "You are using a modern browser that supports the MediaRecorder API (Chrome, Edge, Firefox, Safari 14.1+)."
-msgstr ""
+msgstr "Stai usando un browser moderno che supporta l'API MediaRecorder (Chrome, Edge, Firefox, Safari 14.1+)."
 
 #: admin/ChatbotPage.php:146
 msgid "You have granted microphone permissions to this site. Look for the microphone icon in your browser's address bar to check or change permissions."
-msgstr ""
+msgstr "Hai concesso i permessi del microfono a questo sito. Cerca l'icona del microfono nella barra degli indirizzi del browser per verificare o modificare i permessi."
 
 #: admin/ChatbotPage.php:149
 msgid "Note: If you're using this plugin on a local development environment, you can access it via http://localhost without HTTPS."
-msgstr ""
+msgstr "Nota: Se stai usando questo plugin in un ambiente di sviluppo locale, puoi accedervi tramite http://localhost senza HTTPS."
 
 #: admin/RealtimePage.php:112
 msgid "Start a real-time voice conversation with AI Commander."
-msgstr ""
+msgstr "Inizia una conversazione vocale in tempo reale con AI Commander."
 
 #. translators: %s: Link to settings page
 #: admin/RealtimePage.php:121
 msgid "Error: OpenAI API Key is not set. Please <a href=\"%s\">configure it in the settings</a> to use the Realtime feature."
-msgstr ""
+msgstr "Errore: La chiave API OpenAI non è impostata. <a href=\"%s\">Configurala nelle impostazioni</a> per usare la funzionalità Tempo reale."
 
 #: admin/SettingsPage.php:233
 msgid "OpenAI API Settings"
-msgstr ""
+msgstr "Impostazioni API OpenAI"
 
 #: admin/SettingsPage.php:241
 msgid "API Key"
-msgstr ""
+msgstr "Chiave API"
 
 #: admin/SettingsPage.php:249
 msgid "Chat Completion Model"
-msgstr ""
+msgstr "Modello di completamento chat"
 
 #: admin/SettingsPage.php:258
 msgid "Transcription Model"
-msgstr ""
+msgstr "Modello di trascrizione"
 
 #: admin/SettingsPage.php:266
 msgid "Speech Model"
-msgstr ""
+msgstr "Modello di sintesi vocale"
 
 #: admin/SettingsPage.php:274
 msgid "Realtime Model"
-msgstr ""
+msgstr "Modello tempo reale"
 
 #: admin/SettingsPage.php:282
 msgid "Debug Mode"
-msgstr ""
+msgstr "Modalità debug"
 
 #: admin/SettingsPage.php:291
 msgid "Chatbot Settings"
-msgstr ""
+msgstr "Impostazioni Chatbot"
 
 #: admin/SettingsPage.php:299
 msgid "Chatbot System Prompt"
-msgstr ""
+msgstr "Prompt di sistema del Chatbot"
 
 #: admin/SettingsPage.php:307
 msgid "Chatbot Greeting"
-msgstr ""
+msgstr "Saluto del Chatbot"
 
 #: admin/SettingsPage.php:315
 msgid "Speech language"
-msgstr ""
+msgstr "Lingua vocale"
 
 #: admin/SettingsPage.php:324
 msgid "Realtime API Settings"
-msgstr ""
+msgstr "Impostazioni API Tempo reale"
 
 #: admin/SettingsPage.php:332
 msgid "Realtime Voice"
-msgstr ""
+msgstr "Voce tempo reale"
 
 #: admin/SettingsPage.php:340
 msgid "Realtime System Prompt"
-msgstr ""
+msgstr "Prompt di sistema tempo reale"
 
 #: admin/SettingsPage.php:349
 msgid "Use Custom TTS"
-msgstr ""
+msgstr "Usa TTS personalizzato"
 
 #: admin/SettingsPage.php:358
 msgid "TTS Instructions"
-msgstr ""
+msgstr "Istruzioni TTS"
 
 #: admin/SettingsPage.php:367
 msgid "Enable Input Transcription"
-msgstr ""
+msgstr "Abilita trascrizione input"
 
 #: admin/SettingsPage.php:376
 #: admin/SettingsPage.php:756
 msgid "Show Tool Calls"
-msgstr ""
+msgstr "Mostra chiamate strumenti"
 
 #: admin/SettingsPage.php:385
 msgid "Input Audio Noise Reduction"
-msgstr ""
+msgstr "Riduzione rumore audio input"
 
 #: admin/SettingsPage.php:412
 msgid "Getting an OpenAI API Key"
-msgstr ""
+msgstr "Ottenere una chiave API OpenAI"
 
 #: admin/SettingsPage.php:414
 msgid "Go to the OpenAI website and sign up for an account if you don't already have one."
-msgstr ""
+msgstr "Vai al sito web di OpenAI e registrati per un account se non ne hai già uno."
 
 #: admin/SettingsPage.php:415
 msgid "Navigate to the API section of your account."
-msgstr ""
+msgstr "Naviga alla sezione API del tuo account."
 
 #: admin/SettingsPage.php:416
 msgid "Create a new API key and copy it."
-msgstr ""
+msgstr "Crea una nuova chiave API e copiala."
 
 #: admin/SettingsPage.php:417
 msgid "Paste the API key into the field above and save your settings."
-msgstr ""
+msgstr "Incolla la chiave API nel campo sopra e salva le tue impostazioni."
 
 #: admin/SettingsPage.php:421
 msgid "Get API Key from OpenAI"
-msgstr ""
+msgstr "Ottieni chiave API da OpenAI"
 
 #: admin/SettingsPage.php:435
 msgid "Configure your OpenAI API settings below. An API key is required for the chatbot to function."
-msgstr ""
+msgstr "Configura le tue impostazioni API OpenAI qui sotto. Una chiave API è richiesta per il funzionamento del chatbot."
 
 #. translators: %s: Masked API key
 #: admin/SettingsPage.php:453
 msgid "Current key: %s"
-msgstr ""
+msgstr "Chiave attuale: %s"
 
 #: admin/SettingsPage.php:457
 msgid "Enter your OpenAI API key here."
-msgstr ""
+msgstr "Inserisci qui la tua chiave API OpenAI."
 
 #: admin/SettingsPage.php:473
 msgid "Enter the OpenAI model to use for chat completion, e.g., gpt-4o."
-msgstr ""
+msgstr "Inserisci il modello OpenAI da usare per il completamento chat, es. gpt-4o."
 
 #: admin/SettingsPage.php:487
 msgid "Enter the OpenAI model to generate text from audio (speech-to-text), e.g., gpt-4o-transcribe."
-msgstr ""
+msgstr "Inserisci il modello OpenAI per generare testo da audio (speech-to-text), es. gpt-4o-transcribe."
 
 #: admin/SettingsPage.php:501
 msgid "Enter the OpenAI model to use to generate audio from text (text-to-speech), e.g., gpt-4o-mini-tts."
-msgstr ""
+msgstr "Inserisci il modello OpenAI per generare audio da testo (text-to-speech), es. gpt-4o-mini-tts."
 
 #: admin/SettingsPage.php:515
 msgid "Enter the OpenAI Realtime model to use (e.g., gpt-4o-realtime-preview-2025-06-03)."
-msgstr ""
+msgstr "Inserisci il modello OpenAI Realtime da usare (es. gpt-4o-realtime-preview-2025-06-03)."
 
 #: admin/SettingsPage.php:529
 msgid "Enable debug logging"
-msgstr ""
+msgstr "Abilita logging debug"
 
 #: admin/SettingsPage.php:532
 msgid "When enabled, detailed API request and response information will be logged to the WordPress debug log. This is useful for troubleshooting but should be disabled in production."
-msgstr ""
+msgstr "Quando abilitato, informazioni dettagliate su richieste e risposte API verranno registrate nel log debug di WordPress. È utile per la risoluzione dei problemi ma dovrebbe essere disabilitato in produzione."
 
 #: admin/SettingsPage.php:543
 msgid "Configure settings for the chatbot interface."
-msgstr ""
+msgstr "Configura le impostazioni per l'interfaccia chatbot."
 
 #: admin/SettingsPage.php:559
 msgid "The system prompt sets the behavior and capabilities of the AI assistant. Customize this to change how the assistant responds to user requests.  If empty, the following default system prompt will be used:"
-msgstr ""
+msgstr "Il prompt di sistema imposta il comportamento e le capacità dell'assistente AI. Personalizzalo per cambiare come l'assistente risponde alle richieste degli utenti. Se vuoto, verrà usato il seguente prompt di sistema predefinito:"
 
 #: admin/SettingsPage.php:567
 #: admin/SettingsPage.php:598
 #: admin/SettingsPage.php:721
 msgid "Note:"
-msgstr ""
+msgstr "Nota:"
 
 #: admin/SettingsPage.php:568
 msgid "The system prompt is currently set by code using the `ai_commander_filter_chatbot_system_prompt` filter. This is the actual value used:"
-msgstr ""
+msgstr "Il prompt di sistema è attualmente impostato via codice usando il filtro `ai_commander_filter_chatbot_system_prompt`. Questo è il valore effettivo utilizzato:"
 
 #: admin/SettingsPage.php:588
 msgid "The initial greeting message shown to users when starting a new conversation. If empty, the default greeting will be used:"
-msgstr ""
+msgstr "Il messaggio di saluto iniziale mostrato agli utenti quando iniziano una nuova conversazione. Se vuoto, verrà usato il saluto predefinito:"
 
 #: admin/SettingsPage.php:599
 msgid "The assistant greeting is currently set by code using the `ai_commander_filter_chatbot_greeting` filter. This is the actual value used:"
-msgstr ""
+msgstr "Il saluto dell'assistente è attualmente impostato via codice usando il filtro `ai_commander_filter_chatbot_greeting`. Questo è il valore effettivo utilizzato:"
 
 #: admin/SettingsPage.php:614
 msgid "Auto-detect (recommended)"
-msgstr ""
+msgstr "Rilevamento automatico (raccomandato)"
 
 #: admin/SettingsPage.php:615
 msgid "English"
-msgstr ""
+msgstr "Inglese"
 
 #: admin/SettingsPage.php:616
 msgid "Spanish"
-msgstr ""
+msgstr "Spagnolo"
 
 #: admin/SettingsPage.php:617
 msgid "French"
-msgstr ""
+msgstr "Francese"
 
 #: admin/SettingsPage.php:618
 msgid "German"
-msgstr ""
+msgstr "Tedesco"
 
 #: admin/SettingsPage.php:619
 msgid "Italian"
-msgstr ""
+msgstr "Italiano"
 
 #: admin/SettingsPage.php:620
 msgid "Portuguese"
-msgstr ""
+msgstr "Portoghese"
 
 #: admin/SettingsPage.php:621
 msgid "Dutch"
-msgstr ""
+msgstr "Olandese"
 
 #: admin/SettingsPage.php:622
 msgid "Japanese"
-msgstr ""
+msgstr "Giapponese"
 
 #: admin/SettingsPage.php:623
 msgid "Chinese"
-msgstr ""
+msgstr "Cinese"
 
 #: admin/SettingsPage.php:624
 msgid "Russian"
-msgstr ""
+msgstr "Russo"
 
 #: admin/SettingsPage.php:625
 msgid "Arabic"
-msgstr ""
+msgstr "Arabo"
 
 #: admin/SettingsPage.php:626
 msgid "Hindi"
-msgstr ""
+msgstr "Hindi"
 
 #: admin/SettingsPage.php:637
 msgid "Select a language to improve transcription accuracy. Auto-detect works well for most cases, but specifying a language can improve accuracy and processing speed."
-msgstr ""
+msgstr "Seleziona una lingua per migliorare l'accuratezza della trascrizione. Il rilevamento automatico funziona bene nella maggior parte dei casi, ma specificare una lingua può migliorare accuratezza e velocità di elaborazione."
 
 #: admin/SettingsPage.php:648
 msgid "Configure settings specific to the Realtime voice conversation feature."
-msgstr ""
+msgstr "Configura le impostazioni specifiche per la funzionalità di conversazione vocale in tempo reale."
 
 #: admin/SettingsPage.php:668
 msgid "Select the voice for the AI assistant's audio responses."
-msgstr ""
+msgstr "Seleziona la voce per le risposte audio dell'assistente AI."
 
 #: admin/SettingsPage.php:682
 msgid "Optional: Add specific instructions for the Realtime voice assistant. This will be appended to the main System Prompt."
-msgstr ""
+msgstr "Opzionale: Aggiungi istruzioni specifiche per l'assistente vocale tempo reale. Queste verranno aggiunte al Prompt di sistema principale."
 
 #: admin/SettingsPage.php:696
 msgid "Use custom text-to-speech for audio responses"
-msgstr ""
+msgstr "Usa text-to-speech personalizzato per le risposte audio"
 
 #: admin/SettingsPage.php:699
 msgid "When enabled, the plugin will use your configured TTS model instead of Realtime API's built-in voice. This may provide better quality or different voice options depending on your settings."
-msgstr ""
+msgstr "Quando abilitato, il plugin userà il tuo modello TTS configurato invece della voce integrata dell'API Realtime. Questo può fornire qualità migliore o diverse opzioni vocali a seconda delle tue impostazioni."
 
 #: admin/SettingsPage.php:716
 msgid "Optional: Provide additional guidance for how the TTS model should speak (tone, style, etc.).  Ignored unless custom TTS is enabled.  Ignored for tts-1 models."
-msgstr ""
+msgstr "Opzionale: Fornisci indicazioni aggiuntive su come il modello TTS dovrebbe parlare (tono, stile, ecc.). Ignorato a meno che TTS personalizzato sia abilitato. Ignorato per i modelli tts-1."
 
 #: admin/SettingsPage.php:722
 msgid "The TTS instructions are currently set by code using the `ai_commander_filter_tts_instructions` filter. This is the actual value used:"
-msgstr ""
+msgstr "Le istruzioni TTS sono attualmente impostate via codice usando il filtro `ai_commander_filter_tts_instructions`. Questo è il valore effettivo utilizzato:"
 
 #: admin/SettingsPage.php:739
 msgid "Enable input audio transcription"
-msgstr ""
+msgstr "Abilita trascrizione audio input"
 
 #: admin/SettingsPage.php:742
 msgid "When enabled, the transcript of your speech will be displayed in the conversation. Disabling this can save API costs."
-msgstr ""
+msgstr "Quando abilitato, la trascrizione del tuo parlato verrà mostrata nella conversazione. Disabilitarlo può ridurre i costi API."
 
 #: admin/SettingsPage.php:759
 msgid "When enabled, the tool calls and their results will be displayed in the conversation. This provides more visibility into how the AI is working behind the scenes, but will also make the conversation log more technical."
-msgstr ""
+msgstr "Quando abilitato, le chiamate agli strumenti e i loro risultati verranno mostrati nella conversazione. Questo fornisce più visibilità su come l'AI lavora dietro le quinte, ma renderà anche il log della conversazione più tecnico."
 
 #: admin/SettingsPage.php:771
 msgid "None (off)"
-msgstr ""
+msgstr "Nessuno (disattivato)"
 
 #: admin/SettingsPage.php:772
 msgid "Near field (for close-talking microphones such as headphones)"
-msgstr ""
+msgstr "Near field (per microfoni ravvicinati come le cuffie)"
 
 #: admin/SettingsPage.php:773
 msgid "Far field (for laptop or conference room microphones)"
-msgstr ""
+msgstr "Far field (per microfoni di laptop o sale conferenze)"
 
 #: admin/SettingsPage.php:784
 msgid "Configure input audio noise reduction. \"Near field\" is for close-talking microphones such as headphones. \"Far field\" is for laptop or conference room microphones. Select \"None\" to turn off noise reduction."
-msgstr ""
+msgstr "Configura la riduzione del rumore audio di input. \"Near field\" è per microfoni ravvicinati come le cuffie. \"Far field\" è per microfoni di laptop o sale conferenze. Seleziona \"Nessuno\" per disattivare la riduzione del rumore."
+
+#: includes/ConversationManager.php:29
+msgid "Hello! I'm your WordPress assistant. How can I help you today?"
+msgstr "Ciao! Sono il tuo assistente WordPress. Come posso aiutarti oggi?"
 
 #: includes/RestApi.php:206
 msgid "You do not have permission to use this API."
-msgstr ""
+msgstr "Non hai il permesso di usare questa API."
 
 #: includes/RestApi.php:252
 msgid "Conversation not found or you do not have permission to access it."
-msgstr ""
+msgstr "Conversazione non trovata o non hai il permesso di accedervi."
 
 #: includes/RestApi.php:300
 #: includes/RestApi.php:365
 msgid "No audio file provided."
-msgstr ""
+msgstr "Nessun file audio fornito."
 
 #: includes/Services/ConversationService.php:174
 msgid "Conversation not found"
-msgstr ""
+msgstr "Conversazione non trovata"
 
 #: includes/Services/ConversationService.php:181
 msgid "Conversation not authorized"
-msgstr ""
+msgstr "Conversazione non autorizzata"
 
 #: includes/Services/ConversationService.php:227
 msgid "Failed to save audio file"
-msgstr ""
+msgstr "Impossibile salvare il file audio"
 
 #: includes/Services/ConversationService.php:241
 msgid "The uploaded file exceeds the upload_max_filesize directive in php.ini"
-msgstr ""
+msgstr "Il file caricato supera la direttiva upload_max_filesize in php.ini"
 
 #: includes/Services/ConversationService.php:243
 msgid "The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form"
-msgstr ""
+msgstr "Il file caricato supera la direttiva MAX_FILE_SIZE specificata nel form HTML"
 
 #: includes/Services/ConversationService.php:245
 msgid "The uploaded file was only partially uploaded"
-msgstr ""
+msgstr "Il file caricato è stato caricato solo parzialmente"
 
 #: includes/Services/ConversationService.php:247
 msgid "No file was uploaded"
-msgstr ""
+msgstr "Nessun file è stato caricato"
 
 #: includes/Services/ConversationService.php:249
 msgid "Missing a temporary folder"
-msgstr ""
+msgstr "Cartella temporanea mancante"
 
 #: includes/Services/ConversationService.php:251
 msgid "Failed to write file to disk"
-msgstr ""
+msgstr "Impossibile scrivere il file su disco"
 
 #: includes/Services/ConversationService.php:253
 msgid "A PHP extension stopped the file upload"
-msgstr ""
+msgstr "Un'estensione PHP ha fermato il caricamento del file"
 
 #: includes/Services/ConversationService.php:255
 msgid "Unknown upload error"
-msgstr ""
+msgstr "Errore di caricamento sconosciuto"
 
 #: includes/Services/ConversationService.php:294
 msgid "Audio file not found"
-msgstr ""
+msgstr "File audio non trovato"
 
 #: includes/Services/ConversationService.php:340
 msgid "Conversation not found or you do not have permission to access it"
-msgstr ""
+msgstr "Conversazione non trovata o non hai il permesso di accedervi"
 
 #: includes/Services/ConversationService.php:361
 msgid "Text to convert to speech cannot be empty."
-msgstr ""
+msgstr "Il testo da convertire in parlato non può essere vuoto."
 
 #: includes/Services/ConversationService.php:440
 msgid "No tool name specified."
-msgstr ""
+msgstr "Nessun nome strumento specificato."
 
 #: includes/Services/ConversationService.php:447
 msgid "Tool parameters must be an array."
-msgstr ""
+msgstr "I parametri dello strumento devono essere un array."
 
 #: includes/Services/ConversationService.php:458
 msgid "Tool not found: %s"
-msgstr ""
+msgstr "Strumento non trovato: %s"
 
 #: tools/BaseTool.php:133
 msgid "You do not have permission to use the %s tool. This operation requires the \"%s\" capability."
-msgstr ""
+msgstr "Non hai il permesso di usare lo strumento %s. Questa operazione richiede la capacità \"%s\"."
 
 #: tools/BaseTool.php:165
 msgid "Missing required parameter: %s"
-msgstr ""
+msgstr "Parametro richiesto mancante: %s"
 
 #: tools/BaseTool.php:215
 msgid "Executed %s successfully."
-msgstr ""
+msgstr "%s eseguito con successo."
 
 #: tools/ContentOrganizationTool.php:26
 msgid "Organizes WordPress content by assigning categories, tags, and other taxonomies"
-msgstr ""
+msgstr "Organizza i contenuti WordPress assegnando categorie, tag e altre tassonomie"
 
 #: tools/ContentOrganizationTool.php:41
 msgid "The ID of the post to organize"
-msgstr ""
+msgstr "L'ID dell'articolo da organizzare"
 
 #: tools/ContentOrganizationTool.php:46
 #: tools/PostEditingTool.php:46
 msgid "The title of the post to find (if post_id is not provided)"
-msgstr ""
+msgstr "Il titolo dell'articolo da trovare (se post_id non è fornito)"
 
 #: tools/ContentOrganizationTool.php:51
 #: tools/PostCreationTool.php:69
 #: tools/PostEditingTool.php:72
 msgid "The categories to assign to the post"
-msgstr ""
+msgstr "Le categorie da assegnare all'articolo"
 
 #: tools/ContentOrganizationTool.php:59
 #: tools/PostCreationTool.php:77
 #: tools/PostEditingTool.php:80
 msgid "The tags to assign to the post"
-msgstr ""
+msgstr "I tag da assegnare all'articolo"
 
 #: tools/ContentOrganizationTool.php:67
 msgid "The URL or ID of the featured image to set for the post"
-msgstr ""
+msgstr "L'URL o ID dell'immagine in evidenza da impostare per l'articolo"
 
 #: tools/ContentOrganizationTool.php:72
 msgid "The action to perform (add, remove, replace)"
-msgstr ""
+msgstr "L'azione da eseguire (aggiungi, rimuovi, sostituisci)"
 
 #: tools/ContentOrganizationTool.php:91
 msgid "Either post_id or post_title is required to identify the post to organize."
-msgstr ""
+msgstr "È richiesto post_id o post_title per identificare l'articolo da organizzare."
 
 #: tools/ContentOrganizationTool.php:99
 msgid "At least one of categories, tags, or featured_image is required."
-msgstr ""
+msgstr "È richiesto almeno uno tra categorie, tag o immagine_in_evidenza."
 
 #: tools/ContentOrganizationTool.php:116
 #: tools/PostEditingTool.php:122
 msgid "Post with ID %d not found."
-msgstr ""
+msgstr "Articolo con ID %d non trovato."
 
 #: tools/ContentOrganizationTool.php:185
 msgid "Post \"%s\" (ID: %d) organized"
-msgstr ""
+msgstr "Articolo \"%s\" (ID: %d) organizzato"
 
 #: tools/ContentOrganizationTool.php:195
 msgid "Categories set to: %s"
-msgstr ""
+msgstr "Categorie impostate a: %s"
 
 #: tools/ContentOrganizationTool.php:204
 msgid "Tags set to: %s"
-msgstr ""
+msgstr "Tag impostati a: %s"
 
 #: tools/ContentOrganizationTool.php:211
 msgid "Featured image updated"
-msgstr ""
+msgstr "Immagine in evidenza aggiornata"
 
 #: tools/ContentOrganizationTool.php:243
 #: tools/PostCreationTool.php:213
 #: tools/PostEditingTool.php:256
 msgid "View post"
-msgstr ""
+msgstr "Visualizza articolo"
 
 #: tools/ContentOrganizationTool.php:252
 #: tools/PostCreationTool.php:222
 #: tools/PostEditingTool.php:265
 msgid "Edit post"
-msgstr ""
+msgstr "Modifica articolo"
 
 #: tools/ContentOrganizationTool.php:288
 #: tools/PostEditingTool.php:301
 msgid "No post found with title \"%s\"."
-msgstr ""
+msgstr "Nessun articolo trovato con titolo \"%s\"."
 
 #: tools/ContentOrganizationTool.php:355
 msgid "Failed to update post categories."
-msgstr ""
+msgstr "Impossibile aggiornare le categorie dell'articolo."
 
 #: tools/ContentOrganizationTool.php:404
 msgid "Failed to update post tags."
-msgstr ""
+msgstr "Impossibile aggiornare i tag dell'articolo."
 
 #: tools/ContentOrganizationTool.php:455
 msgid "Failed to update featured image."
-msgstr ""
+msgstr "Impossibile aggiornare l'immagine in evidenza."
 
 #: tools/ContentRetrievalTool.php:26
 msgid "Retrieves WordPress content based on various criteria"
-msgstr ""
+msgstr "Recupera contenuti WordPress basandosi su vari criteri"
 
 #: tools/ContentRetrievalTool.php:41
 msgid "The type of post to retrieve (post, page, or any custom post type)"
-msgstr ""
+msgstr "Il tipo di articolo da recuperare (post, pagina, o qualsiasi tipo di post personalizzato)"
 
 #: tools/ContentRetrievalTool.php:47
 msgid "Search term to find in posts"
-msgstr ""
+msgstr "Termine di ricerca da trovare negli articoli"
 
 #: tools/ContentRetrievalTool.php:52
 msgid "Author name or ID to filter by"
-msgstr ""
+msgstr "Nome autore o ID per filtrare"
 
 #: tools/ContentRetrievalTool.php:57
 msgid "Category name or ID to filter by"
-msgstr ""
+msgstr "Nome categoria o ID per filtrare"
 
 #: tools/ContentRetrievalTool.php:62
 msgid "Tag name or ID to filter by"
-msgstr ""
+msgstr "Nome tag o ID per filtrare"
 
 #: tools/ContentRetrievalTool.php:67
 msgid "Post status to filter by (publish, draft, pending, future, etc.)"
-msgstr ""
+msgstr "Stato dell'articolo per filtrare (pubblicato, bozza, in attesa, futuro, ecc.)"
 
 #: tools/ContentRetrievalTool.php:73
 msgid "Field to order results by (date, title, modified, etc.)"
-msgstr ""
+msgstr "Campo per ordinare i risultati (data, titolo, modificato, ecc.)"
 
 #: tools/ContentRetrievalTool.php:79
 msgid "Order direction (ASC or DESC)"
-msgstr ""
+msgstr "Direzione ordinamento (ASC o DESC)"
 
 #: tools/ContentRetrievalTool.php:86
 msgid "Maximum number of posts to retrieve"
-msgstr ""
+msgstr "Numero massimo di articoli da recuperare"
 
 #: tools/ContentRetrievalTool.php:92
 msgid "Whether to include the full content of posts"
-msgstr ""
+msgstr "Se includere il contenuto completo degli articoli"
 
 #: tools/ContentRetrievalTool.php:139
 msgid "Author \"%s\" not found."
-msgstr ""
+msgstr "Autore \"%s\" non trovato."
 
 #: tools/ContentRetrievalTool.php:161
 msgid "Category \"%s\" not found."
-msgstr ""
+msgstr "Categoria \"%s\" non trovata."
 
 #: tools/ContentRetrievalTool.php:183
 msgid "Tag \"%s\" not found."
-msgstr ""
+msgstr "Tag \"%s\" non trovato."
 
 #: tools/ContentRetrievalTool.php:304
 msgid "No posts found matching the criteria."
-msgstr ""
+msgstr "Nessun articolo trovato che corrisponda ai criteri."
 
 #: tools/ContentRetrievalTool.php:308
 msgid "Found %d %s matching the criteria:"
-msgstr ""
+msgstr "Trovati %d %s che corrispondono ai criteri:"
 
 #: tools/ContentRetrievalTool.php:321
 msgid "View"
-msgstr ""
+msgstr "Visualizza"
 
 #: tools/ContentRetrievalTool.php:322
 msgid "Edit"
-msgstr ""
+msgstr "Modifica"
 
 #: tools/GetTodayDateTool.php:26
 msgid "Returns the current date in ISO 8601 format, together with the week day name.  Useful to interpret queries that contain \"today\", \"yesterday\", \"tomorrow\", \"next monday\", \"last week\", \"next week\", etc."
-msgstr ""
+msgstr "Restituisce la data corrente in formato ISO 8601, insieme al nome del giorno della settimana. Utile per interpretare query che contengono \"oggi\", \"ieri\", \"domani\", \"lunedì prossimo\", \"settimana scorsa\", \"settimana prossima\", ecc."
 
 #: tools/GetTodayDateTool.php:75
 msgid "<p>Today is %s, %s</p>"
-msgstr ""
+msgstr "<p>Oggi è %s, %s</p>"
 
 #: tools/PostCreationTool.php:26
 msgid "Creates a new WordPress post"
-msgstr ""
+msgstr "Crea un nuovo articolo WordPress"
 
 #: tools/PostCreationTool.php:41
 msgid "The title of the post"
-msgstr ""
+msgstr "Il titolo dell'articolo"
 
 #: tools/PostCreationTool.php:46
 msgid "The content of the post"
-msgstr ""
+msgstr "Il contenuto dell'articolo"
 
 #: tools/PostCreationTool.php:51
 msgid "The excerpt of the post"
-msgstr ""
+msgstr "L'estratto dell'articolo"
 
 #: tools/PostCreationTool.php:56
 msgid "The status of the post (draft, publish, pending, future)"
-msgstr ""
+msgstr "Lo stato dell'articolo (bozza, pubblicato, in attesa, futuro)"
 
 #: tools/PostCreationTool.php:63
 msgid "The type of post to create"
-msgstr ""
+msgstr "Il tipo di articolo da creare"
 
 #: tools/PostCreationTool.php:85
 msgid "The date to publish the post (format: YYYY-MM-DD HH:MM:SS)"
-msgstr ""
+msgstr "La data di pubblicazione dell'articolo (formato: YYYY-MM-DD HH:MM:SS)"
 
 #: tools/PostCreationTool.php:185
 msgid "Post \"%s\" created successfully with ID %d."
-msgstr ""
+msgstr "Articolo \"%s\" creato con successo con ID %d."
 
 #: tools/PostCreationTool.php:187
 msgid "Page \"%s\" created successfully with ID %d."
-msgstr ""
+msgstr "Pagina \"%s\" creata con successo con ID %d."
 
 #: tools/PostCreationTool.php:189
 msgid "Post of type \"%s\" created successfully with ID %d."
-msgstr ""
+msgstr "Articolo di tipo \"%s\" creato con successo con ID %d."
 
 #: tools/PostEditingTool.php:26
 msgid "Edits an existing WordPress post"
-msgstr ""
+msgstr "Modifica un articolo WordPress esistente"
 
 #: tools/PostEditingTool.php:41
 msgid "The ID of the post to edit"
-msgstr ""
+msgstr "L'ID dell'articolo da modificare"
 
 #: tools/PostEditingTool.php:51
 msgid "The new title for the post"
-msgstr ""
+msgstr "Il nuovo titolo per l'articolo"
 
 #: tools/PostEditingTool.php:56
 msgid "The new content for the post"
-msgstr ""
+msgstr "Il nuovo contenuto per l'articolo"
 
 #: tools/PostEditingTool.php:61
 msgid "The new excerpt for the post"
-msgstr ""
+msgstr "Il nuovo estratto per l'articolo"
 
 #: tools/PostEditingTool.php:66
 msgid "The new status for the post (draft, publish, pending, future)"
-msgstr ""
+msgstr "Il nuovo stato per l'articolo (bozza, pubblicato, in attesa, futuro)"
 
 #: tools/PostEditingTool.php:88
 msgid "The new date to publish the post (format: YYYY-MM-DD HH:MM:SS)"
-msgstr ""
+msgstr "La nuova data di pubblicazione dell'articolo (formato: YYYY-MM-DD HH:MM:SS)"
 
 #: tools/PostEditingTool.php:105
 msgid "Either post_id or post_title is required to identify the post to edit."
-msgstr ""
+msgstr "È richiesto post_id o post_title per identificare l'articolo da modificare."
 
 #: tools/PostEditingTool.php:224
 msgid "Post \"%s\" updated successfully with ID %d."
-msgstr ""
+msgstr "Articolo \"%s\" aggiornato con successo con ID %d."
 
 #: tools/PostEditingTool.php:227
 msgid "Page \"%s\" updated successfully with ID %d."
-msgstr ""
+msgstr "Pagina \"%s\" aggiornata con successo con ID %d."
 
 #: tools/PostEditingTool.php:230
 msgid "Post of type \"%s\" updated successfully with ID %d."
-msgstr ""
+msgstr "Articolo di tipo \"%s\" aggiornato con successo con ID %d."
 
 #: tools/SiteInformationTool.php:26
 msgid "Retrieves basic WordPress site information"
-msgstr ""
+msgstr "Recupera informazioni di base del sito WordPress"
 
 #: tools/SiteInformationTool.php:100
 msgid "Site Title: %s"
-msgstr ""
+msgstr "Titolo sito: %s"
 
 #: tools/SiteInformationTool.php:104
 msgid "Site URL: %s"
-msgstr ""
+msgstr "URL sito: %s"
 
 #: tools/SiteInformationTool.php:108
 msgid "Site Tagline: %s"
-msgstr ""
+msgstr "Tagline sito: %s"
 
 #: tools/SiteInformationTool.php:113
 msgid "Site ID: %d"
-msgstr ""
+msgstr "ID sito: %d"
 
 #: tools/SiteInformationTool.php:117
 msgid "Network Name: %s"
-msgstr ""
+msgstr "Nome network: %s"
 
 #: assets/js/react-chat-interface.js:40
 msgid "Tool: %s"
-msgstr ""
+msgstr "Strumento: %s"
 
 #: assets/js/react-chat-interface.js:47
 msgid "Tool call ID:"
-msgstr ""
+msgstr "ID chiamata strumento:"
 
 #: assets/js/react-chat-interface.js:49
 msgid "Arguments:"
-msgstr ""
+msgstr "Argomenti:"
 
 #: assets/js/react-chat-interface.js:51
 msgid "Result:"
-msgstr ""
+msgstr "Risultato:"
 
 #: assets/js/react-chat-interface.js:91
 msgid "Details"
-msgstr ""
+msgstr "Dettagli"
 
 #: assets/js/react-chat-interface.js:120
 msgid "Processing..."
-msgstr ""
+msgstr "Elaborazione in corso..."
 
 #: assets/js/react-chat-interface.js:149
 #: assets/js/react-chat-interface.js:164
 msgid "Error: "
-msgstr ""
+msgstr "Errore: "
 
 #: assets/js/react-chat-interface.js:149
 #: assets/js/react-chat-interface.js:164
 #: assets/js/react-chat-interface.js:567
 #: assets/js/react-chat-interface.js:781
 msgid "Unknown error"
-msgstr ""
+msgstr "Errore sconosciuto"
 
 #: assets/js/react-chat-interface.js:187
 msgid "Operation completed successfully"
-msgstr ""
+msgstr "Operazione completata con successo"
 
 #: assets/js/react-chat-interface.js:206
 msgid "Response"
-msgstr ""
+msgstr "Risposta"
 
 #: assets/js/react-chat-interface.js:281
 msgid "Debug"
-msgstr ""
+msgstr "Debug"
 
 #: assets/js/react-chat-interface.js:402
 msgid "Recording..."
-msgstr ""
+msgstr "Registrazione..."
 
 #: assets/js/react-chat-interface.js:452
 msgid "Microphone access requires a secure connection (HTTPS). Please contact your administrator to enable HTTPS for this site."
-msgstr ""
+msgstr "L'accesso al microfono richiede una connessione sicura (HTTPS). Contatta il tuo amministratore per abilitare HTTPS per questo sito."
 
 #: assets/js/react-chat-interface.js:457
 msgid "Your browser does not support audio recording. Please use a modern browser like Chrome, Edge, or Firefox."
-msgstr ""
+msgstr "Il tuo browser non supporta la registrazione audio. Usa un browser moderno come Chrome, Edge o Firefox."
 
 #: assets/js/react-chat-interface.js:462
 msgid "Your browser does not support the MediaRecorder API. Please use a modern browser like Chrome, Edge, or Firefox."
-msgstr ""
+msgstr "Il tuo browser non supporta l'API MediaRecorder. Usa un browser moderno come Chrome, Edge o Firefox."
 
 #: assets/js/react-chat-interface.js:511
 msgid ""
@@ -904,26 +906,29 @@ msgid ""
 "\n"
 "In alternative, in most browsers, you can click on the camera/microphone icon in the address bar to change permissions."
 msgstr ""
+"L'accesso al microfono è stato negato. Riprova permettendo l'accesso al microfono.\n"
+"\n"
+"In alternativa, nella maggior parte dei browser, puoi cliccare sull'icona fotocamera/microfono nella barra degli indirizzi per cambiare i permessi."
 
 #: assets/js/react-chat-interface.js:513
 msgid "No microphone was found. Please connect a microphone and try again."
-msgstr ""
+msgstr "Nessun microfono trovato. Collega un microfono e riprova."
 
 #: assets/js/react-chat-interface.js:515
 msgid "Your microphone is busy or not available. Please close other applications that might be using your microphone."
-msgstr ""
+msgstr "Il tuo microfono è occupato o non disponibile. Chiudi altre applicazioni che potrebbero usare il microfono."
 
 #: assets/js/react-chat-interface.js:517
 msgid "Could not access your microphone: "
-msgstr ""
+msgstr "Impossibile accedere al tuo microfono: "
 
 #: assets/js/react-chat-interface.js:567
 msgid "Error transcribing audio: "
-msgstr ""
+msgstr "Errore nella trascrizione audio: "
 
 #: assets/js/react-chat-interface.js:573
 msgid "Error sending audio: "
-msgstr ""
+msgstr "Errore nell'invio audio: "
 
 #: assets/js/react-chat-interface.js:583
 msgid "Type your command here..."
@@ -931,15 +936,15 @@ msgstr "Scrivi il tuo comando qui..."
 
 #: assets/js/react-chat-interface.js:596
 msgid "Stop recording"
-msgstr ""
+msgstr "Ferma registrazione"
 
 #: assets/js/react-chat-interface.js:596
 msgid "Transcribing..."
-msgstr ""
+msgstr "Trascrizione..."
 
 #: assets/js/react-chat-interface.js:596
 msgid "Start recording"
-msgstr ""
+msgstr "Inizia registrazione"
 
 #: assets/js/react-chat-interface.js:609
 msgid "Send"
@@ -947,130 +952,130 @@ msgstr "Invia"
 
 #: assets/js/react-chat-interface.js:615
 msgid "Transcribing audio..."
-msgstr ""
+msgstr "Trascrizione audio..."
 
 #: assets/js/react-chat-interface.js:672
 #: assets/js/react-chat-interface.js:681
 #: assets/js/react-chat-interface.js:781
 #: assets/js/react-chat-interface.js:791
 msgid "Error: %s"
-msgstr ""
+msgstr "Errore: %s"
 
 #: assets/js/react-chat-interface.js:672
 #: assets/js/react-chat-interface.js:681
 msgid "Failed to create conversation"
-msgstr ""
+msgstr "Impossibile creare la conversazione"
 
 #: assets/js/react-chat-interface.js:791
 msgid "Failed to process command"
-msgstr ""
+msgstr "Impossibile elaborare il comando"
 
 #: assets/js/react-chat-interface.js:841
 msgid "WordPress Assistant"
-msgstr ""
+msgstr "Assistente WordPress"
 
 #: assets/js/react-chat-interface.js:849
 msgid "New Conversation"
-msgstr ""
+msgstr "Nuova conversazione"
 
 #: assets/js/react-chat-interface.js:862
 msgid "Processing your command..."
-msgstr ""
+msgstr "Elaborazione del tuo comando..."
 
 #: assets/js/react-realtime-interface.js:47
 msgid "Status: %s"
-msgstr ""
+msgstr "Stato: %s"
 
 #: assets/js/react-realtime-interface.js:152
 msgid "Failed to play synthesized audio."
-msgstr ""
+msgstr "Impossibile riprodurre l'audio sintetizzato."
 
 #: assets/js/react-realtime-interface.js:186
 msgid "Failed to create realtime session."
-msgstr ""
+msgstr "Impossibile creare la sessione tempo reale."
 
 #: assets/js/react-realtime-interface.js:221
 msgid "Connection lost."
-msgstr ""
+msgstr "Connessione persa."
 
 #: assets/js/react-realtime-interface.js:228
 msgid "ICE connection failed."
-msgstr ""
+msgstr "Connessione ICE fallita."
 
 #: assets/js/react-realtime-interface.js:235
 msgid "Browser does not support audio recording."
-msgstr ""
+msgstr "Il browser non supporta la registrazione audio."
 
 #: assets/js/react-realtime-interface.js:262
 msgid "Data channel closed unexpectedly."
-msgstr ""
+msgstr "Canale dati chiuso inaspettatamente."
 
 #: assets/js/react-realtime-interface.js:268
 msgid "Data channel communication error."
-msgstr ""
+msgstr "Errore di comunicazione canale dati."
 
 #: assets/js/react-realtime-interface.js:306
 msgid "Microphone permission denied. Please allow access in your browser settings."
-msgstr ""
+msgstr "Permesso microfono negato. Consenti l'accesso nelle impostazioni del browser."
 
 #: assets/js/react-realtime-interface.js:308
 msgid "Failed to start session and recording."
-msgstr ""
+msgstr "Impossibile avviare sessione e registrazione."
 
 #: assets/js/react-realtime-interface.js:402
 msgid "Error from AI: %s"
-msgstr ""
+msgstr "Errore dall'AI: %s"
 
 #: assets/js/react-realtime-interface.js:502
 msgid "Backend Error: %s"
-msgstr ""
+msgstr "Errore Backend: %s"
 
 #: assets/js/react-realtime-interface.js:502
 msgid "Unknown execution error"
-msgstr ""
+msgstr "Errore di esecuzione sconosciuto"
 
 #: assets/js/react-realtime-interface.js:513
 msgid "AJAX Error: %s"
-msgstr ""
+msgstr "Errore AJAX: %s"
 
 #: assets/js/react-realtime-interface.js:513
 msgid "Failed to contact backend"
-msgstr ""
+msgstr "Impossibile contattare il backend"
 
 #: assets/js/react-realtime-interface.js:523
 msgid "Data channel not open, cannot send function result."
-msgstr ""
+msgstr "Canale dati non aperto, impossibile inviare il risultato della funzione."
 
 #: assets/js/react-realtime-interface.js:580
 msgid "Connection closed unexpectedly."
-msgstr ""
+msgstr "Connessione chiusa inaspettatamente."
 
 #: assets/js/react-realtime-interface.js:624
 #: assets/js/react-realtime-interface.js:627
 msgid "Start Conversation"
-msgstr ""
+msgstr "Inizia conversazione"
 
 #: assets/js/react-realtime-interface.js:634
 msgid "Stop Conversation"
-msgstr ""
+msgstr "Ferma conversazione"
 
 #: assets/js/react-realtime-interface.js:637
 #: assets/js/react-realtime-interface.js:640
 msgid "Please refresh page"
-msgstr ""
+msgstr "Aggiorna la pagina"
 
 #: assets/js/react-realtime-interface.js:664
 msgid "Conversation Transcript:"
-msgstr ""
+msgstr "Trascrizione conversazione:"
 
 #: assets/js/react-realtime-interface.js:688
 msgid "Called tool: %s"
-msgstr ""
+msgstr "Strumento chiamato: %s"
 
 #: assets/js/react-realtime-interface.js:700
 msgid "Tool result:"
-msgstr ""
+msgstr "Risultato strumento:"
 
 #: assets/js/react-realtime-interface.js:735
 msgid "Error: Plugin configuration data is missing."
-msgstr ""
+msgstr "Errore: Dati di configurazione del plugin mancanti."
