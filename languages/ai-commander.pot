@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-12T08:41:11+00:00\n"
+"POT-Creation-Date: 2025-07-12T09:17:36+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.8.1\n"
 "X-Domain: ai-commander\n"
@@ -465,16 +465,16 @@ msgstr ""
 msgid "Hello! I'm your WordPress assistant. How can I help you today?"
 msgstr ""
 
-#: includes/RestApi.php:206
+#: includes/RestApi.php:214
 msgid "You do not have permission to use this API."
 msgstr ""
 
-#: includes/RestApi.php:252
+#: includes/RestApi.php:260
 msgid "Conversation not found or you do not have permission to access it."
 msgstr ""
 
-#: includes/RestApi.php:300
-#: includes/RestApi.php:365
+#: includes/RestApi.php:308
+#: includes/RestApi.php:373
 msgid "No audio file provided."
 msgstr ""
 
@@ -544,6 +544,196 @@ msgstr ""
 
 #: includes/Services/ConversationService.php:458
 msgid "Tool not found: %s"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:36
+msgid "Press to start"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:37
+#: includes/Services/MobileTranslations.php:73
+msgid "Connecting..."
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:38
+msgid "Listening..."
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:39
+#: assets/js/react-chat-interface.js:120
+msgid "Processing..."
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:40
+msgid "Response in progress..."
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:41
+msgid "Press to interrupt"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:42
+msgid "Executing command..."
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:43
+msgid "Waiting..."
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:44
+msgid "Error"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:47
+msgid "Invalid URL. Enter a complete URL (e.g. https://www.yoursite.com)"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:48
+msgid "Invalid credentials. Check username and password."
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:49
+msgid "Access denied. Check user permissions on the site."
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:50
+msgid "Unable to connect to WordPress site"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:51
+msgid "Unable to start session"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:52
+msgid "Tool execution failed"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:53
+msgid "Network error"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:54
+msgid "Data channel not open"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:55
+msgid "Error in custom audio playback."
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:56
+msgid "Communication error"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:57
+#: assets/js/react-chat-interface.js:149
+#: assets/js/react-chat-interface.js:164
+#: assets/js/react-chat-interface.js:567
+#: assets/js/react-chat-interface.js:781
+msgid "Unknown error"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:60
+msgid "INofficina Voice Assistant"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:61
+msgid "Enter the URL of your WordPress site and credentials"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:62
+msgid "Note: For the password, use an \"Application Password\" generated from your WordPress profile, not the normal password."
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:63
+msgid "Site URL"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:64
+msgid "https://www.yoursite.com"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:65
+msgid "The complete URL of your WordPress INofficina site"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:66
+msgid "Username"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:67
+msgid "mario.rossi"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:68
+msgid "Your WordPress username"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:69
+msgid "App password"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:70
+msgid "xxxx xxxx xxxx xxxx"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:71
+msgid "The application password generated in WordPress (not the normal password)"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:72
+msgid "Connect"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:74
+msgid "INofficina.it Assistant"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:75
+msgid "Change configuration"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:76
+msgid "Disconnect"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:77
+msgid "Hello! 👋"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:78
+msgid "I am the voice assistant for INofficina.it. I can help you manage your workshop appointments."
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:81
+msgid "Is license plate XX333TT our customer?"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:82
+msgid "Schedule a service for tomorrow"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:83
+msgid "Show today's appointments"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:86
+msgid "Do you want to disconnect and delete saved credentials?"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:89
+msgid "Session expired. Please log in again."
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:90
+msgid "Credentials not found. Please log in again."
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:91
+msgid "URL must start with http:// or https://"
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:92
+msgid "Unable to connect. Check your data and try again."
 msgstr ""
 
 #: tools/BaseTool.php:133
@@ -857,20 +1047,9 @@ msgstr ""
 msgid "Details"
 msgstr ""
 
-#: assets/js/react-chat-interface.js:120
-msgid "Processing..."
-msgstr ""
-
 #: assets/js/react-chat-interface.js:149
 #: assets/js/react-chat-interface.js:164
 msgid "Error: "
-msgstr ""
-
-#: assets/js/react-chat-interface.js:149
-#: assets/js/react-chat-interface.js:164
-#: assets/js/react-chat-interface.js:567
-#: assets/js/react-chat-interface.js:781
-msgid "Unknown error"
 msgstr ""
 
 #: assets/js/react-chat-interface.js:187

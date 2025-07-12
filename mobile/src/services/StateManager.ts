@@ -20,6 +20,7 @@ export class StateManager {
       toolCallQueue: [],
       currentToolCallId: null,
       isCustomTtsEnabled: false,
+      modalities: ['text', 'audio'],
       sessionModalities: [],
       isPlayingCustomTts: false,
     };

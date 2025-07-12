@@ -36,7 +36,100 @@ export const STORAGE_KEYS = {
   APP_PASSWORD: 'inofficina_app_password',
 } as const;
 
-// Status Messages
+import type { TranslationService } from '@/services/TranslationService';
+
+/**
+ * UI Messages class - provides translated messages with clean syntax
+ * 
+ * Usage:
+ * 1. Initialize once: UiMessages.init(translationService)
+ * 2. Use anywhere: UiMessages.ERROR_MESSAGES.INVALID_URL
+ */
+export class UiMessages {
+  private static translationService: TranslationService | null = null;
+
+  /**
+   * Initialize with translation service
+   */
+  static init(translationService: TranslationService) {
+    this.translationService = translationService;
+  }
+
+  /**
+   * Get error messages (translated if available, fallback otherwise)
+   */
+  static get ERROR_MESSAGES() {
+    const t = this.translationService?.t.bind(this.translationService) || 
+              ((_key: string, fallback: string) => fallback);
+    
+    return {
+      INVALID_URL: t('mobile.error.invalid_url', 'URL non valido. Inserisci un URL completo (es. https://www.tuosito.com)'),
+      INVALID_CREDENTIALS: t('mobile.error.invalid_credentials', 'Credenziali non valide. Verifica nome utente e password.'),
+      ACCESS_DENIED: t('mobile.error.access_denied', 'Accesso negato. Verifica i permessi utente sul sito.'),
+      CONNECTION_FAILED: t('mobile.error.connection_failed', 'Impossibile connettersi al sito WordPress'),
+      SESSION_FAILED: t('mobile.error.session_failed', 'Impossibile avviare la sessione'),
+      TOOL_EXECUTION_FAILED: t('mobile.error.tool_execution_failed', 'Esecuzione tool fallita'),
+      NETWORK_ERROR: t('mobile.error.network_error', 'Errore di rete'),
+      DATA_CHANNEL_NOT_OPEN: t('mobile.error.data_channel_not_open', 'Canale dati non aperto'),
+      TTS_FAILED: t('mobile.error.tts_failed', 'Errore nella riproduzione audio personalizzata.'),
+      COMMUNICATION_ERROR: t('mobile.error.communication_error', 'Errore di comunicazione'),
+      UNKNOWN_ERROR: t('mobile.error.unknown_error', 'Errore sconosciuto'),
+    } as const;
+  }
+
+  /**
+   * Get status messages (translated if available, fallback otherwise)
+   */
+  static get STATUS_MESSAGES() {
+    const t = this.translationService?.t.bind(this.translationService) || 
+              ((_key: string, fallback: string) => fallback);
+    
+    return {
+      disconnected: t('mobile.status.disconnected', 'Premi per iniziare'),
+      connecting: t('mobile.status.connecting', 'Connessione in corso...'),
+      recording: t('mobile.status.recording', 'In ascolto...'),
+      processing: t('mobile.status.processing', 'Elaborazione...'),
+      speaking: t('mobile.status.speaking', 'Risposta in corso...'),
+      speaking_interruptible: t('mobile.status.speaking_interruptible', 'Premi per interrompere'),
+      tool_wait: t('mobile.status.tool_wait', 'Esecuzione comando...'),
+      idle: t('mobile.status.idle', 'In attesa...'),
+      error: t('mobile.status.error', 'Errore'),
+    } as const;
+  }
+
+  /**
+   * Get UI labels and text (translated if available, fallback otherwise)
+   */
+  static get UI_TEXT() {
+    const t = this.translationService?.t.bind(this.translationService) || 
+              ((_key: string, fallback: string) => fallback);
+    
+    return {
+      // Form labels
+      SITE_URL_LABEL: t('mobile.ui.site_url_label', 'URL del sito'),
+      USERNAME_LABEL: t('mobile.ui.username_label', 'Nome utente'),
+      APP_PASSWORD_LABEL: t('mobile.ui.app_password_label', 'Password dell\'app'),
+      CONNECT_BTN: t('mobile.ui.connect_btn', 'Connetti'),
+      CONNECTING_BTN: t('mobile.ui.connecting_btn', 'Connessione...'),
+      
+      // UI text
+      ASSISTANT_NAME: t('mobile.ui.assistant_name', 'Assistente INofficina.it'),
+      CHANGE_CONFIG: t('mobile.ui.change_config', 'Cambia configurazione'),
+      DISCONNECT: t('mobile.ui.disconnect', 'Disconnetti'),
+      GREETING: t('mobile.ui.greeting', 'Ciao! 👋'),
+      
+      // Confirmations
+      LOGOUT_CONFIRM: t('mobile.confirm.logout', 'Vuoi disconnetterti e cancellare le credenziali salvate?'),
+      
+      // Dynamic messages
+      SESSION_EXPIRED: t('mobile.dynamic.session_expired', 'Sessione scaduta. Accedi nuovamente.'),
+      CREDENTIALS_NOT_FOUND: t('mobile.dynamic.credentials_not_found', 'Credenziali non trovate. Accedi nuovamente.'),
+      CONNECTION_TEST_FAILED: t('mobile.dynamic.connection_test_failed', 'Impossibile connettersi. Verifica i dati e riprova.'),
+    } as const;
+  }
+}
+
+// Legacy constants for backward compatibility (deprecated - use UiMessages instead)
 export const STATUS_MESSAGES = {
   disconnected: 'Premi per iniziare',
   connecting: 'Connessione in corso...',
@@ -49,7 +142,6 @@ export const STATUS_MESSAGES = {
   error: 'Errore',
 } as const;
 
-// Error Messages
 export const ERROR_MESSAGES = {
   INVALID_URL: 'URL non valido. Inserisci un URL completo (es. https://www.tuaofficina.it)',
   INVALID_CREDENTIALS: 'Credenziali non valide. Verifica nome utente e password.',

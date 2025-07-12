@@ -10,7 +10,7 @@ import {
   DeltaEvent,
   ErrorEvent,
 } from '@/types';
-import { ERROR_MESSAGES } from '@/utils/constants';
+import { UiMessages } from '@/utils/constants';
 
 export class SessionManager {
   private webrtcService: WebRTCService;
@@ -53,7 +53,7 @@ export class SessionManager {
         onDataChannelMessage: (event) => this.handleServerEvent(event),
         onDataChannelError: (error) => {
           console.error('Data channel error:', error);
-          this.handleError(ERROR_MESSAGES.COMMUNICATION_ERROR);
+          this.handleError(UiMessages.ERROR_MESSAGES.COMMUNICATION_ERROR);
         },
         onTrack: (event) => {
           if (this.audioElement && event.streams && event.streams[0]) {
@@ -64,7 +64,7 @@ export class SessionManager {
       });
     } catch (error) {
       console.error('Session start error:', error);
-      this.handleError((error as Error).message || ERROR_MESSAGES.SESSION_FAILED);
+      this.handleError((error as Error).message || UiMessages.ERROR_MESSAGES.SESSION_FAILED);
       this.stopSession();
     }
   }
@@ -163,7 +163,7 @@ export class SessionManager {
 
         case 'error':
           console.error('API Error:', data);
-          this.handleError((data as ErrorEvent).message || ERROR_MESSAGES.UNKNOWN_ERROR);
+          this.handleError((data as ErrorEvent).message || UiMessages.ERROR_MESSAGES.UNKNOWN_ERROR);
           break;
       }
     } catch (error) {
@@ -243,7 +243,7 @@ export class SessionManager {
     } catch (error) {
       console.error('Custom TTS error:', error);
       if (this.stateManager.getState().status !== 'disconnected') {
-        this.handleError(ERROR_MESSAGES.TTS_FAILED);
+        this.handleError(UiMessages.ERROR_MESSAGES.TTS_FAILED);
       }
     }
   }
@@ -261,13 +261,13 @@ export class SessionManager {
       } else {
         this.sendFunctionResult(toolCall.call_id, {
           error: true,
-          message: result.message || ERROR_MESSAGES.TOOL_EXECUTION_FAILED,
+          message: result.message || UiMessages.ERROR_MESSAGES.TOOL_EXECUTION_FAILED,
         });
       }
     } catch (error) {
       this.sendFunctionResult(toolCall.call_id, {
         error: true,
-        message: ERROR_MESSAGES.NETWORK_ERROR,
+        message: UiMessages.ERROR_MESSAGES.NETWORK_ERROR,
       });
     }
 
@@ -295,7 +295,7 @@ export class SessionManager {
         type: 'response.create',
       });
     } catch (error) {
-      this.handleError(ERROR_MESSAGES.DATA_CHANNEL_NOT_OPEN);
+      this.handleError(UiMessages.ERROR_MESSAGES.DATA_CHANNEL_NOT_OPEN);
     }
   }
 

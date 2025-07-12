@@ -13,6 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Generate POT template**: `wp i18n make-pot . languages/ai-commander.pot --domain=ai-commander --exclude=vendor,node_modules,mobile`
 - **Compile PO to MO files**: `wp i18n make-mo languages/`
 - **Create JSON files for JS**: `wp i18n make-json languages/ --no-purge`
+- **Mobile translations**: Handled via `MobileTranslations.php` service and REST API endpoint
 
 ### Mobile App Development
 - **Install dependencies**: `cd mobile && npm install`
@@ -57,11 +58,12 @@ Two custom tables created on activation:
 ### Frontend Components
 - **Chat interface**: React component in `assets/js/react-chat-interface.js`
 - **Realtime interface**: React component in `assets/js/react-realtime-interface.js`
-- **Mobile app**: TypeScript PWA in `mobile/` directory
-  - Built with Vite and TypeScript
-  - Entry point: `mobile/src/main.ts`
+- **Mobile app**: React PWA in `mobile/` directory
+  - Built with React, TypeScript, and Vite
+  - Entry point: `mobile/src/main.tsx` (React), `mobile/src/main.ts` (legacy)
   - Production build: `mobile/app/` (committed to repo)
   - User access: `mobile/index.html` (redirects to app)
+  - Translation system: Runtime loading from WordPress backend
 
 ### API Endpoints
 - **AJAX handlers**: `wp-admin/admin-ajax.php` actions prefixed with `ai_commander_`
@@ -73,28 +75,40 @@ Two custom tables created on activation:
   - `/read-text`: Text-to-speech (returns MP3 audio)
   - `/realtime/session`: Create OpenAI Realtime session
   - `/realtime/tool`: Execute tools for Realtime API
+  - `/translations`: Get mobile app translations
 
 ### Mobile App Architecture
-The mobile app (`mobile/` directory) is a TypeScript-based PWA:
+The mobile app (`mobile/` directory) is a React-based TypeScript PWA:
 
-**Services**:
+**React Components**:
+- `App`: Main React component handling service initialization and navigation
+- `ConfigScreen`: WordPress site configuration and authentication
+- `MainApp`: Primary voice assistant interface with settings
+- `MicButton`: Microphone button with press-and-hold detection
+- `ChatContainer`: Message history and conversation display
+
+**State Management**:
+- `AppContext`: React Context with useReducer for centralized state
+- `useTranslation`: Custom hook for accessing translations
+- `TranslationProvider`: Context provider for translation services
+
+**Services (Legacy Integration)**:
 - `ApiService`: WordPress REST API client
 - `AudioService`: Mobile audio unlocking and custom TTS playback
 - `WebRTCService`: OpenAI Realtime API WebRTC handling
-- `SessionManager`: Orchestrates WebRTC sessions and tool execution
-- `StateManager`: Centralized state management with observers
-
-**Components**:
-- `App`: Main application controller
-- `UIController`: DOM manipulation and UI updates
-- `MicButtonController`: Microphone button state machine
+- `SessionManager`: Orchestrates WebRTC sessions and tool execution (with React bridge)
+- `TranslationService`: Handles translation loading from WordPress backend
 
 **Key Features**:
+- React-based modern UI with TypeScript
+- Comprehensive internationalization with WordPress .po/.mo integration
+- Runtime translation loading from WordPress REST API
 - WebRTC connection to OpenAI Realtime API
 - Custom TTS when audio modality is disabled
 - Mobile audio unlocking for iOS/Android
 - Tool execution through WordPress backend
 - Lazy service initialization for better performance
+- SessionManager bridge for React-service integration
 
 ### Security
 - WordPress nonce verification for AJAX requests

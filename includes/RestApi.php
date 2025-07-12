@@ -10,6 +10,7 @@
 namespace AICommander\Includes;
 
 use AICommander\Includes\Services\ConversationService;
+use AICommander\Includes\Services\MobileTranslations;
 
 if (! defined('WPINC')) {
     die;
@@ -160,6 +161,13 @@ class RestApi
                     },
                 ),
             ),
+        ));
+
+        // Register route for getting translations for mobile app
+        register_rest_route('ai-commander/v1', '/translations', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_translations'),
+            'permission_callback' => '__return_true', // Public endpoint
         ));
 
         // Register route for creating realtime sessions
@@ -527,5 +535,25 @@ class RestApi
         } else {
             return rest_ensure_response($result);
         }
+    }
+
+    /**
+     * Get translations for mobile app.
+     *
+     * @return \WP_REST_Response The translations response.
+     */
+    public function get_translations()
+    {
+        // Get current locale
+        $locale = get_locale();
+
+        // Get mobile app translations from dedicated service
+        $translations = MobileTranslations::get_translations();
+
+        // Return translations with locale information
+        return rest_ensure_response(array(
+            'locale' => $locale,
+            'translations' => $translations,
+        ));
     }
 }

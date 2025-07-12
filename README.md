@@ -36,16 +36,7 @@ Run the following commands in the chatbot, one after the other:
 
 ## Mobile App
 
-The plugin includes a mobile-optimized web application that provides hands-free voice interaction with AI Commander. This companion app is designed specifically for smartphones and tablets, allowing you to manage your WordPress site through natural voice commands.
-
-Key features:
-- Real-time voice interaction powered by OpenAI's Realtime API
-- Mobile-optimized touch-friendly interface
-- Secure authentication with WordPress application passwords
-- Visual chat interface with conversation history
-- Support for all AI Commander tools and custom tools
-
-For detailed information about the mobile app, including setup instructions and technical documentation, see the [Mobile App README](mobile/README.md).
+The plugin includes a React-based mobile web application that provides hands-free voice interaction with AI Commander.  For detailed information about the mobile app, including setup instructions and technical documentation, see the [Mobile App README](mobile/README.md).
 
 ## Available Tools
 
@@ -518,11 +509,16 @@ To use the collection:
 
 ## Translations (i18n)
 
-Translation files are in the `languages` directory.  Useful commands:
+The plugin includes comprehensive internationalization support for both the WordPress admin interface and the mobile app.
+
+### WordPress Plugin Translation
+Translation files are in the `languages` directory. Useful commands:
 
 - **Generate POT template**: `wp i18n make-pot . languages/ai-commander.pot --domain=ai-commander --exclude=vendor,node_modules,mobile`
 - **Compile PO to MO files**: `wp i18n make-mo languages/`
 - **Create JSON files for JS**: `wp i18n make-json languages/ --no-purge`
+
+The mobile app fetches UI-facing strings from the `translations` endpoint; these strings are translated like the WordPress plugin strings, via the `.po` files in the `languages` directory.
 
 
 ## Frequently Asked Questions

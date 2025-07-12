@@ -1,4 +1,4 @@
-import { API_ENDPOINTS, ERROR_MESSAGES } from '@/utils/constants';
+import { API_ENDPOINTS, UiMessages } from '@/utils/constants';
 import { SessionResponse, ToolExecutionRequest, ToolExecutionResponse } from '@/types';
 
 export class ApiService {
@@ -19,7 +19,7 @@ export class ApiService {
 
     if (!response.ok) {
       if (response.status === 401) {
-        throw new Error(ERROR_MESSAGES.INVALID_CREDENTIALS);
+        throw new Error(UiMessages.ERROR_MESSAGES.INVALID_CREDENTIALS);
       } else if (response.status === 403) {
         // In multisite, status 403 might be normal
         try {
@@ -27,13 +27,13 @@ export class ApiService {
           if (userData && userData.id && userData.name) {
             console.log('Authentication successful despite 403 status');
           } else {
-            throw new Error(ERROR_MESSAGES.ACCESS_DENIED);
+            throw new Error(UiMessages.ERROR_MESSAGES.ACCESS_DENIED);
           }
         } catch (jsonError) {
-          throw new Error(ERROR_MESSAGES.ACCESS_DENIED);
+          throw new Error(UiMessages.ERROR_MESSAGES.ACCESS_DENIED);
         }
       } else {
-        throw new Error(ERROR_MESSAGES.CONNECTION_FAILED);
+        throw new Error(UiMessages.ERROR_MESSAGES.CONNECTION_FAILED);
       }
     }
   }
@@ -51,7 +51,7 @@ export class ApiService {
 
     if (!response.ok) {
       const error = await response.text();
-      throw new Error(`${ERROR_MESSAGES.SESSION_FAILED}: ${error}`);
+      throw new Error(`${UiMessages.ERROR_MESSAGES.SESSION_FAILED}: ${error}`);
     }
 
     const sessionData = await response.json();
@@ -94,6 +94,23 @@ export class ApiService {
     }
 
     return await response.blob();
+  }
+
+  async get(endpoint: string): Promise<{ data: any }> {
+    const response = await fetch(`${this.siteUrl}${endpoint}`, {
+      method: 'GET',
+      credentials: 'omit',
+      headers: {
+        Authorization: `Basic ${this.bearerToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+
+    const data = await response.json();
+    return { data };
   }
 
   static generateBearerToken(username: string, appPassword: string): string {

@@ -1,5 +1,5 @@
 import { AppStatus } from '@/types';
-import { STATUS_MESSAGES } from '@/utils/constants';
+import { UiMessages } from '@/utils/constants';
 
 export interface MicButtonCallbacks {
   onStartRecording: () => void;
@@ -188,52 +188,52 @@ export class MicButtonController {
 
     switch (state) {
       case 'disconnected':
-        this.statusElement.textContent = STATUS_MESSAGES.disconnected;
+        this.statusElement.textContent = UiMessages.STATUS_MESSAGES.disconnected;
         this.statusElement.className = 'status-text';
         this.buttonElement.innerHTML = this.getMicIcon();
         break;
 
       case 'connecting':
-        this.statusElement.textContent = STATUS_MESSAGES.connecting;
+        this.statusElement.textContent = UiMessages.STATUS_MESSAGES.connecting;
         this.statusElement.className = 'status-text';
         this.buttonElement.innerHTML = '<div class="spinner"></div>';
         this.buttonElement.disabled = true;
         break;
 
       case 'recording':
-        this.statusElement.textContent = STATUS_MESSAGES.recording;
+        this.statusElement.textContent = UiMessages.STATUS_MESSAGES.recording;
         this.statusElement.className = 'status-text';
         this.buttonElement.classList.add('recording');
         this.buttonElement.innerHTML = this.getSoundWaveIcon();
         break;
 
       case 'processing':
-        this.statusElement.textContent = STATUS_MESSAGES.processing;
+        this.statusElement.textContent = UiMessages.STATUS_MESSAGES.processing;
         this.statusElement.className = 'status-text';
         this.buttonElement.innerHTML = '<div class="spinner"></div>';
         break;
 
       case 'speaking':
-        this.statusElement.textContent = STATUS_MESSAGES.speaking_interruptible;
+        this.statusElement.textContent = UiMessages.STATUS_MESSAGES.speaking_interruptible;
         this.statusElement.className = 'status-text';
         this.buttonElement.disabled = false;
         this.buttonElement.innerHTML = this.getStopIcon();
         break;
 
       case 'tool_wait':
-        this.statusElement.textContent = STATUS_MESSAGES.tool_wait;
+        this.statusElement.textContent = UiMessages.STATUS_MESSAGES.tool_wait;
         this.statusElement.className = 'status-text';
         this.buttonElement.innerHTML = '<div class="spinner"></div>';
         break;
 
       case 'idle':
-        this.statusElement.textContent = STATUS_MESSAGES.idle;
+        this.statusElement.textContent = UiMessages.STATUS_MESSAGES.idle;
         this.statusElement.className = 'status-text';
         this.buttonElement.innerHTML = this.getStopIcon();
         break;
 
       case 'error':
-        this.statusElement.textContent = options.message || STATUS_MESSAGES.error;
+        this.statusElement.textContent = options.message || UiMessages.STATUS_MESSAGES.error;
         this.statusElement.className = 'status-text error';
         this.buttonElement.innerHTML = this.getMicIcon();
         break;

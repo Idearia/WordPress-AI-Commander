@@ -13,6 +13,7 @@ export interface AppState {
   toolCallQueue: ToolCall[];
   currentToolCallId: string | null;
   isCustomTtsEnabled: boolean;
+  modalities: string[];
   sessionModalities: string[];
   isPlayingCustomTts: boolean;
 }

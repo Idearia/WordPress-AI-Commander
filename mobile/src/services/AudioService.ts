@@ -1,4 +1,4 @@
-import { ERROR_MESSAGES } from '@/utils/constants';
+import { UiMessages } from '@/utils/constants';
 import { ApiService } from './ApiService';
 
 export class AudioService {
@@ -140,7 +140,7 @@ export class AudioService {
         console.log('[AudioService] TTS request was aborted');
       } else {
         console.error('Error during custom TTS playback:', err);
-        throw new Error(ERROR_MESSAGES.TTS_FAILED);
+        throw new Error(UiMessages.ERROR_MESSAGES.TTS_FAILED);
       }
     } finally {
       this.currentAbortController = null;

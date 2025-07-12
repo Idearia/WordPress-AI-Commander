@@ -1,6 +1,6 @@
 # AI Commander Mobile App
 
-This is the TypeScript-based mobile voice assistant for AI Commander WordPress plugin.
+This is the React-based mobile voice assistant for AI Commander WordPress plugin. The app provides real-time voice interaction with your WordPress site through OpenAI's Realtime API and includes comprehensive internationalization support.
 
 ## Development Setup
 
@@ -29,7 +29,8 @@ mobile/
 │   ├── types/          # TypeScript type definitions
 │   ├── utils/          # Utility functions and constants
 │   ├── styles/         # CSS styles
-│   ├── main.ts         # Application entry point
+│   ├── main.tsx        # React application entry point
+│   ├── main.ts         # Legacy entry point (deprecated)
 │   └── index.html      # HTML template
 ├── public/             # Static assets (manifest, icons)
 ├── app/                # Production build (committed to repo)
@@ -50,7 +51,9 @@ mobile/
 
 ## Key Features
 
-- **TypeScript** for type safety
+- **React & TypeScript** for modern component-based UI with type safety
+- **Internationalization (i18n)** with WordPress .po/.mo file integration
+- **Real-time Translation Loading** from WordPress REST API
 - **Vite** for fast development and optimized builds
 - **ESLint & Prettier** for code quality
 - **Modular architecture** for maintainability
@@ -58,19 +61,26 @@ mobile/
 
 ## Architecture
 
-The app is split into several modules:
+The app uses modern React architecture with the following structure:
 
-### Services
-- **StateManager**: Centralized state management with observers
+### React Components
+- **App**: Main React component handling service initialization and screen navigation
+- **ConfigScreen**: WordPress site configuration and authentication
+- **MainApp**: Primary voice assistant interface with settings menu
+- **MicButton**: Microphone button with press-and-hold detection
+- **ChatContainer**: Message history and conversation display
+
+### State Management
+- **AppContext**: React Context with useReducer for centralized state
+- **useTranslation**: Custom hook for accessing translations
+- **TranslationProvider**: Context provider for translation services
+
+### Services (Legacy Integration)
 - **ApiService**: WordPress REST API client with authentication
 - **AudioService**: Mobile audio unlocking and custom TTS playback
 - **WebRTCService**: OpenAI Realtime API WebRTC connection handling
-- **SessionManager**: Orchestrates WebRTC sessions and tool execution
-
-### Components
-- **App**: Main application controller and initialization
-- **UIController**: DOM manipulation and UI state updates
-- **MicButtonController**: Microphone button state machine
+- **SessionManager**: Orchestrates WebRTC sessions and tool execution (with React bridge)
+- **TranslationService**: Handles translation loading from WordPress backend
 
 ### Key Technologies
 - **WebRTC**: Real-time audio streaming with OpenAI
@@ -122,7 +132,7 @@ Authorization: Basic base64(username:app_password)
 
 ## State Management
 
-The app uses a centralized `StateManager` with observer pattern:
+The app uses React Context with useReducer for centralized state management:
 
 ```typescript
 interface AppState {
@@ -132,11 +142,43 @@ interface AppState {
   sessionToken: string | null;
   status: AppStatus;
   messages: Message[];
+  currentTranscript: string;
+  toolCallQueue: ToolCall[];
+  modalities: string[];
+  isCustomTtsEnabled: boolean;
+  isPlayingCustomTts: boolean;
   // ... more state
 }
 ```
 
-Components subscribe to state changes for reactive updates.
+Components access state through the `useAppContext()` hook and updates trigger automatic re-renders.
+
+## Translation System
+
+The mobile app includes comprehensive internationalization support:
+
+### WordPress Integration
+- **Backend Service**: `MobileTranslations.php` provides all mobile-specific strings
+- **REST API Endpoint**: `/wp-json/ai-commander/v1/translations` serves translations
+- **PO/MO Files**: Translators work with standard WordPress .po files
+- **Runtime Loading**: Translations loaded dynamically based on user's WordPress language
+
+### React Translation Usage
+```typescript
+// In React components
+const { t } = useTranslation();
+const text = t('mobile.status.disconnected', 'Press to start');
+
+// In service classes  
+const text = UiMessages.STATUS_MESSAGES.disconnected;
+```
+
+### Translation Features
+- **Fallback Support**: English fallbacks when translations unavailable
+- **Clean Syntax**: Simple `t(key, fallback)` function calls
+- **Icon Integration**: Icons included in translatable strings per user requirements
+- **Config Screen**: English-only for initial setup (site URL unknown)
+- **Error Handling**: Graceful degradation when translation API unavailable
 
 ## Building for Production
 
@@ -176,6 +218,13 @@ The app includes special handling for mobile browsers:
 - Audio context unlocking on first user interaction
 - Muted play/pause cycle for iOS Safari compatibility
 - WebRTC audio track management
+
+### React-Service Integration
+The app bridges React components with legacy TypeScript services:
+- **SessionManager Bridge**: Adapts StateManager interface to React Context
+- **Service Lifecycle**: Services initialized lazily on first interaction
+- **Cleanup Handling**: Proper service cleanup on component unmount
+- **State Synchronization**: React state updates trigger service responses
 
 ### CORS Configuration
 The WordPress plugin includes CORS headers for `/ai-commander/v1/` endpoints.

@@ -114,6 +114,7 @@ function ai_commander_load_dependencies()
     // Include service classes
     require_once AI_COMMANDER_PLUGIN_DIR . 'includes/Services/ConversationService.php';
     require_once AI_COMMANDER_PLUGIN_DIR . 'includes/Services/PromptService.php';
+    require_once AI_COMMANDER_PLUGIN_DIR . 'includes/Services/MobileTranslations.php';
 
     // Include REST API class
     require_once AI_COMMANDER_PLUGIN_DIR . 'includes/RestApi.php';
