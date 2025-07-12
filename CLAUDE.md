@@ -9,6 +9,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Generate WordPress readme**: `composer readme`
 - **Build distribution package**: `composer build`
 
+### Internationalization (i18n)
+- **Generate POT template**: `wp i18n make-pot . languages/ai-commander.pot --domain=ai-commander --exclude=vendor,node_modules,mobile`
+- **Compile PO to MO files**: `wp i18n make-mo languages/`
+- **Create JSON files for JS**: `wp i18n make-json languages/ --no-purge`
+
 ### Mobile App Development
 - **Install dependencies**: `cd mobile && npm install`
 - **Development server**: `cd mobile && npm run dev`

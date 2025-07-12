@@ -24,7 +24,16 @@ composer readme
 mv readme.txt build/
 
 # Copy all necessary plugin files to the build directory
-cp -R admin assets includes tools LICENSE ai-commander.php build/
+cp -R admin assets includes tools languages LICENSE ai-commander.php build/
+
+# Compile .po files to .mo files if WP-CLI is available
+if command -v wp &> /dev/null; then
+  echo "Compiling translation files..."
+  wp i18n make-mo languages/
+else
+  echo "Warning: WP-CLI not found. Skipping .po to .mo compilation."
+  echo "To compile translations, install WP-CLI and run: wp i18n make-mo languages/"
+fi
 
 # Remove excluded files
 for pattern in "${EXCLUDED_PATTERNS[@]}"; do

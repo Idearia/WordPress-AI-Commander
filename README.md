@@ -516,6 +516,15 @@ To use the collection:
    - `password`: Your WordPress application password
 3. You can now use the collection to test the REST API endpoints
 
+## Translations (i18n)
+
+Translation files are in the `languages` directory.  Useful commands:
+
+- **Generate POT template**: `wp i18n make-pot . languages/ai-commander.pot --domain=ai-commander --exclude=vendor,node_modules,mobile`
+- **Compile PO to MO files**: `wp i18n make-mo languages/`
+- **Create JSON files for JS**: `wp i18n make-json languages/ --no-purge`
+
+
 ## Frequently Asked Questions
 
 ### Does this plugin require an OpenAI API key?
