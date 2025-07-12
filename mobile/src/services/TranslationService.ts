@@ -11,11 +11,20 @@ export class TranslationService {
   private translations: Record<string, string> = {};
   private locale: string = 'en_US';
   private isLoaded: boolean = false;
+  private isLoading: boolean = false;
 
   /**
    * Load translations from WordPress API
    */
   async loadTranslations(apiService: ApiService): Promise<void> {
+    // Prevent concurrent calls
+    if (this.isLoading || this.isLoaded) {
+      console.log('[TranslationService] Already loading or loaded, skipping duplicate call');
+      return;
+    }
+    
+    this.isLoading = true;
+    
     try {
       const response = await apiService.get('/wp-json/ai-commander/v1/translations');
       
@@ -32,6 +41,8 @@ export class TranslationService {
     } catch (error) {
       console.error('[TranslationService] Failed to load translations:', error);
       this.isLoaded = true;
+    } finally {
+      this.isLoading = false;
     }
   }
 

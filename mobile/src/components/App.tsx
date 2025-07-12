@@ -35,9 +35,16 @@ export function App() {
   const sessionManagerRef = useRef<SessionManager | null>(null);
   const audioServiceRef = useRef<AudioService | null>(null);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
+  const isInitializedRef = useRef<boolean>(false);
 
   // Initialize app on mount
   useEffect(() => {
+    // Prevent duplicate initialization in React StrictMode
+    if (isInitializedRef.current) {
+      return;
+    }
+    isInitializedRef.current = true;
+    
     initializeApp();
     
     // Set up audio element ref
@@ -69,14 +76,13 @@ export function App() {
         const storedPassword = localStorage.getItem(STORAGE_KEYS.APP_PASSWORD);
         const bearerToken = ApiService.generateBearerToken(state.username, storedPassword!);
         
-        // Test connection with regenerated credentials
+        // Create API service with stored credentials
         const apiService = new ApiService(state.siteUrl, bearerToken);
-        await apiService.testConnection();
         
-        // Update state with valid bearer token
+        // Update state with bearer token
         setSiteConfig(state.siteUrl, state.username, bearerToken);
         
-        // Load translations separately
+        // Load translations
         await ensureTranslationsLoaded(apiService);
         
         // Store API service for later use
@@ -87,7 +93,7 @@ export function App() {
         setIsLoading(false);
         console.log('[App] Initialized with stored credentials');
       } catch (error) {
-        console.warn('[App] Stored credentials invalid or connection failed:', error);
+        console.warn('[App] Failed to initialize with stored credentials:', error);
         // Clear invalid credentials and show config screen
         clearSiteConfig();
         setCurrentScreen('config');
@@ -150,9 +156,8 @@ export function App() {
         throw new Error('No API service available. Please check your configuration.');
       }
       
-      // Test connection to ensure credentials are still valid
+      // Create API service (already tested in initializeApp)
       apiServiceRef.current = new ApiService(state.siteUrl, state.bearerToken);
-      await apiServiceRef.current.testConnection();
       
       // Ensure translations are loaded with current API service
       await ensureTranslationsLoaded(apiServiceRef.current);
