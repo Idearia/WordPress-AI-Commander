@@ -58,7 +58,7 @@ export function MainApp({
   }, []);
 
   return (
-    <div className="app-container">
+    <div className="app-container active">
       <header className="app-header">
         <div className="app-title">
           <div className="logo-small">IN</div>
