@@ -59,7 +59,6 @@ class RestApi
     {
         // Only add CORS headers for our plugin's endpoints
         $route = $request->get_route();
-        error_log('Route: ' . $route);
         if (strpos($route, '/ai-commander/v1/') !== 0) {
             return $served;
         }
@@ -573,18 +572,18 @@ class RestApi
     {
         // Get translations
         $translations = MobileTranslations::get_translations();
-        
+
         // Get site-specific settings
         $site_name = get_bloginfo('name');
         $site_url = get_site_url();
-        
+
         // Apply filters for PWA customization
         $pwa_name = apply_filters('ai_commander_filter_pwa_name', $translations['mobile.manifest.name']);
         $pwa_short_name = apply_filters('ai_commander_filter_pwa_short_name', $translations['mobile.manifest.short_name']);
         $pwa_description = apply_filters('ai_commander_filter_pwa_description', $translations['mobile.manifest.description']);
         $pwa_theme_color = apply_filters('ai_commander_filter_pwa_theme_color', '#1e3c72');
         $pwa_background_color = apply_filters('ai_commander_filter_pwa_background_color', '#1e3c72');
-        
+
         // Default icon
         $default_icons = array(
             array(
@@ -594,7 +593,7 @@ class RestApi
             )
         );
         $pwa_icons = apply_filters('ai_commander_filter_pwa_icons', $default_icons);
-        
+
         // Build manifest
         $manifest = array(
             'name' => $pwa_name,
@@ -608,13 +607,13 @@ class RestApi
             'scope' => '/',
             'icons' => $pwa_icons
         );
-        
+
         // Allow filtering the entire manifest
         $manifest = apply_filters('ai_commander_filter_pwa_manifest', $manifest);
-        
+
         // Set proper content type header
         header('Content-Type: application/manifest+json');
-        
+
         return rest_ensure_response($manifest);
     }
 }

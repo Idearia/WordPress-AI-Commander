@@ -126,13 +126,6 @@ export function ConfigScreen({ onConfigSuccess }: ConfigScreenProps) {
             'mobile.ui.config.note_text',
             'For the password, use an "Application Password" generated from your WordPress profile, not the normal password.'
           )}
-          <a
-            href="https://wordpress.org/documentation/article/application-passwords/"
-            target="_blank"
-            style={{ color: '#667eea', textDecoration: 'underline' }}
-          >
-            How to generate an app password →
-          </a>
         </div>
 
         <form onSubmit={handleSubmit}>

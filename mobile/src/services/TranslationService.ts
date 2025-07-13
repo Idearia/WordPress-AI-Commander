@@ -12,6 +12,7 @@ export class TranslationService {
   private locale: string = 'en_US';
   private isLoaded: boolean = false;
   private isLoading: boolean = false;
+  private hasAttemptedLoad: boolean = false;
 
   /**
    * Set translations directly (e.g., from embedded config)
@@ -32,6 +33,9 @@ export class TranslationService {
       console.log('[TranslationService] Already loading or loaded, skipping duplicate call');
       return;
     }
+
+    // Mark that we have attempted to load translations (for warning logic)
+    this.hasAttemptedLoad = true;
 
     this.isLoading = true;
 
@@ -64,8 +68,13 @@ export class TranslationService {
    * @returns Translated string or fallback
    */
   t(key: string, fallback?: string): string {
+    // If translations are not yet ready, warn only AFTER a load has been attempted and finished
     if (!this.isLoaded) {
-      console.warn(`[TranslationService] Translations not loaded yet, using fallback for: ${key}`);
+      if (this.hasAttemptedLoad && !this.isLoading) {
+        console.warn(
+          `[TranslationService] Translations not loaded yet, using fallback for: ${key}`
+        );
+      }
       return fallback || key;
     }
 

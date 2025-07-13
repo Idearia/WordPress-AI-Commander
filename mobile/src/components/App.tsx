@@ -38,7 +38,21 @@ export function App() {
     hasStoredCredentials ? 'main' : 'config'
   );
   const [isLoading, setIsLoading] = useState<boolean>(hasStoredCredentials);
-  const [translationService] = useState(() => new TranslationService());
+
+  // Pre-load translations from embedded config (runs before first render)
+  const [translationService] = useState(() => {
+    const service = new TranslationService();
+    const cfg = window.AI_COMMANDER_CONFIG;
+    if (cfg?.translations) {
+      try {
+        service.setTranslations(cfg.translations, cfg.locale);
+        console.log('[App] Preloaded translations from embedded config');
+      } catch (err) {
+        console.warn('[App] Failed to preload embedded translations:', err);
+      }
+    }
+    return service;
+  });
 
   // Service references
   const apiServiceRef = useRef<ApiService | null>(null);
@@ -119,8 +133,8 @@ export function App() {
           setIsLoading(false);
           console.log('[App] Initialized with embedded config and stored credentials');
         } else {
-          // Load embedded translations without API
-          if (embeddedConfig.translations) {
+          // Load embedded translations only if not already loaded (avoids duplicate log)
+          if (embeddedConfig.translations && !translationService.isTranslationsLoaded()) {
             console.log('[App] Using embedded translations');
             translationService.setTranslations(embeddedConfig.translations, embeddedConfig.locale);
           }
