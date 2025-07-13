@@ -85,9 +85,9 @@ class MobileTranslations
 
 
             // Suggestion examples - shown to help users understand what they can ask
-            'mobile.suggestion.customer_check' => __('💬 "Is license plate XX333TT our customer?"', 'ai-commander'),
-            'mobile.suggestion.book_service' => __('📅 "Schedule a service for tomorrow"', 'ai-commander'),
-            'mobile.suggestion.show_appointments' => __('🔍 "Show today\'s appointments"', 'ai-commander'),
+            'mobile.suggestion.suggestion_1' => __('🔍 "Show all posts from last week that are still in draft"', 'ai-commander'),
+            'mobile.suggestion.suggestion_2' => __('✍️ "Draft a post on SEO best practices for product pages"', 'ai-commander'),
+            'mobile.suggestion.suggestion_3' => __('🏷️ "Add the SEO tag to all posts related to Search Engine Optimization"', 'ai-commander'),
 
             // Confirmation messages - for user actions that need confirmation
             'mobile.confirm.logout' => __('Do you want to disconnect and delete saved credentials?', 'ai-commander'),

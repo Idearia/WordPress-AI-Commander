@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-13T13:31:56+00:00\n"
+"POT-Creation-Date: 2025-07-13T14:05:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.8.1\n"
 "X-Domain: ai-commander\n"
@@ -749,15 +749,15 @@ msgid "Connect"
 msgstr ""
 
 #: includes/Services/MobileTranslations.php:88
-msgid "💬 \"Is license plate XX333TT our customer?\""
+msgid "🔍 \"Show all posts from last week that are still in draft\""
 msgstr ""
 
 #: includes/Services/MobileTranslations.php:89
-msgid "📅 \"Schedule a service for tomorrow\""
+msgid "✍️ \"Draft a post on SEO best practices for product pages\""
 msgstr ""
 
 #: includes/Services/MobileTranslations.php:90
-msgid "🔍 \"Show today's appointments\""
+msgid "🏷️ \"Add the SEO tag to all posts related to Search Engine Optimization\""
 msgstr ""
 
 #: includes/Services/MobileTranslations.php:93

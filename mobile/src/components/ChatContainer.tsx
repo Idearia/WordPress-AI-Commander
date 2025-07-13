@@ -51,13 +51,22 @@ export function ChatContainer() {
       </p>
       <div className="suggestions">
         <div className="suggestion">
-          {t('mobile.suggestion.customer_check', '💬 "Is license plate XX333TT our customer?"')}
+          {t(
+            'mobile.suggestion.suggestion_1',
+            '🔍 "Show all posts from last week that are still in draft"'
+          )}
         </div>
         <div className="suggestion">
-          {t('mobile.suggestion.book_service', '📅 "Schedule a service for tomorrow"')}
+          {t(
+            'mobile.suggestion.suggestion_2',
+            '✍️ "Draft a post on SEO best practices for product pages"'
+          )}
         </div>
         <div className="suggestion">
-          {t('mobile.suggestion.show_appointments', '🔍 "Show today\'s appointments"')}
+          {t(
+            'mobile.suggestion.suggestion_3',
+            '🏷️ "Add the SEO tag to all posts related to Search Engine Optimization"'
+          )}
         </div>
       </div>
     </div>

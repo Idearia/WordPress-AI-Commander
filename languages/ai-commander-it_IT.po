@@ -651,6 +651,18 @@ msgstr "L'URL deve iniziare con http:// o https://"
 msgid "Unable to connect. Check your data and try again."
 msgstr "Impossibile connettersi. Controlla i tuoi dati e prova di nuovo."
 
+#: includes/Services/MobileTranslations.php:88
+msgid "🔍 \"Show all posts from last week that are still in draft\""
+msgstr "💬 \"La targa XX333TT è nostra cliente?\""
+
+#: includes/Services/MobileTranslations.php:89
+msgid "✍️ \"Draft a post on SEO best practices for product pages\""
+msgstr "📅 \"Fissa un tagliando per domani\""
+
+#: includes/Services/MobileTranslations.php:90
+msgid "🏷️ \"Add the SEO tag to all posts related to Search Engine Optimization\""
+msgstr "🔍 \"Mostra gli appuntamenti di oggi\""
+
 #: includes/Services/ConversationService.php:174
 msgid "Conversation not found"
 msgstr ""
@@ -1239,18 +1251,6 @@ msgstr ""
 #: assets/js/react-realtime-interface.js:735
 msgid "Error: Plugin configuration data is missing."
 msgstr ""
-
-#: includes/Services/MobileTranslations.php:88
-msgid "💬 \"Is license plate XX333TT our customer?\""
-msgstr "💬 \"La targa XX333TT è nostra cliente?\""
-
-#: includes/Services/MobileTranslations.php:89
-msgid "📅 \"Schedule a service for tomorrow\""
-msgstr "📅 \"Fissa un tagliando per domani\""
-
-#: includes/Services/MobileTranslations.php:90
-msgid "🔍 \"Show today's appointments\""
-msgstr "🔍 \"Mostra gli appuntamenti di oggi\""
 
 #: admin/SettingsPage.php:302
 msgid "Mobile Web App Settings"
