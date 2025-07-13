@@ -9,15 +9,27 @@ This is the React-based mobile voice assistant for AI Commander WordPress plugin
 npm install
 ```
 
-2. Start development server:
+2. (Optional) Configure WordPress connection for development:
+```bash
+cp .env.example .env.local
+# Edit .env.local and set VITE_WP_BASE_URL to your WordPress site
+```
+
+3. Start development server:
 ```bash
 npm run dev
 ```
 
-3. Build for production:
+4. Build for production:
 ```bash
 npm run build
 ```
+
+### Development Modes
+
+- **With .env.local**: App only asks for username/password, uses configured WordPress URL
+- **Without .env.local**: App asks for WordPress URL, username, and password (legacy mode)
+- **WordPress-served**: When accessing through WordPress, all config is embedded automatically
 
 ## Project Structure
 
@@ -104,14 +116,88 @@ The app uses modern React architecture with the following structure:
 - `POST /wp-json/ai-commander/v1/realtime/session` - Create OpenAI session
 - `POST /wp-json/ai-commander/v1/realtime/tool` - Execute tool calls
 - `POST /wp-json/ai-commander/v1/read-text` - Generate TTS audio
+- `GET /wp-json/ai-commander/v1/translations` - Get mobile app translations
+- `GET /wp-json/ai-commander/v1/manifest` - Get dynamic PWA manifest
 - `GET /wp-json/wp/v2/users/me` - Validate authentication
 
-### Authentication
+### Authentication Flow
+
+The mobile app supports multiple authentication flows depending on how it's accessed:
+
+#### 1. WordPress-Served PWA (Primary Flow)
+When accessed through WordPress at the configured PWA path (e.g., `/ai-commander/assistant`):
+
+1. **WordPress serves the PWA** via `PwaPage.php` which:
+   - Generates HTML with embedded configuration (`window.AI_COMMANDER_CONFIG`)
+   - Includes translations, manifest data, and base URL
+   - Eliminates the need to ask users for the site URL
+
+2. **User only enters credentials**:
+   - Username
+   - Application password
+
+3. **App initializes** with embedded config:
+   - Uses embedded translations (no API call needed)
+   - Knows the WordPress base URL
+   - Only needs to validate credentials
+
+#### 2. Development Mode (Vite)
+When running locally with `npm run dev`:
+
+1. **Set environment variable** in `.env.local`:
+   ```bash
+   VITE_WP_BASE_URL=http://your-wordpress-site.local
+   ```
+
+2. **User only enters credentials** (same as WordPress flow)
+
+3. **App uses Vite environment** for base URL
+
+#### 3. Legacy/Standalone Mode
+When accessed without embedded config or Vite:
+
+1. **User enters all information**:
+   - WordPress site URL
+   - Username
+   - Application password
+
+2. **App validates and stores** all three values
+
+### WordPress Integration: PwaPage.php
+
+The `PwaPage.php` class is responsible for serving the PWA with WordPress context:
+
+#### Key Functions:
+1. **URL Handling**: Registers the PWA at a configurable path (default: `/ai-commander/assistant`)
+2. **Configuration Embedding**: Injects `window.AI_COMMANDER_CONFIG` with:
+   - `baseUrl`: WordPress site URL
+   - `translations`: All mobile app translations in user's language
+   - `manifest`: PWA manifest data (name, colors, icons)
+   - `locale`: Current WordPress locale
+   - `pwaPath`: The configured PWA path
+   - `version`: Plugin version
+
+3. **Asset Management**: 
+   - Serves the built React app from `mobile/app/`
+   - Assets load directly from plugin directory (no proxying)
+   - Automatically includes correct CSS/JS files
+
+4. **No Build Required**: The PWA is pre-built and committed, so it works immediately after plugin activation
+
+#### Benefits:
+- **Simplified UX**: Users don't need to know/type the WordPress URL
+- **No FOUC**: Translations are immediately available
+- **Multisite Ready**: Each site can have different PWA settings
+- **Filter Support**: Developers can customize via WordPress filters
+
+### Authentication Details
 
 Uses WordPress Application Passwords with Basic Authentication:
 ```typescript
 Authorization: Basic base64(username:app_password)
 ```
+
+The app generates bearer tokens for API requests and stores the app password securely in localStorage.
 
 ## Features
 
@@ -202,14 +288,27 @@ app/
 
 The mobile app is pre-built and committed to the repository, so no build step is required on production servers:
 
-1. The app is accessible at `mobile/index.html` (redirects to `mobile/app/index.html`)
-2. No Node.js or npm required on production server
-3. CORS headers are automatically configured by the WordPress plugin
+### Primary Access Method
+The PWA is served through WordPress at a configurable path (default: `/ai-commander/assistant`):
+1. Users access the PWA at `https://yoursite.com/ai-commander/assistant`
+2. WordPress serves the app with embedded configuration via `PwaPage.php`
+3. Users only need to enter WordPress credentials (not the site URL)
+4. PWA path can be configured in WordPress Admin → AI Commander → Settings → Mobile Web App Settings
 
-For developers who want to rebuild the app:
+### Legacy Access Method
+The app is also accessible at `mobile/index.html` (redirects to `mobile/app/index.html`) for backwards compatibility.
+
+### Technical Requirements
+1. No Node.js or npm required on production server
+2. CORS headers are automatically configured by the WordPress plugin
+3. PWA manifest is dynamically generated with proper translations
+
+### Rebuilding (For Developers)
+If you make changes to the React app:
 1. Make your changes in the `src/` directory
 2. Run `npm run build` to build the app
 3. Commit the changes including the `app/` directory
+4. The updated app will be immediately available through both access methods
 
 ## Development Notes
 

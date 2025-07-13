@@ -7,6 +7,9 @@ export default defineConfig({
   base: './',
   root: './src',
   publicDir: '../public',
+  define: {
+    'import.meta.env.VITE_WP_BASE_URL': JSON.stringify(process.env.VITE_WP_BASE_URL || ''),
+  },
   build: {
     outDir: '../app',
     emptyOutDir: true,

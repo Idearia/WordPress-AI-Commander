@@ -24,6 +24,7 @@ use AICommander\Admin\ChatbotPage;
 use AICommander\Admin\SettingsPage;
 use AICommander\Admin\RealtimePage;
 use AICommander\Includes\RestApi;
+use AICommander\Includes\PwaPage;
 use AICommander\Includes\ToolRegistry;
 use AICommander\Tools\PostCreationTool;
 use AICommander\Tools\PostEditingTool;
@@ -119,6 +120,9 @@ function ai_commander_load_dependencies()
     // Include REST API class
     require_once AI_COMMANDER_PLUGIN_DIR . 'includes/RestApi.php';
 
+    // Include PWA page handler
+    require_once AI_COMMANDER_PLUGIN_DIR . 'includes/PwaPage.php';
+
     // Include AJAX handlers class
     require_once AI_COMMANDER_PLUGIN_DIR . 'includes/AjaxHandlers.php';
 
@@ -170,6 +174,9 @@ function ai_commander_init()
 
     // Initialize the REST API
     $rest_api = new RestApi();
+
+    // Initialize the PWA page handler
+    $pwa_page = new PwaPage();
 
     // Initialize the AJAX handlers
     $ajax_handlers = new AICommander\Includes\AjaxHandlers();

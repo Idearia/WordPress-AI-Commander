@@ -1,3 +1,19 @@
+// Global Config Types (from WordPress)
+export interface PWAConfig {
+  baseUrl: string;
+  locale: string;
+  translations: Record<string, string>;
+  manifest: any;
+  pwaPath: string;
+  version: string;
+}
+
+declare global {
+  interface Window {
+    AI_COMMANDER_CONFIG?: PWAConfig;
+  }
+}
+
 // App State Types
 export interface AppState {
   siteUrl: string;

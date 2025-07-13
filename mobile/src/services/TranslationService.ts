@@ -14,6 +14,16 @@ export class TranslationService {
   private isLoading: boolean = false;
 
   /**
+   * Set translations directly (e.g., from embedded config)
+   */
+  setTranslations(translations: Record<string, string>, locale: string = 'en_US'): void {
+    this.translations = translations;
+    this.locale = locale;
+    this.isLoaded = true;
+    console.log(`[TranslationService] Set translations directly for locale: ${locale}`);
+  }
+
+  /**
    * Load translations from WordPress API
    */
   async loadTranslations(apiService: ApiService): Promise<void> {

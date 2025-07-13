@@ -24,8 +24,16 @@ export function App() {
     setSessionData, 
     setPlayingCustomTts 
   } = useAppContext();
-  // Determine initial screen based on stored credentials
-  const hasStoredCredentials = !!(state.siteUrl && state.username && localStorage.getItem(STORAGE_KEYS.APP_PASSWORD));
+  
+  // Check if we have embedded config from WordPress
+  const embeddedConfig = window.AI_COMMANDER_CONFIG;
+  
+  // Determine initial screen - if we have embedded config, only check for username/password
+  const hasEmbeddedConfig = !!embeddedConfig;
+  const hasStoredCredentials = hasEmbeddedConfig 
+    ? !!(state.username && localStorage.getItem(STORAGE_KEYS.APP_PASSWORD))
+    : !!(state.siteUrl && state.username && localStorage.getItem(STORAGE_KEYS.APP_PASSWORD));
+  
   const [currentScreen, setCurrentScreen] = useState<'config' | 'main'>(hasStoredCredentials ? 'main' : 'config');
   const [isLoading, setIsLoading] = useState<boolean>(hasStoredCredentials);
   const [translationService] = useState(() => new TranslationService());
@@ -56,9 +64,21 @@ export function App() {
 
   const ensureTranslationsLoaded = async (apiService: ApiService): Promise<void> => {
     if (!translationService.isTranslationsLoaded()) {
+      // First try to use embedded translations
+      if (embeddedConfig?.translations) {
+        try {
+          translationService.setTranslations(embeddedConfig.translations, embeddedConfig.locale);
+          console.log('[App] Using embedded translations');
+          return;
+        } catch (error) {
+          console.warn('[App] Failed to use embedded translations:', error);
+        }
+      }
+      
+      // Fallback to loading from API
       try {
         await translationService.loadTranslations(apiService);
-        console.log('[App] Translations loaded successfully');
+        console.log('[App] Translations loaded from API');
       } catch (error) {
         console.warn('[App] Failed to load translations, using fallbacks:', error);
         // Continue anyway - components will use their fallback parameters
@@ -69,39 +89,113 @@ export function App() {
   };
 
   const initializeApp = async () => {
-    // Check if we have saved credentials and regenerate bearer token
-    if (state.siteUrl && state.username && localStorage.getItem(STORAGE_KEYS.APP_PASSWORD)) {
-      try {
-        // Generate bearer token from stored credentials
-        const storedPassword = localStorage.getItem(STORAGE_KEYS.APP_PASSWORD);
-        const bearerToken = ApiService.generateBearerToken(state.username, storedPassword!);
+    try {
+      // If we have embedded config, use that as the base URL
+      if (embeddedConfig) {
+        console.log('[App] Using embedded WordPress config');
         
-        // Create API service with stored credentials
-        const apiService = new ApiService(state.siteUrl, bearerToken);
+        // Check for stored credentials (username + password only)
+        if (state.username && localStorage.getItem(STORAGE_KEYS.APP_PASSWORD)) {
+          // Generate bearer token from stored credentials
+          const storedPassword = localStorage.getItem(STORAGE_KEYS.APP_PASSWORD);
+          const bearerToken = ApiService.generateBearerToken(state.username, storedPassword!);
+          
+          // Create API service with embedded base URL
+          const apiService = new ApiService(embeddedConfig.baseUrl, bearerToken);
+          
+          // Update state with embedded base URL and bearer token
+          setSiteConfig(embeddedConfig.baseUrl, state.username, bearerToken);
+          
+          // Load translations (will use embedded ones first)
+          await ensureTranslationsLoaded(apiService);
+          
+          // Store API service for later use
+          apiServiceRef.current = apiService;
+          
+          // Show main app
+          setCurrentScreen('main');
+          setIsLoading(false);
+          console.log('[App] Initialized with embedded config and stored credentials');
+        } else {
+          // Load embedded translations without API
+          if (embeddedConfig.translations) {
+            translationService.setTranslations(embeddedConfig.translations, embeddedConfig.locale);
+          }
+          
+          // Show config screen (only ask for username/password)
+          setCurrentScreen('config');
+          setIsLoading(false);
+          console.log('[App] Embedded config available, showing config for credentials');
+        }
+      } else {
+        // Check for Vite dev environment variable
+        const viteBaseUrl = import.meta.env.VITE_WP_BASE_URL;
         
-        // Update state with bearer token
-        setSiteConfig(state.siteUrl, state.username, bearerToken);
-        
-        // Load translations
-        await ensureTranslationsLoaded(apiService);
-        
-        // Store API service for later use
-        apiServiceRef.current = apiService;
-        
-        // Show main app (services will be initialized on first mic click)
-        setCurrentScreen('main');
-        setIsLoading(false);
-        console.log('[App] Initialized with stored credentials');
-      } catch (error) {
-        console.warn('[App] Failed to initialize with stored credentials:', error);
-        // Clear invalid credentials and show config screen
-        clearSiteConfig();
-        setCurrentScreen('config');
-        setIsLoading(false);
+        if (viteBaseUrl) {
+          console.log('[App] Using Vite development base URL:', viteBaseUrl);
+          
+          // Check for stored credentials (username + password only)
+          if (state.username && localStorage.getItem(STORAGE_KEYS.APP_PASSWORD)) {
+            // Generate bearer token from stored credentials
+            const storedPassword = localStorage.getItem(STORAGE_KEYS.APP_PASSWORD);
+            const bearerToken = ApiService.generateBearerToken(state.username, storedPassword!);
+            
+            // Create API service with Vite base URL
+            const apiService = new ApiService(viteBaseUrl, bearerToken);
+            
+            // Update state with Vite base URL and bearer token
+            setSiteConfig(viteBaseUrl, state.username, bearerToken);
+            
+            // Load translations from API
+            await ensureTranslationsLoaded(apiService);
+            
+            // Store API service for later use
+            apiServiceRef.current = apiService;
+            
+            // Show main app
+            setCurrentScreen('main');
+            setIsLoading(false);
+            console.log('[App] Initialized with Vite base URL and stored credentials');
+          } else {
+            // Show config screen (only ask for username/password)
+            setCurrentScreen('config');
+            setIsLoading(false);
+            console.log('[App] Vite base URL available, showing config for credentials');
+          }
+        }
+        // Fallback to legacy behavior - check for stored site URL + credentials
+        else if (state.siteUrl && state.username && localStorage.getItem(STORAGE_KEYS.APP_PASSWORD)) {
+          // Generate bearer token from stored credentials
+          const storedPassword = localStorage.getItem(STORAGE_KEYS.APP_PASSWORD);
+          const bearerToken = ApiService.generateBearerToken(state.username, storedPassword!);
+          
+          // Create API service with stored site URL
+          const apiService = new ApiService(state.siteUrl, bearerToken);
+          
+          // Update state with bearer token
+          setSiteConfig(state.siteUrl, state.username, bearerToken);
+          
+          // Load translations from API
+          await ensureTranslationsLoaded(apiService);
+          
+          // Store API service for later use
+          apiServiceRef.current = apiService;
+          
+          // Show main app
+          setCurrentScreen('main');
+          setIsLoading(false);
+          console.log('[App] Initialized with legacy stored credentials');
+        } else {
+          // No stored credentials, show config screen
+          setCurrentScreen('config');
+          setIsLoading(false);
+          console.log('[App] No embedded config or stored credentials found');
+        }
       }
-    } else {
-      // No stored credentials or invalid format
-      console.log('[App] No valid stored credentials found');
+    } catch (error) {
+      console.error('[App] Failed to initialize app:', error);
+      // Clear any invalid credentials and show config screen
+      clearSiteConfig();
       setCurrentScreen('config');
       setIsLoading(false);
     }

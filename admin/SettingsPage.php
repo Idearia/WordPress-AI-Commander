@@ -141,6 +141,17 @@ class SettingsPage extends AdminPage
             )
         );
 
+        // Mobile Web App settings
+        register_setting(
+            'ai_commander_settings',
+            'ai_commander_pwa_path',
+            array(
+                'type' => 'string',
+                'sanitize_callback' => array($this, 'sanitize_pwa_path'),
+                'default' => 'ai-commander/assistant',
+            )
+        );
+
         register_setting(
             'ai_commander_settings',
             'ai_commander_chatbot_speech_language',
@@ -283,6 +294,23 @@ class SettingsPage extends AdminPage
             array($this, 'render_openai_debug_mode_field'),
             'ai_commander_settings',
             'ai_commander_openai_settings'
+        );
+
+        // Add settings section for mobile web app
+        add_settings_section(
+            'ai_commander_mobile_settings',
+            __('Mobile Web App Settings', 'ai-commander'),
+            array($this, 'render_mobile_settings_section'),
+            'ai_commander_settings'
+        );
+
+        // Add settings fields for mobile web app
+        add_settings_field(
+            'ai_commander_pwa_path',
+            __('PWA Path', 'ai-commander'),
+            array($this, 'render_pwa_path_field'),
+            'ai_commander_settings',
+            'ai_commander_mobile_settings'
         );
 
         // Add settings section for chatbot
@@ -784,6 +812,68 @@ class SettingsPage extends AdminPage
             <?php esc_html_e('Configure input audio noise reduction. "Near field" is for close-talking microphones such as headphones. "Far field" is for laptop or conference room microphones. Select "None" to turn off noise reduction.', 'ai-commander'); ?>
         </p>
     <?php
+    }
+
+    /**
+     * Render the Mobile Web App settings section.
+     */
+    public function render_mobile_settings_section()
+    {
+    ?>
+        <p><?php esc_html_e('Configure settings for the mobile Progressive Web App (PWA).', 'ai-commander'); ?></p>
+    <?php
+    }
+
+    /**
+     * Render the PWA path field.
+     */
+    public function render_pwa_path_field()
+    {
+        $pwa_path = get_option('ai_commander_pwa_path', 'ai-commander/assistant');
+        $filtered_path = apply_filters('ai_commander_filter_pwa_path', $pwa_path);
+        $is_filtered = $filtered_path !== $pwa_path;
+        
+        // Get the full URL for display
+        $site_url = untrailingslashit(get_site_url());
+        $full_url = $site_url . '/' . ltrim($filtered_path, '/');
+    ?>
+        <?php if (! $is_filtered) : ?>
+            <input type="text" id="ai_commander_pwa_path" name="ai_commander_pwa_path" value="<?php echo esc_attr($pwa_path); ?>" class="regular-text" />
+            <p class="description">
+                <?php esc_html_e('The URL path where the mobile web app will be accessible. Do not include leading or trailing slashes.', 'ai-commander'); ?>
+                <br>
+                <?php esc_html_e('Full URL:', 'ai-commander'); ?> <code><?php echo esc_html($full_url); ?></code>
+            </p>
+        <?php else : ?>
+            <div class="notice notice-warning inline">
+                <p>
+                    <strong><?php esc_html_e('Note:', 'ai-commander'); ?></strong>
+                    <?php esc_html_e('The PWA path is currently set by code using the `ai_commander_filter_pwa_path` filter. This is the actual value used:', 'ai-commander'); ?>
+                    <br>
+                    <code><?php echo esc_html($full_url); ?></code>
+                </p>
+            </div>
+        <?php endif; ?>
+    <?php
+    }
+
+    /**
+     * Sanitize the PWA path setting.
+     */
+    public function sanitize_pwa_path($value)
+    {
+        // Remove leading and trailing slashes
+        $sanitized = trim($value, '/');
+        
+        // Sanitize for URL use
+        $sanitized = sanitize_title_with_dashes($sanitized);
+        
+        // Ensure it's not empty, provide default
+        if (empty($sanitized)) {
+            $sanitized = 'ai-commander/assistant';
+        }
+        
+        return $sanitized;
     }
 
     /**

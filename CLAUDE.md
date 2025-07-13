@@ -17,11 +17,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Mobile App Development
 - **Install dependencies**: `cd mobile && npm install`
-- **Development server**: `cd mobile && npm run dev`
+- **Development with WordPress backend**:
+  ```bash
+  cp mobile/.env.example mobile/.env.local
+  # Edit .env.local and set VITE_WP_BASE_URL
+  cd mobile && npm run dev
+  ```
 - **Build for production**: `cd mobile && npm run build` (outputs to `mobile/app/`)
 - **Lint code**: `cd mobile && npm run lint`
 - **Format code**: `cd mobile && npm run format`
-- **Access URL**: `mobile/index.html` (redirects to `mobile/app/index.html`)
+- **Primary access**: Through WordPress at configured path (e.g. `/ai-commander/assistant`)
+- **Legacy access**: `mobile/index.html` (redirects to `mobile/app/index.html`)
 
 ### Testing
 - **Static analysis**: `composer phpstan` (PHPStan level 3 with WordPress rules)
@@ -42,6 +48,7 @@ This is a WordPress plugin that provides AI-powered content management through c
 2. **CommandProcessor** (includes/CommandProcessor.php): Processes natural language commands via OpenAI
 3. **ConversationManager** (includes/ConversationManager.php): Handles conversation history and database persistence
 4. **OpenaiClient** (includes/OpenaiClient.php): Wrapper for OpenAI API interactions
+5. **PwaPage** (includes/PwaPage.php): Serves the mobile PWA with embedded WordPress configuration
 
 ### Tool System
 Tools extend `BaseTool` and are auto-registered. Each tool must implement:
@@ -76,6 +83,13 @@ Two custom tables created on activation:
   - `/realtime/session`: Create OpenAI Realtime session
   - `/realtime/tool`: Execute tools for Realtime API
   - `/translations`: Get mobile app translations
+  - `/manifest`: Get dynamic PWA manifest (multilingual)
+
+### PWA Serving
+- **PwaPage.php**: Serves mobile PWA at configurable path (default: `/ai-commander/assistant`)
+- **Embedded config**: Injects `window.AI_COMMANDER_CONFIG` with translations, manifest, and base URL
+- **Admin settings**: PWA path configurable in Settings → Mobile Web App Settings
+- **Filter hooks**: `ai_commander_filter_pwa_*` for customization
 
 ### Mobile App Architecture
 The mobile app (`mobile/` directory) is a React-based TypeScript PWA:
@@ -109,6 +123,11 @@ The mobile app (`mobile/` directory) is a React-based TypeScript PWA:
 - Tool execution through WordPress backend
 - Lazy service initialization for better performance
 - SessionManager bridge for React-service integration
+
+**Authentication Flows**:
+1. **WordPress-served** (primary): Users access mobile app at `/ai-commander/assistant`, only enter credentials
+2. **Development mode**: Set `VITE_WP_BASE_URL` in `.env.local`, only enter credentials
+3. **Legacy mode**: Manual entry of WordPress URL, username, and app password
 
 ### Security
 - WordPress nonce verification for AJAX requests

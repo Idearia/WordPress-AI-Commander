@@ -11,26 +11,45 @@ export function ConfigScreen({ onConfigSuccess }: ConfigScreenProps) {
   const { state, setSiteConfig } = useAppContext();
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState('');
+  
+  // Check if we have embedded config from WordPress
+  const embeddedConfig = window.AI_COMMANDER_CONFIG;
+  const hasEmbeddedConfig = !!embeddedConfig;
+  
+  // Check for Vite dev environment variable
+  const viteBaseUrl = import.meta.env.VITE_WP_BASE_URL;
+  const hasViteBaseUrl = !!viteBaseUrl;
+  
+  // We hide the URL field if we have either embedded config or Vite base URL
+  const shouldHideUrlField = hasEmbeddedConfig || hasViteBaseUrl;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
-    const url = formData.get('siteUrl') as string;
     const username = formData.get('username') as string;
     const appPassword = formData.get('appPassword') as string;
+    
+    // Get URL from embedded config, Vite env var, or form
+    const url = hasEmbeddedConfig 
+      ? embeddedConfig.baseUrl 
+      : hasViteBaseUrl 
+        ? viteBaseUrl
+        : (formData.get('siteUrl') as string);
 
     if (!url || !username || !appPassword) return;
 
-    // Validate URL
-    try {
-      const validUrl = new URL(url);
-      if (!validUrl.protocol.startsWith('http')) {
-        throw new Error('URL must start with http:// or https://');
+    // Validate URL (only if not from embedded config or Vite)
+    if (!shouldHideUrlField) {
+      try {
+        const validUrl = new URL(url);
+        if (!validUrl.protocol.startsWith('http')) {
+          throw new Error('URL must start with http:// or https://');
+        }
+      } catch (error) {
+        setError('Invalid URL. Enter a complete URL (e.g. https://www.yoursite.com)');
+        return;
       }
-    } catch (error) {
-      setError('Invalid URL. Enter a complete URL (e.g. https://www.yoursite.com)');
-      return;
     }
 
     // Generate bearer token
@@ -72,7 +91,14 @@ export function ConfigScreen({ onConfigSuccess }: ConfigScreenProps) {
       <div className="config-card">
         <div className="config-logo">IN</div>
         <h1 className="config-title">INofficina Voice Assistant</h1>
-        <p className="config-subtitle">Enter the URL of your WordPress site and credentials</p>
+        <p className="config-subtitle">
+          {hasEmbeddedConfig 
+            ? 'Enter your WordPress credentials to continue'
+            : hasViteBaseUrl
+              ? 'Development mode - Enter your WordPress credentials'
+              : 'Enter the URL of your WordPress site and credentials'
+          }
+        </p>
 
         <div
           style={{
@@ -97,21 +123,53 @@ export function ConfigScreen({ onConfigSuccess }: ConfigScreenProps) {
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label" htmlFor="siteUrl">
-              Site URL
-            </label>
-            <input
-              type="url"
-              id="siteUrl"
-              name="siteUrl"
-              className="form-input"
-              placeholder="https://www.yoursite.com"
-              defaultValue={state.siteUrl}
-              required
-            />
-            <p className="form-hint">The complete URL of your WordPress site</p>
-          </div>
+          {!shouldHideUrlField && (
+            <div className="form-group">
+              <label className="form-label" htmlFor="siteUrl">
+                Site URL
+              </label>
+              <input
+                type="url"
+                id="siteUrl"
+                name="siteUrl"
+                className="form-input"
+                placeholder="https://www.yoursite.com"
+                defaultValue={state.siteUrl}
+                required
+              />
+              <p className="form-hint">The complete URL of your WordPress site</p>
+            </div>
+          )}
+          
+          {hasEmbeddedConfig && (
+            <div className="form-group" style={{ marginBottom: '1rem' }}>
+              <div style={{
+                background: '#e6f7ff',
+                border: '1px solid #91d5ff',
+                borderRadius: '6px',
+                padding: '0.75rem',
+                fontSize: '0.875rem',
+                color: '#003a8c'
+              }}>
+                <strong>Connected to:</strong> {embeddedConfig.baseUrl}
+              </div>
+            </div>
+          )}
+          
+          {hasViteBaseUrl && !hasEmbeddedConfig && (
+            <div className="form-group" style={{ marginBottom: '1rem' }}>
+              <div style={{
+                background: '#fff2e6',
+                border: '1px solid #ffd591',
+                borderRadius: '6px',
+                padding: '0.75rem',
+                fontSize: '0.875rem',
+                color: '#ad6800'
+              }}>
+                <strong>Development mode:</strong> {viteBaseUrl}
+              </div>
+            </div>
+          )}
 
           <div className="form-group">
             <label className="form-label" htmlFor="username">

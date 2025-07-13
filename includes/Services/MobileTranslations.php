@@ -91,6 +91,11 @@ class MobileTranslations
             'mobile.dynamic.credentials_not_found' => __('Credentials not found. Please log in again.', 'ai-commander'),
             'mobile.dynamic.url_must_start_with_http' => __('URL must start with http:// or https://', 'ai-commander'),
             'mobile.dynamic.connection_test_failed' => __('Unable to connect. Check your data and try again.', 'ai-commander'),
+
+            // PWA Manifest strings - for dynamic manifest.json generation
+            'mobile.manifest.name' => __('AI Commander Voice Assistant', 'ai-commander'),
+            'mobile.manifest.short_name' => __('AI Commander', 'ai-commander'),
+            'mobile.manifest.description' => __('Voice assistant for WordPress content management', 'ai-commander'),
         );
     }
 }
