@@ -38,147 +38,147 @@ msgstr ""
 #: admin/AdminPage.php:79
 #: admin/AdminPage.php:96
 msgid "Overview"
-msgstr ""
+msgstr "Panoramica"
 
 #: admin/AdminPage.php:99
 #: admin/ChatbotPage.php:42
 #: admin/ChatbotPage.php:43
 msgid "Chatbot"
-msgstr ""
+msgstr "Chatbot"
 
 #: admin/AdminPage.php:102
 #: admin/RealtimePage.php:39
 #: admin/RealtimePage.php:40
 msgid "Realtime"
-msgstr ""
+msgstr "Realtime"
 
 #: admin/AdminPage.php:106
 #: admin/ChatbotPage.php:100
 #: admin/SettingsPage.php:44
 #: admin/SettingsPage.php:45
 msgid "Settings"
-msgstr ""
+msgstr "Impostazioni"
 
 #: admin/AdminPage.php:121
 msgid "Welcome to AI Commander! Use the tabs below to navigate."
-msgstr ""
+msgstr "Benvenuto nell'Assistente INofficina.it! Usa le schede sottostanti per navigare."
 
 #: admin/AdminPage.php:127
 msgid "About AI Commander"
-msgstr ""
+msgstr "Informazioni sull'Assistente INofficina.it"
 
 #: admin/AdminPage.php:128
 msgid "This plugin allows you to issue commands to WordPress using natural language through a chatbot interface."
-msgstr ""
+msgstr "Questo plugin ti permette di interagire con il tuo sito INofficina.it usando un linguaggio naturale, attraverso il chatbot e l'Assistente Vocale."
 
 #: admin/AdminPage.php:129
 msgid "You can create and edit posts, manage categories and tags, and more, all using simple, conversational language."
-msgstr ""
+msgstr "Puoi cercare tra i tuoi appuntamenti, crearne di nuovi, gestire e cercare clienti e targhe, tutto usando un linguaggio semplice e conversazionale."
 
 #: admin/AdminPage.php:133
 msgid "Getting Started"
-msgstr ""
+msgstr "Per iniziare"
 
 #: admin/AdminPage.php:135
 msgid "Go to the Settings tab and enter your OpenAI API key."
-msgstr ""
+msgstr "Clicca sulla tab del Chatbot e comincia a impartire comandi al tuo Assistente."
 
 #: admin/AdminPage.php:136
 msgid "Navigate to the Chatbot tab to start issuing commands."
-msgstr ""
+msgstr "Prova a dire qualcosa come \"La targa XX333TT è già passata in officina?\""
 
 #: admin/AdminPage.php:137
 msgid "Try saying something like \"Create a post on the topic 'Best practices to index a website on Google' and tag it as 'SEO' and 'How-to'."
-msgstr ""
+msgstr "Per un'esperienza ancora più naturale, prova l'Assistente Vocale!  Chiedi a Idearia per maggiori informazioni."
 
 #: admin/AdminPage.php:142
 msgid "Available Commands"
-msgstr ""
+msgstr "Comandi disponibili"
 
 #: admin/AdminPage.php:143
 msgid "You can use natural language to perform the following actions:"
-msgstr ""
+msgstr "Puoi usare un linguaggio naturale per eseguire le seguenti azioni:"
 
 #: admin/AdminPage.php:168
 msgid "No commands available. Please check your plugin configuration."
-msgstr ""
+msgstr "Nessun comando disponibile. Controlla la tua configurazione del plugin."
 
 #. translators: %s: URL to settings page
 #: admin/ChatbotPage.php:99
 msgid "OpenAI API key is not set. Please configure it in the %s."
-msgstr ""
+msgstr "La chiave API di OpenAI non è impostata. Configurala nella %s."
 
 #: admin/ChatbotPage.php:113
 msgid "Loading chatbot interface..."
-msgstr ""
+msgstr "Caricamento dell'interfaccia del chatbot..."
 
 #: admin/ChatbotPage.php:118
 msgid "Please set your OpenAI API key in the Settings page to use the chatbot."
-msgstr ""
+msgstr "Imposta la tua chiave API di OpenAI nella pagina Impostazioni per utilizzare il chatbot."
 
 #: admin/ChatbotPage.php:124
 msgid "Tips for Using the Chatbot"
-msgstr ""
+msgstr "Suggerimenti per l'utilizzo del chatbot"
 
 #: admin/ChatbotPage.php:126
 msgid "Be specific about what you want to create or edit."
-msgstr ""
+msgstr "Sii specifico su cosa vuoi creare o modificare."
 
 #: admin/ChatbotPage.php:127
 msgid "You can use voice input by clicking the microphone button next to the send button."
-msgstr ""
+msgstr "Puoi usare l'input vocale cliccando il pulsante del microfono accanto al pulsante di invio."
 
 #: admin/ChatbotPage.php:128
 msgid "To record a voice message, click the microphone button, speak your command, then click the button again to stop recording and send."
-msgstr ""
+msgstr "Per registrare un messaggio vocale, clicca il pulsante del microfono, fai la domanda, poi clicca il pulsante di nuovo per interrompere la registrazione e inviare."
 
 #: admin/ChatbotPage.php:129
 msgid "For best results with voice input, speak clearly and use natural language."
-msgstr ""
+msgstr "Per ottenere i migliori risultati con l'input vocale, parla chiaramente e usa un linguaggio naturale."
 
 #: admin/ChatbotPage.php:130
 msgid "Example commands:"
-msgstr ""
+msgstr "Esempi di comandi:"
 
 #: admin/ChatbotPage.php:132
 msgid "\"Create a new draft post titled 'Summer Recipes' with three Italian recipes\""
-msgstr ""
+msgstr "\"La targa XX333TT è nostra cliente?"
 
 #: admin/ChatbotPage.php:133
 msgid "\"Edit the title into 'Italian Summer Recipes\" and publish it\""
-msgstr ""
+msgstr "\"Fissa un tagliando per domani\""
 
 #: admin/ChatbotPage.php:134
 msgid "\"Add the tag 'recipes' to the post"
-msgstr ""
+msgstr "\"Mostra gli appuntamenti di oggi\""
 
 #: admin/ChatbotPage.php:141
 msgid "Requirements for voice input"
-msgstr ""
+msgstr "Requisiti per l'input vocale"
 
 #: admin/ChatbotPage.php:142
 msgid "To use the realtime or speech-to-text features, please ensure:"
-msgstr ""
+msgstr "Per utilizzare le funzionalità in tempo reale o la trascrizione vocale, assicurati che:"
 
 #: admin/ChatbotPage.php:144
 msgid "Your site is served over HTTPS (required for microphone access in most browsers)."
-msgstr ""
+msgstr "Il tuo sito è servito tramite HTTPS (richiesto per l'accesso al microfono in la maggior parte dei browser)."
 
 #: admin/ChatbotPage.php:145
 msgid "You are using a modern browser that supports the MediaRecorder API (Chrome, Edge, Firefox, Safari 14.1+)."
-msgstr ""
+msgstr "Stai usando un browser moderno che supporta l'API MediaRecorder (Chrome, Edge, Firefox, Safari 14.1+)."
 
 #: admin/ChatbotPage.php:146
 msgid "You have granted microphone permissions to this site. Look for the microphone icon in your browser's address bar to check or change permissions."
-msgstr ""
+msgstr "Hai concesso i permessi al microfono a questo sito. Cerca l'icona del microfono nella barra di indirizzo del tuo browser per controllare o cambiare i permessi."
 
 #: admin/ChatbotPage.php:149
 msgid "Note: If you're using this plugin on a local development environment, you can access it via http://localhost without HTTPS."
-msgstr ""
+msgstr "Nota: Se stai usando questo plugin in un ambiente di sviluppo locale, puoi accedere a esso tramite http://localhost senza HTTPS."
 
 #: admin/RealtimePage.php:112
 msgid "Start a real-time voice conversation with AI Commander."
-msgstr ""
+msgstr "Inizia una conversazione vocale con l'Assistente Realtime.  Per un'esperienza migliore e più completa, usa direttamente l'app dell'Assistente Vocale di INofficina.it!"
 
 #. translators: %s: Link to settings page
 #: admin/RealtimePage.php:121
@@ -908,7 +908,7 @@ msgstr ""
 
 #: tools/GetTodayDateTool.php:26
 msgid "Returns the current date in ISO 8601 format, together with the week day name.  Useful to interpret queries that contain \"today\", \"yesterday\", \"tomorrow\", \"next monday\", \"last week\", \"next week\", etc."
-msgstr ""
+msgstr "Restituisce la data corrente, insieme al nome del giorno della settimana."
 
 #: tools/GetTodayDateTool.php:75
 msgid "<p>Today is %s, %s</p>"
@@ -1024,233 +1024,233 @@ msgstr ""
 
 #: assets/js/react-chat-interface.js:40
 msgid "Tool: %s"
-msgstr ""
+msgstr "Strumento: %s"
 
 #: assets/js/react-chat-interface.js:47
 msgid "Tool call ID:"
-msgstr ""
+msgstr "ID chiamata strumento:"
 
 #: assets/js/react-chat-interface.js:49
 msgid "Arguments:"
-msgstr ""
+msgstr "Argomenti:"
 
 #: assets/js/react-chat-interface.js:51
 msgid "Result:"
-msgstr ""
+msgstr "Risultato:"
 
 #: assets/js/react-chat-interface.js:91
 msgid "Details"
-msgstr ""
+msgstr "Dettagli"
 
 #: assets/js/react-chat-interface.js:149
 #: assets/js/react-chat-interface.js:164
 msgid "Error: "
-msgstr ""
+msgstr "Errore: "
 
 #: assets/js/react-chat-interface.js:187
 msgid "Operation completed successfully"
-msgstr ""
+msgstr "Operazione completata con successo"
 
 #: assets/js/react-chat-interface.js:206
 msgid "Response"
-msgstr ""
+msgstr "Risposta"
 
 #: assets/js/react-chat-interface.js:281
 msgid "Debug"
-msgstr ""
+msgstr "Debug"
 
 #: assets/js/react-chat-interface.js:402
 msgid "Recording..."
-msgstr ""
+msgstr "Registrazione..."
 
 #: assets/js/react-chat-interface.js:452
 msgid "Microphone access requires a secure connection (HTTPS). Please contact your administrator to enable HTTPS for this site."
-msgstr ""
+msgstr "L'accesso al microfono richiede una connessione sicura (HTTPS). Contatta il tuo amministratore per abilitare HTTPS per questo sito."
 
 #: assets/js/react-chat-interface.js:457
 msgid "Your browser does not support audio recording. Please use a modern browser like Chrome, Edge, or Firefox."
-msgstr ""
+msgstr "Il tuo browser non supporta la registrazione audio. Usa un browser moderno come Chrome, Edge o Firefox."
 
 #: assets/js/react-chat-interface.js:462
 msgid "Your browser does not support the MediaRecorder API. Please use a modern browser like Chrome, Edge, or Firefox."
-msgstr ""
+msgstr "Il tuo browser non supporta l'API MediaRecorder. Usa un browser moderno come Chrome, Edge o Firefox."
 
 #: assets/js/react-chat-interface.js:511
 msgid ""
 "Microphone access was denied. Please try again but this time allow microphone access.\n"
 "\n"
 "In alternative, in most browsers, you can click on the camera/microphone icon in the address bar to change permissions."
-msgstr ""
+msgstr "L'accesso al microfono è stato negato. Prova di nuovo, ma questa volta permetti l'accesso al microfono.\n\nIn alternativa, in molti browser, puoi cliccare sull'icona della camera/microfono nella barra degli indirizzi per cambiare le autorizzazioni."
 
 #: assets/js/react-chat-interface.js:513
 msgid "No microphone was found. Please connect a microphone and try again."
-msgstr ""
+msgstr "Nessun microfono trovato. Connetti un microfono e prova di nuovo."
 
 #: assets/js/react-chat-interface.js:515
 msgid "Your microphone is busy or not available. Please close other applications that might be using your microphone."
-msgstr ""
+msgstr "Il tuo microfono è occupato o non disponibile. Chiudi altre applicazioni che potrebbero essere in uso sul tuo microfono."
 
 #: assets/js/react-chat-interface.js:517
 msgid "Could not access your microphone: "
-msgstr ""
+msgstr "Impossibile accedere al tuo microfono: "
 
 #: assets/js/react-chat-interface.js:567
 msgid "Error transcribing audio: "
-msgstr ""
+msgstr "Errore nella trascrizione audio: "
 
 #: assets/js/react-chat-interface.js:573
 msgid "Error sending audio: "
-msgstr ""
+msgstr "Errore nell'invio audio: "
 
 #: assets/js/react-chat-interface.js:583
 msgid "Type your command here..."
-msgstr ""
+msgstr "Scrivi il tuo comando qui..."
 
 #: assets/js/react-chat-interface.js:596
 msgid "Stop recording"
-msgstr ""
+msgstr "Interrompi la registrazione"
 
 #: assets/js/react-chat-interface.js:596
 msgid "Transcribing..."
-msgstr ""
+msgstr "Trascrizione..."
 
 #: assets/js/react-chat-interface.js:596
 msgid "Start recording"
-msgstr ""
+msgstr "Inizia la registrazione"
 
 #: assets/js/react-chat-interface.js:609
 msgid "Send"
-msgstr ""
+msgstr "Invia"
 
 #: assets/js/react-chat-interface.js:615
 msgid "Transcribing audio..."
-msgstr ""
+msgstr "Trascrizione audio..."
 
 #: assets/js/react-chat-interface.js:672
 #: assets/js/react-chat-interface.js:681
 #: assets/js/react-chat-interface.js:781
 #: assets/js/react-chat-interface.js:791
 msgid "Error: %s"
-msgstr ""
+msgstr "Errore: %s"
 
 #: assets/js/react-chat-interface.js:672
 #: assets/js/react-chat-interface.js:681
 msgid "Failed to create conversation"
-msgstr ""
+msgstr "Impossibile creare la conversazione"
 
 #: assets/js/react-chat-interface.js:791
 msgid "Failed to process command"
-msgstr ""
+msgstr "Impossibile elaborare il comando"
 
 #: assets/js/react-chat-interface.js:841
 msgid "WordPress Assistant"
-msgstr ""
+msgstr "Chatbot INofficina.it"
 
 #: assets/js/react-chat-interface.js:849
 msgid "New Conversation"
-msgstr ""
+msgstr "Nuova conversazione"
 
 #: assets/js/react-chat-interface.js:862
 msgid "Processing your command..."
-msgstr ""
+msgstr "Sto elaborando il tuo comando..."
 
 #: assets/js/react-realtime-interface.js:47
 msgid "Status: %s"
-msgstr ""
+msgstr "Stato: %s"
 
 #: assets/js/react-realtime-interface.js:152
 msgid "Failed to play synthesized audio."
-msgstr ""
+msgstr "Impossibile riprodurre l'audio sintetizzato."
 
 #: assets/js/react-realtime-interface.js:186
 msgid "Failed to create realtime session."
-msgstr ""
+msgstr "Impossibile creare la sessione in tempo reale."
 
 #: assets/js/react-realtime-interface.js:221
 msgid "Connection lost."
-msgstr ""
+msgstr "Connessione persa."
 
 #: assets/js/react-realtime-interface.js:228
 msgid "ICE connection failed."
-msgstr ""
+msgstr "Connessione ICE fallita."
 
 #: assets/js/react-realtime-interface.js:235
 msgid "Browser does not support audio recording."
-msgstr ""
+msgstr "Il browser non supporta la registrazione audio."
 
 #: assets/js/react-realtime-interface.js:262
 msgid "Data channel closed unexpectedly."
-msgstr ""
+msgstr "Canale dati chiuso inaspettatamente."
 
 #: assets/js/react-realtime-interface.js:268
 msgid "Data channel communication error."
-msgstr ""
+msgstr "Errore di comunicazione del canale dati."
 
 #: assets/js/react-realtime-interface.js:306
 msgid "Microphone permission denied. Please allow access in your browser settings."
-msgstr ""
+msgstr "Permesso al microfono negato. Permetti l'accesso nelle tue impostazioni del browser.  "
 
 #: assets/js/react-realtime-interface.js:308
 msgid "Failed to start session and recording."
-msgstr ""
+msgstr "Impossibile avviare la sessione e la registrazione."
 
 #: assets/js/react-realtime-interface.js:402
 msgid "Error from AI: %s"
-msgstr ""
+msgstr "Errore dall'IA: %s"
 
 #: assets/js/react-realtime-interface.js:502
 msgid "Backend Error: %s"
-msgstr ""
+msgstr "Errore del backend: %s"
 
 #: assets/js/react-realtime-interface.js:502
 msgid "Unknown execution error"
-msgstr ""
+msgstr "Errore di esecuzione sconosciuto"
 
 #: assets/js/react-realtime-interface.js:513
 msgid "AJAX Error: %s"
-msgstr ""
+msgstr "Errore AJAX: %s"
 
 #: assets/js/react-realtime-interface.js:513
 msgid "Failed to contact backend"
-msgstr ""
+msgstr "Impossibile contattare il backend"
 
 #: assets/js/react-realtime-interface.js:523
 msgid "Data channel not open, cannot send function result."
-msgstr ""
+msgstr "Canale dati non aperto, impossibile inviare il risultato della funzione."
 
 #: assets/js/react-realtime-interface.js:580
 msgid "Connection closed unexpectedly."
-msgstr ""
+msgstr "Connessione chiusa inaspettatamente."
 
 #: assets/js/react-realtime-interface.js:624
 #: assets/js/react-realtime-interface.js:627
 msgid "Start Conversation"
-msgstr ""
+msgstr "Inizia la conversazione"
 
 #: assets/js/react-realtime-interface.js:634
 msgid "Stop Conversation"
-msgstr ""
+msgstr "Interrompi la conversazione"
 
 #: assets/js/react-realtime-interface.js:637
 #: assets/js/react-realtime-interface.js:640
 msgid "Please refresh page"
-msgstr ""
+msgstr "Aggiorna la pagina"
 
 #: assets/js/react-realtime-interface.js:664
 msgid "Conversation Transcript:"
-msgstr ""
+msgstr "Trascrizione della conversazione:"
 
 #: assets/js/react-realtime-interface.js:688
 msgid "Called tool: %s"
-msgstr ""
+msgstr "Strumento chiamato: %s"
 
 #: assets/js/react-realtime-interface.js:700
 msgid "Tool result:"
-msgstr ""
+msgstr "Risultato strumento:"
 
 #: assets/js/react-realtime-interface.js:735
 msgid "Error: Plugin configuration data is missing."
-msgstr ""
+msgstr "Errore: I dati di configurazione del plugin sono mancanti."
 
 #: admin/SettingsPage.php:302
 msgid "Mobile Web App Settings"
