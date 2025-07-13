@@ -467,16 +467,16 @@ msgstr ""
 msgid "Hello! I'm your WordPress assistant. How can I help you today?"
 msgstr ""
 
-#: includes/RestApi.php:221
+#: includes/RestApi.php:220
 msgid "You do not have permission to use this API."
 msgstr ""
 
-#: includes/RestApi.php:267
+#: includes/RestApi.php:266
 msgid "Conversation not found or you do not have permission to access it."
 msgstr ""
 
-#: includes/RestApi.php:315
-#: includes/RestApi.php:380
+#: includes/RestApi.php:314
+#: includes/RestApi.php:379
 msgid "No audio file provided."
 msgstr ""
 
@@ -1289,8 +1289,8 @@ msgid "AI"
 msgstr "IN"
 
 #: includes/Services/MobileTranslations.php:104
-msgid "Voice assistant for WordPress content management"
-msgstr "Assistente vocale per la gestione dei contenuti di WordPress"
+msgid "Voice assistant for WordPress content management powered by the AI Commander plugin (https://github.com/Idearia/WordPress-AI-Commander)"
+msgstr "Assistente Vocale di INofficina.it"
 
 #: includes/Services/MobileTranslations.php:69
 msgid "Enter your WordPress credentials to continue"

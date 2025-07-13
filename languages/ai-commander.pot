@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-13T12:19:32+00:00\n"
+"POT-Creation-Date: 2025-07-13T13:31:56+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.8.1\n"
 "X-Domain: ai-commander\n"
@@ -496,16 +496,16 @@ msgstr ""
 msgid "Loading..."
 msgstr ""
 
-#: includes/RestApi.php:221
+#: includes/RestApi.php:220
 msgid "You do not have permission to use this API."
 msgstr ""
 
-#: includes/RestApi.php:267
+#: includes/RestApi.php:266
 msgid "Conversation not found or you do not have permission to access it."
 msgstr ""
 
-#: includes/RestApi.php:315
-#: includes/RestApi.php:380
+#: includes/RestApi.php:314
+#: includes/RestApi.php:379
 msgid "No audio file provided."
 msgstr ""
 
@@ -781,7 +781,7 @@ msgid "Unable to connect. Check your data and try again."
 msgstr ""
 
 #: includes/Services/MobileTranslations.php:104
-msgid "Voice assistant for WordPress content management"
+msgid "Voice assistant for WordPress content management powered by the AI Commander plugin (https://github.com/Idearia/WordPress-AI-Commander)"
 msgstr ""
 
 #: tools/BaseTool.php:133

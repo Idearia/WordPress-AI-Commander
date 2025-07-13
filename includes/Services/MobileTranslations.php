@@ -101,7 +101,7 @@ class MobileTranslations
             // PWA Manifest strings - for dynamic manifest.json generation
             'mobile.manifest.name' => __('AI Commander Voice Assistant', 'ai-commander'),
             'mobile.manifest.short_name' => __('AI Commander', 'ai-commander'),
-            'mobile.manifest.description' => __('Voice assistant for WordPress content management', 'ai-commander'),
+            'mobile.manifest.description' => __('Voice assistant for WordPress content management powered by the AI Commander plugin (https://github.com/Idearia/WordPress-AI-Commander)', 'ai-commander'),
         );
     }
 }
