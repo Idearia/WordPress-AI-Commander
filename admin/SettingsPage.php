@@ -832,7 +832,7 @@ class SettingsPage extends AdminPage
         $pwa_path = get_option('ai_commander_pwa_path', 'ai-commander/assistant');
         $filtered_path = apply_filters('ai_commander_filter_pwa_path', $pwa_path);
         $is_filtered = $filtered_path !== $pwa_path;
-        
+
         // Get the full URL for display
         $site_url = untrailingslashit(get_site_url());
         $full_url = $site_url . '/' . ltrim($filtered_path, '/');
@@ -864,15 +864,15 @@ class SettingsPage extends AdminPage
     {
         // Remove leading and trailing slashes
         $sanitized = trim($value, '/');
-        
-        // Sanitize for URL use
-        $sanitized = sanitize_title_with_dashes($sanitized);
-        
+
+        // Remove HTML and PHP tags
+        $sanitized = strip_tags($sanitized);
+
         // Ensure it's not empty, provide default
         if (empty($sanitized)) {
             $sanitized = 'ai-commander/assistant';
         }
-        
+
         return $sanitized;
     }
 
