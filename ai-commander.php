@@ -206,7 +206,7 @@ function ai_commander_load_textdomain()
         dirname(plugin_basename(__FILE__)) . '/languages/'
     );
 }
-add_action('init', 'ai_commander_load_textdomain');
+add_action('plugins_loaded', 'ai_commander_load_textdomain');
 
 /**
  * Register all available tools.
