@@ -31,9 +31,9 @@ export const UI_CONFIG = {
 
 // Storage Keys
 export const STORAGE_KEYS = {
-  SITE_URL: 'inofficina_site_url',
-  USERNAME: 'inofficina_username',
-  APP_PASSWORD: 'inofficina_app_password',
+  SITE_URL: 'backend_site_url',
+  USERNAME: 'backend_username',
+  APP_PASSWORD: 'backend_app_password',
 } as const;
 
 import type { TranslationService } from '@/services/TranslationService';

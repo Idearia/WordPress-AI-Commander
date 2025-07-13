@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import { AppState, Message, ToolCall } from '@/types';
+import { STORAGE_KEYS } from '@/utils/constants';
 
 // Action types
 type AppAction =
@@ -19,8 +20,8 @@ type AppAction =
 // Initial state
 const initialState: AppState = {
   status: 'disconnected',
-  siteUrl: localStorage.getItem('inofficina_site_url') || '',
-  username: localStorage.getItem('inofficina_username') || '',
+  siteUrl: localStorage.getItem(STORAGE_KEYS.SITE_URL) || '',
+  username: localStorage.getItem(STORAGE_KEYS.USERNAME) || '',
   bearerToken: '',
   messages: [],
   currentTranscript: '',
@@ -47,8 +48,8 @@ function appReducer(state: AppState, action: AppAction): AppState {
 
     case 'SET_SITE_CONFIG':
       // Save to localStorage
-      localStorage.setItem('inofficina_site_url', action.payload.siteUrl);
-      localStorage.setItem('inofficina_username', action.payload.username);
+      localStorage.setItem(STORAGE_KEYS.SITE_URL, action.payload.siteUrl);
+      localStorage.setItem(STORAGE_KEYS.USERNAME, action.payload.username);
       return {
         ...state,
         siteUrl: action.payload.siteUrl,
@@ -57,9 +58,9 @@ function appReducer(state: AppState, action: AppAction): AppState {
       };
 
     case 'CLEAR_SITE_CONFIG':
-      localStorage.removeItem('inofficina_site_url');
-      localStorage.removeItem('inofficina_username');
-      localStorage.removeItem('inofficina_app_password');
+      localStorage.removeItem(STORAGE_KEYS.SITE_URL);
+      localStorage.removeItem(STORAGE_KEYS.USERNAME);
+      localStorage.removeItem(STORAGE_KEYS.APP_PASSWORD);
       return {
         ...state,
         siteUrl: '',

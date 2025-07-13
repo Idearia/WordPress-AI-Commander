@@ -149,23 +149,6 @@ export function ConfigScreen({ onConfigSuccess }: ConfigScreenProps) {
             </div>
           )}
 
-          {hasEmbeddedConfig && (
-            <div className="form-group" style={{ marginBottom: '1rem' }}>
-              <div
-                style={{
-                  background: '#e6f7ff',
-                  border: '1px solid #91d5ff',
-                  borderRadius: '6px',
-                  padding: '0.75rem',
-                  fontSize: '0.875rem',
-                  color: '#003a8c',
-                }}
-              >
-                <strong>Connected to:</strong> {embeddedConfig.baseUrl}
-              </div>
-            </div>
-          )}
-
           {hasViteBaseUrl && !hasEmbeddedConfig && (
             <div className="form-group" style={{ marginBottom: '1rem' }}>
               <div

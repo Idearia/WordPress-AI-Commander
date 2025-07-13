@@ -1080,7 +1080,10 @@ msgid ""
 "Microphone access was denied. Please try again but this time allow microphone access.\n"
 "\n"
 "In alternative, in most browsers, you can click on the camera/microphone icon in the address bar to change permissions."
-msgstr "L'accesso al microfono è stato negato. Prova di nuovo, ma questa volta permetti l'accesso al microfono.\n\nIn alternativa, in molti browser, puoi cliccare sull'icona della camera/microfono nella barra degli indirizzi per cambiare le autorizzazioni."
+msgstr ""
+"L'accesso al microfono è stato negato. Prova di nuovo, ma questa volta permetti l'accesso al microfono.\n"
+"\n"
+"In alternativa, in molti browser, puoi cliccare sull'icona della camera/microfono nella barra degli indirizzi per cambiare le autorizzazioni."
 
 #: assets/js/react-chat-interface.js:513
 msgid "No microphone was found. Please connect a microphone and try again."
