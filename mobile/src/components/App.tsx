@@ -10,34 +10,36 @@ import { MainApp } from './MainApp';
 import { STORAGE_KEYS } from '@/utils/constants';
 
 export function App() {
-  const { 
-    state, 
-    setSiteConfig, 
-    clearSiteConfig, 
-    updateStatus, 
-    addMessage, 
-    clearMessages, 
-    updateTranscript, 
-    appendTranscript, 
-    queueToolCall, 
-    dequeueToolCall, 
-    setSessionData, 
-    setPlayingCustomTts 
+  const {
+    state,
+    setSiteConfig,
+    clearSiteConfig,
+    updateStatus,
+    addMessage,
+    clearMessages,
+    updateTranscript,
+    appendTranscript,
+    queueToolCall,
+    dequeueToolCall,
+    setSessionData,
+    setPlayingCustomTts,
   } = useAppContext();
-  
+
   // Check if we have embedded config from WordPress
   const embeddedConfig = window.AI_COMMANDER_CONFIG;
-  
+
   // Determine initial screen - if we have embedded config, only check for username/password
   const hasEmbeddedConfig = !!embeddedConfig;
-  const hasStoredCredentials = hasEmbeddedConfig 
+  const hasStoredCredentials = hasEmbeddedConfig
     ? !!(state.username && localStorage.getItem(STORAGE_KEYS.APP_PASSWORD))
     : !!(state.siteUrl && state.username && localStorage.getItem(STORAGE_KEYS.APP_PASSWORD));
-  
-  const [currentScreen, setCurrentScreen] = useState<'config' | 'main'>(hasStoredCredentials ? 'main' : 'config');
+
+  const [currentScreen, setCurrentScreen] = useState<'config' | 'main'>(
+    hasStoredCredentials ? 'main' : 'config'
+  );
   const [isLoading, setIsLoading] = useState<boolean>(hasStoredCredentials);
   const [translationService] = useState(() => new TranslationService());
-  
+
   // Service references
   const apiServiceRef = useRef<ApiService | null>(null);
   const sessionManagerRef = useRef<SessionManager | null>(null);
@@ -52,9 +54,9 @@ export function App() {
       return;
     }
     isInitializedRef.current = true;
-    
+
     initializeApp();
-    
+
     // Set up audio element ref
     const audioElement = document.querySelector('#remoteAudio') as HTMLAudioElement;
     if (audioElement) {
@@ -74,7 +76,7 @@ export function App() {
           console.warn('[App] Failed to use embedded translations:', error);
         }
       }
-      
+
       // Fallback to loading from API
       try {
         await translationService.loadTranslations(apiService);
@@ -93,25 +95,25 @@ export function App() {
       // If we have embedded config, use that as the base URL
       if (embeddedConfig) {
         console.log('[App] Using embedded WordPress config');
-        
+
         // Check for stored credentials (username + password only)
         if (state.username && localStorage.getItem(STORAGE_KEYS.APP_PASSWORD)) {
           // Generate bearer token from stored credentials
           const storedPassword = localStorage.getItem(STORAGE_KEYS.APP_PASSWORD);
           const bearerToken = ApiService.generateBearerToken(state.username, storedPassword!);
-          
+
           // Create API service with embedded base URL
           const apiService = new ApiService(embeddedConfig.baseUrl, bearerToken);
-          
+
           // Update state with embedded base URL and bearer token
           setSiteConfig(embeddedConfig.baseUrl, state.username, bearerToken);
-          
+
           // Load translations (will use embedded ones first)
           await ensureTranslationsLoaded(apiService);
-          
+
           // Store API service for later use
           apiServiceRef.current = apiService;
-          
+
           // Show main app
           setCurrentScreen('main');
           setIsLoading(false);
@@ -119,9 +121,10 @@ export function App() {
         } else {
           // Load embedded translations without API
           if (embeddedConfig.translations) {
+            console.log('[App] Using embedded translations');
             translationService.setTranslations(embeddedConfig.translations, embeddedConfig.locale);
           }
-          
+
           // Show config screen (only ask for username/password)
           setCurrentScreen('config');
           setIsLoading(false);
@@ -130,28 +133,28 @@ export function App() {
       } else {
         // Check for Vite dev environment variable
         const viteBaseUrl = import.meta.env.VITE_WP_BASE_URL;
-        
+
         if (viteBaseUrl) {
           console.log('[App] Using Vite development base URL:', viteBaseUrl);
-          
+
           // Check for stored credentials (username + password only)
           if (state.username && localStorage.getItem(STORAGE_KEYS.APP_PASSWORD)) {
             // Generate bearer token from stored credentials
             const storedPassword = localStorage.getItem(STORAGE_KEYS.APP_PASSWORD);
             const bearerToken = ApiService.generateBearerToken(state.username, storedPassword!);
-            
+
             // Create API service with Vite base URL
             const apiService = new ApiService(viteBaseUrl, bearerToken);
-            
+
             // Update state with Vite base URL and bearer token
             setSiteConfig(viteBaseUrl, state.username, bearerToken);
-            
+
             // Load translations from API
             await ensureTranslationsLoaded(apiService);
-            
+
             // Store API service for later use
             apiServiceRef.current = apiService;
-            
+
             // Show main app
             setCurrentScreen('main');
             setIsLoading(false);
@@ -164,23 +167,27 @@ export function App() {
           }
         }
         // Fallback to legacy behavior - check for stored site URL + credentials
-        else if (state.siteUrl && state.username && localStorage.getItem(STORAGE_KEYS.APP_PASSWORD)) {
+        else if (
+          state.siteUrl &&
+          state.username &&
+          localStorage.getItem(STORAGE_KEYS.APP_PASSWORD)
+        ) {
           // Generate bearer token from stored credentials
           const storedPassword = localStorage.getItem(STORAGE_KEYS.APP_PASSWORD);
           const bearerToken = ApiService.generateBearerToken(state.username, storedPassword!);
-          
+
           // Create API service with stored site URL
           const apiService = new ApiService(state.siteUrl, bearerToken);
-          
+
           // Update state with bearer token
           setSiteConfig(state.siteUrl, state.username, bearerToken);
-          
+
           // Load translations from API
           await ensureTranslationsLoaded(apiService);
-          
+
           // Store API service for later use
           apiServiceRef.current = apiService;
-          
+
           // Show main app
           setCurrentScreen('main');
           setIsLoading(false);
@@ -201,14 +208,13 @@ export function App() {
     }
   };
 
-
   const handleConfigSuccess = async (apiService: ApiService) => {
     // Always ensure translations are loaded after successful config
     await ensureTranslationsLoaded(apiService);
-    
+
     // Store API service for later use
     apiServiceRef.current = apiService;
-    
+
     // Switch to main app
     setCurrentScreen('main');
     console.log('[App] Config success, switched to main app');
@@ -234,12 +240,12 @@ export function App() {
       sessionManagerRef.current.stopSession();
       sessionManagerRef.current = null;
     }
-    
+
     if (audioServiceRef.current && audioElementRef.current) {
       audioServiceRef.current.cleanup(audioElementRef.current);
       audioServiceRef.current = null;
     }
-    
+
     apiServiceRef.current = null;
   };
 
@@ -249,19 +255,19 @@ export function App() {
       if (!state.siteUrl || !state.bearerToken) {
         throw new Error('No API service available. Please check your configuration.');
       }
-      
+
       // Create API service (already tested in initializeApp)
       apiServiceRef.current = new ApiService(state.siteUrl, state.bearerToken);
-      
+
       // Ensure translations are loaded with current API service
       await ensureTranslationsLoaded(apiServiceRef.current);
     }
-    
+
     // Initialize audio service if needed
     if (!audioServiceRef.current) {
       audioServiceRef.current = new AudioService(apiServiceRef.current);
     }
-    
+
     // Initialize session manager if needed
     if (!sessionManagerRef.current && audioElementRef.current) {
       // Create proper adapter between React context and SessionManager
@@ -269,7 +275,7 @@ export function App() {
         getState: () => state,
         setState: (newState: any) => {
           // Map partial state updates to individual React context actions
-          Object.keys(newState).forEach(key => {
+          Object.keys(newState).forEach((key) => {
             const value = newState[key];
             switch (key) {
               case 'status':
@@ -301,7 +307,7 @@ export function App() {
         queueToolCall: queueToolCall,
         dequeueToolCall: dequeueToolCall,
         setSessionData: setSessionData,
-        setPlayingCustomTts: setPlayingCustomTts
+        setPlayingCustomTts: setPlayingCustomTts,
       };
 
       sessionManagerRef.current = new SessionManager(
@@ -316,12 +322,12 @@ export function App() {
     try {
       setIsLoading(true);
       await initializeServices();
-      
+
       // Unlock mobile audio on first interaction
       if (audioServiceRef.current && audioElementRef.current) {
         audioServiceRef.current.unlockMobileAudio(audioElementRef.current);
       }
-      
+
       if (sessionManagerRef.current) {
         await sessionManagerRef.current.startSession();
       }
@@ -360,10 +366,8 @@ export function App() {
   return (
     <TranslationProvider translationService={translationService}>
       <div id="app">
-        {currentScreen === 'config' && (
-          <ConfigScreen onConfigSuccess={handleConfigSuccess} />
-        )}
-        
+        {currentScreen === 'config' && <ConfigScreen onConfigSuccess={handleConfigSuccess} />}
+
         {currentScreen === 'main' && (
           <MainApp
             onStartRecording={handleStartRecording}

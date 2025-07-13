@@ -65,7 +65,7 @@ export class TranslationService {
    */
   t(key: string, fallback?: string): string {
     if (!this.isLoaded) {
-      // console.warn(`[TranslationService] Translations not loaded yet, using fallback for: ${key}`);
+      console.warn(`[TranslationService] Translations not loaded yet, using fallback for: ${key}`);
       return fallback || key;
     }
 

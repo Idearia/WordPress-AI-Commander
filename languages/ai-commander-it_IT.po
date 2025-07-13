@@ -14,8 +14,9 @@ msgstr ""
 "X-Domain: ai-commander\n"
 
 #. Plugin Name of the plugin
+#: includes/Services/MobileTranslations.php:103
 msgid "AI Commander"
-msgstr ""
+msgstr "Assistente INofficina.it"
 
 #. Plugin URI of the plugin
 msgid "https://github.com/Idearia/WordPress-AI-Commander"
@@ -184,279 +185,281 @@ msgstr ""
 msgid "Error: OpenAI API Key is not set. Please <a href=\"%s\">configure it in the settings</a> to use the Realtime feature."
 msgstr ""
 
-#: admin/SettingsPage.php:233
+#: admin/SettingsPage.php:244
 msgid "OpenAI API Settings"
 msgstr ""
 
-#: admin/SettingsPage.php:241
+#: admin/SettingsPage.php:252
 msgid "API Key"
 msgstr ""
 
-#: admin/SettingsPage.php:249
+#: admin/SettingsPage.php:260
 msgid "Chat Completion Model"
 msgstr ""
 
-#: admin/SettingsPage.php:258
+#: admin/SettingsPage.php:269
 msgid "Transcription Model"
 msgstr ""
 
-#: admin/SettingsPage.php:266
+#: admin/SettingsPage.php:277
 msgid "Speech Model"
 msgstr ""
 
-#: admin/SettingsPage.php:274
+#: admin/SettingsPage.php:285
 msgid "Realtime Model"
 msgstr ""
 
-#: admin/SettingsPage.php:282
+#: admin/SettingsPage.php:293
 msgid "Debug Mode"
 msgstr ""
 
-#: admin/SettingsPage.php:291
+#: admin/SettingsPage.php:319
 msgid "Chatbot Settings"
 msgstr ""
 
-#: admin/SettingsPage.php:299
+#: admin/SettingsPage.php:327
 msgid "Chatbot System Prompt"
 msgstr ""
 
-#: admin/SettingsPage.php:307
+#: admin/SettingsPage.php:335
 msgid "Chatbot Greeting"
 msgstr ""
 
-#: admin/SettingsPage.php:315
+#: admin/SettingsPage.php:343
 msgid "Speech language"
 msgstr ""
 
-#: admin/SettingsPage.php:324
+#: admin/SettingsPage.php:352
 msgid "Realtime API Settings"
 msgstr ""
 
-#: admin/SettingsPage.php:332
+#: admin/SettingsPage.php:360
 msgid "Realtime Voice"
 msgstr ""
 
-#: admin/SettingsPage.php:340
+#: admin/SettingsPage.php:368
 msgid "Realtime System Prompt"
 msgstr ""
 
-#: admin/SettingsPage.php:349
+#: admin/SettingsPage.php:377
 msgid "Use Custom TTS"
 msgstr ""
 
-#: admin/SettingsPage.php:358
+#: admin/SettingsPage.php:386
 msgid "TTS Instructions"
 msgstr ""
 
-#: admin/SettingsPage.php:367
+#: admin/SettingsPage.php:395
 msgid "Enable Input Transcription"
 msgstr ""
 
-#: admin/SettingsPage.php:376
-#: admin/SettingsPage.php:756
+#: admin/SettingsPage.php:404
+#: admin/SettingsPage.php:784
 msgid "Show Tool Calls"
 msgstr ""
 
-#: admin/SettingsPage.php:385
+#: admin/SettingsPage.php:413
 msgid "Input Audio Noise Reduction"
 msgstr ""
 
-#: admin/SettingsPage.php:412
+#: admin/SettingsPage.php:440
 msgid "Getting an OpenAI API Key"
 msgstr ""
 
-#: admin/SettingsPage.php:414
+#: admin/SettingsPage.php:442
 msgid "Go to the OpenAI website and sign up for an account if you don't already have one."
 msgstr ""
 
-#: admin/SettingsPage.php:415
+#: admin/SettingsPage.php:443
 msgid "Navigate to the API section of your account."
 msgstr ""
 
-#: admin/SettingsPage.php:416
+#: admin/SettingsPage.php:444
 msgid "Create a new API key and copy it."
 msgstr ""
 
-#: admin/SettingsPage.php:417
+#: admin/SettingsPage.php:445
 msgid "Paste the API key into the field above and save your settings."
 msgstr ""
 
-#: admin/SettingsPage.php:421
+#: admin/SettingsPage.php:449
 msgid "Get API Key from OpenAI"
 msgstr ""
 
-#: admin/SettingsPage.php:435
+#: admin/SettingsPage.php:463
 msgid "Configure your OpenAI API settings below. An API key is required for the chatbot to function."
 msgstr ""
 
 #. translators: %s: Masked API key
-#: admin/SettingsPage.php:453
+#: admin/SettingsPage.php:481
 msgid "Current key: %s"
 msgstr ""
 
-#: admin/SettingsPage.php:457
+#: admin/SettingsPage.php:485
 msgid "Enter your OpenAI API key here."
 msgstr ""
 
-#: admin/SettingsPage.php:473
+#: admin/SettingsPage.php:501
 msgid "Enter the OpenAI model to use for chat completion, e.g., gpt-4o."
 msgstr ""
 
-#: admin/SettingsPage.php:487
+#: admin/SettingsPage.php:515
 msgid "Enter the OpenAI model to generate text from audio (speech-to-text), e.g., gpt-4o-transcribe."
 msgstr ""
 
-#: admin/SettingsPage.php:501
+#: admin/SettingsPage.php:529
 msgid "Enter the OpenAI model to use to generate audio from text (text-to-speech), e.g., gpt-4o-mini-tts."
 msgstr ""
 
-#: admin/SettingsPage.php:515
+#: admin/SettingsPage.php:543
 msgid "Enter the OpenAI Realtime model to use (e.g., gpt-4o-realtime-preview-2025-06-03)."
 msgstr ""
 
-#: admin/SettingsPage.php:529
+#: admin/SettingsPage.php:557
 msgid "Enable debug logging"
 msgstr ""
 
-#: admin/SettingsPage.php:532
+#: admin/SettingsPage.php:560
 msgid "When enabled, detailed API request and response information will be logged to the WordPress debug log. This is useful for troubleshooting but should be disabled in production."
 msgstr ""
 
-#: admin/SettingsPage.php:543
+#: admin/SettingsPage.php:571
 msgid "Configure settings for the chatbot interface."
 msgstr ""
 
-#: admin/SettingsPage.php:559
+#: admin/SettingsPage.php:587
 msgid "The system prompt sets the behavior and capabilities of the AI assistant. Customize this to change how the assistant responds to user requests.  If empty, the following default system prompt will be used:"
 msgstr ""
 
-#: admin/SettingsPage.php:567
-#: admin/SettingsPage.php:598
-#: admin/SettingsPage.php:721
+#: admin/SettingsPage.php:595
+#: admin/SettingsPage.php:626
+#: admin/SettingsPage.php:749
+#: admin/SettingsPage.php:850
+#: includes/Services/MobileTranslations.php:72
 msgid "Note:"
 msgstr ""
 
-#: admin/SettingsPage.php:568
+#: admin/SettingsPage.php:596
 msgid "The system prompt is currently set by code using the `ai_commander_filter_chatbot_system_prompt` filter. This is the actual value used:"
 msgstr ""
 
-#: admin/SettingsPage.php:588
+#: admin/SettingsPage.php:616
 msgid "The initial greeting message shown to users when starting a new conversation. If empty, the default greeting will be used:"
 msgstr ""
 
-#: admin/SettingsPage.php:599
+#: admin/SettingsPage.php:627
 msgid "The assistant greeting is currently set by code using the `ai_commander_filter_chatbot_greeting` filter. This is the actual value used:"
 msgstr ""
 
-#: admin/SettingsPage.php:614
+#: admin/SettingsPage.php:642
 msgid "Auto-detect (recommended)"
 msgstr ""
 
-#: admin/SettingsPage.php:615
+#: admin/SettingsPage.php:643
 msgid "English"
 msgstr ""
 
-#: admin/SettingsPage.php:616
+#: admin/SettingsPage.php:644
 msgid "Spanish"
 msgstr ""
 
-#: admin/SettingsPage.php:617
+#: admin/SettingsPage.php:645
 msgid "French"
 msgstr ""
 
-#: admin/SettingsPage.php:618
+#: admin/SettingsPage.php:646
 msgid "German"
 msgstr ""
 
-#: admin/SettingsPage.php:619
+#: admin/SettingsPage.php:647
 msgid "Italian"
 msgstr ""
 
-#: admin/SettingsPage.php:620
+#: admin/SettingsPage.php:648
 msgid "Portuguese"
 msgstr ""
 
-#: admin/SettingsPage.php:621
+#: admin/SettingsPage.php:649
 msgid "Dutch"
 msgstr ""
 
-#: admin/SettingsPage.php:622
+#: admin/SettingsPage.php:650
 msgid "Japanese"
 msgstr ""
 
-#: admin/SettingsPage.php:623
+#: admin/SettingsPage.php:651
 msgid "Chinese"
 msgstr ""
 
-#: admin/SettingsPage.php:624
+#: admin/SettingsPage.php:652
 msgid "Russian"
 msgstr ""
 
-#: admin/SettingsPage.php:625
+#: admin/SettingsPage.php:653
 msgid "Arabic"
 msgstr ""
 
-#: admin/SettingsPage.php:626
+#: admin/SettingsPage.php:654
 msgid "Hindi"
 msgstr ""
 
-#: admin/SettingsPage.php:637
+#: admin/SettingsPage.php:665
 msgid "Select a language to improve transcription accuracy. Auto-detect works well for most cases, but specifying a language can improve accuracy and processing speed."
 msgstr ""
 
-#: admin/SettingsPage.php:648
+#: admin/SettingsPage.php:676
 msgid "Configure settings specific to the Realtime voice conversation feature."
 msgstr ""
 
-#: admin/SettingsPage.php:668
+#: admin/SettingsPage.php:696
 msgid "Select the voice for the AI assistant's audio responses."
 msgstr ""
 
-#: admin/SettingsPage.php:682
+#: admin/SettingsPage.php:710
 msgid "Optional: Add specific instructions for the Realtime voice assistant. This will be appended to the main System Prompt."
 msgstr ""
 
-#: admin/SettingsPage.php:696
+#: admin/SettingsPage.php:724
 msgid "Use custom text-to-speech for audio responses"
 msgstr ""
 
-#: admin/SettingsPage.php:699
+#: admin/SettingsPage.php:727
 msgid "When enabled, the plugin will use your configured TTS model instead of Realtime API's built-in voice. This may provide better quality or different voice options depending on your settings."
 msgstr ""
 
-#: admin/SettingsPage.php:716
+#: admin/SettingsPage.php:744
 msgid "Optional: Provide additional guidance for how the TTS model should speak (tone, style, etc.).  Ignored unless custom TTS is enabled.  Ignored for tts-1 models."
 msgstr ""
 
-#: admin/SettingsPage.php:722
+#: admin/SettingsPage.php:750
 msgid "The TTS instructions are currently set by code using the `ai_commander_filter_tts_instructions` filter. This is the actual value used:"
 msgstr ""
 
-#: admin/SettingsPage.php:739
+#: admin/SettingsPage.php:767
 msgid "Enable input audio transcription"
 msgstr ""
 
-#: admin/SettingsPage.php:742
+#: admin/SettingsPage.php:770
 msgid "When enabled, the transcript of your speech will be displayed in the conversation. Disabling this can save API costs."
 msgstr ""
 
-#: admin/SettingsPage.php:759
+#: admin/SettingsPage.php:787
 msgid "When enabled, the tool calls and their results will be displayed in the conversation. This provides more visibility into how the AI is working behind the scenes, but will also make the conversation log more technical."
 msgstr ""
 
-#: admin/SettingsPage.php:771
+#: admin/SettingsPage.php:799
 msgid "None (off)"
 msgstr ""
 
-#: admin/SettingsPage.php:772
+#: admin/SettingsPage.php:800
 msgid "Near field (for close-talking microphones such as headphones)"
 msgstr ""
 
-#: admin/SettingsPage.php:773
+#: admin/SettingsPage.php:801
 msgid "Far field (for laptop or conference room microphones)"
 msgstr ""
 
-#: admin/SettingsPage.php:784
+#: admin/SettingsPage.php:812
 msgid "Configure input audio noise reduction. \"Near field\" is for close-talking microphones such as headphones. \"Far field\" is for laptop or conference room microphones. Select \"None\" to turn off noise reduction."
 msgstr ""
 
@@ -464,16 +467,16 @@ msgstr ""
 msgid "Hello! I'm your WordPress assistant. How can I help you today?"
 msgstr ""
 
-#: includes/RestApi.php:214
+#: includes/RestApi.php:221
 msgid "You do not have permission to use this API."
 msgstr ""
 
-#: includes/RestApi.php:260
+#: includes/RestApi.php:267
 msgid "Conversation not found or you do not have permission to access it."
 msgstr ""
 
-#: includes/RestApi.php:308
-#: includes/RestApi.php:373
+#: includes/RestApi.php:315
+#: includes/RestApi.php:380
 msgid "No audio file provided."
 msgstr ""
 
@@ -482,7 +485,7 @@ msgid "Press to start"
 msgstr "Premi per iniziare"
 
 #: includes/Services/MobileTranslations.php:37
-#: includes/Services/MobileTranslations.php:73
+#: includes/Services/MobileTranslations.php:84
 msgid "Connecting..."
 msgstr "Connettendomi..."
 
@@ -564,94 +567,87 @@ msgid "Unknown error"
 msgstr "Errore sconosciuto"
 
 #: includes/Services/MobileTranslations.php:60
+#: includes/Services/MobileTranslations.php:102
 msgid "AI Commander Voice Assistant"
 msgstr "Assistente vocale INofficina.it"
 
-#: includes/Services/MobileTranslations.php:61
+#: includes/Services/MobileTranslations.php:71
 msgid "Enter the URL of your WordPress site and credentials"
 msgstr "Inserisci l'indirizzo del tuo sito INofficina.it e le tue credenziali"
 
-#: includes/Services/MobileTranslations.php:62
-msgid "Note: For the password, use an \"Application Password\" generated from your WordPress profile, not the normal password."
-msgstr "Nota: La password che ti serve qui è diversa dalla password del sito, contatta Idearia per ottenere la password corretta!"
-
-#: includes/Services/MobileTranslations.php:63
+#: includes/Services/MobileTranslations.php:74
 msgid "Site URL"
 msgstr "Indirizzo del sito"
 
-#: includes/Services/MobileTranslations.php:64
+#: includes/Services/MobileTranslations.php:75
 msgid "https://www.yoursite.com"
 msgstr "https://www.tuaofficina.it"
 
-#: includes/Services/MobileTranslations.php:65
+#: includes/Services/MobileTranslations.php:76
 msgid "The complete URL of your WordPress site"
 msgstr "L'indirizzo completo del tuo sito INofficina.it"
 
-#: includes/Services/MobileTranslations.php:66
+#: includes/Services/MobileTranslations.php:77
 msgid "Username"
 msgstr "Nome utente"
 
-#: includes/Services/MobileTranslations.php:67
-msgid "john.doe"
-msgstr "mario.rossi"
-
-#: includes/Services/MobileTranslations.php:68
+#: includes/Services/MobileTranslations.php:79
 msgid "Your WordPress username"
 msgstr "Il tuo nome utente INofficina.it"
 
-#: includes/Services/MobileTranslations.php:69
+#: includes/Services/MobileTranslations.php:80
 msgid "App password"
 msgstr "Password applicazione (diversa da quella del sito)"
 
-#: includes/Services/MobileTranslations.php:70
+#: includes/Services/MobileTranslations.php:81
 msgid "xxxx xxxx xxxx xxxx"
 msgstr "xxxx xxxx xxxx xxxx"
 
-#: includes/Services/MobileTranslations.php:71
+#: includes/Services/MobileTranslations.php:82
 msgid "The application password generated in WordPress (not the normal password)"
 msgstr "La password dell'applicazione, non la password normale (chiedere a Idearia)"
 
-#: includes/Services/MobileTranslations.php:72
+#: includes/Services/MobileTranslations.php:83
 msgid "Connect"
 msgstr "Connettiti"
 
-#: includes/Services/MobileTranslations.php:74
+#: includes/Services/MobileTranslations.php:62
 msgid "AI Commander Assistant"
 msgstr "Assistente INofficina.it"
 
-#: includes/Services/MobileTranslations.php:75
+#: includes/Services/MobileTranslations.php:63
 msgid "Change configuration"
 msgstr "Cambia configurazione"
 
-#: includes/Services/MobileTranslations.php:76
+#: includes/Services/MobileTranslations.php:64
 msgid "Disconnect"
 msgstr "Disconnetti"
 
-#: includes/Services/MobileTranslations.php:77
+#: includes/Services/MobileTranslations.php:65
 msgid "Hello! 👋"
 msgstr "Ciao! 👋"
 
-#: includes/Services/MobileTranslations.php:78
+#: includes/Services/MobileTranslations.php:66
 msgid "I am your Voice Assistant by AI Commander. I can help you interact with your WordPress site."
 msgstr "Sono l'assistente vocale di INofficina.it. Posso aiutarti a gestire gli appuntamenti della tua officina."
 
-#: includes/Services/MobileTranslations.php:86
+#: includes/Services/MobileTranslations.php:93
 msgid "Do you want to disconnect and delete saved credentials?"
 msgstr "Vuoi disconnetterti e cancellare le credenziali salvate?"
 
-#: includes/Services/MobileTranslations.php:89
+#: includes/Services/MobileTranslations.php:96
 msgid "Session expired. Please log in again."
 msgstr "Sessione scaduta. Per favore, accedi di nuovo."
 
-#: includes/Services/MobileTranslations.php:90
+#: includes/Services/MobileTranslations.php:97
 msgid "Credentials not found. Please log in again."
 msgstr "Credenziali non trovate. Per favore, accedi di nuovo."
 
-#: includes/Services/MobileTranslations.php:91
+#: includes/Services/MobileTranslations.php:98
 msgid "URL must start with http:// or https://"
 msgstr "L'URL deve iniziare con http:// o https://"
 
-#: includes/Services/MobileTranslations.php:92
+#: includes/Services/MobileTranslations.php:99
 msgid "Unable to connect. Check your data and try again."
 msgstr "Impossibile connettersi. Controlla i tuoi dati e prova di nuovo."
 
@@ -1244,14 +1240,66 @@ msgstr ""
 msgid "Error: Plugin configuration data is missing."
 msgstr ""
 
-#: includes/Services/MobileTranslations.php:81
+#: includes/Services/MobileTranslations.php:88
 msgid "💬 \"Is license plate XX333TT our customer?\""
 msgstr "💬 \"La targa XX333TT è nostra cliente?\""
 
-#: includes/Services/MobileTranslations.php:82
+#: includes/Services/MobileTranslations.php:89
 msgid "📅 \"Schedule a service for tomorrow\""
 msgstr "📅 \"Fissa un tagliando per domani\""
 
-#: includes/Services/MobileTranslations.php:83
+#: includes/Services/MobileTranslations.php:90
 msgid "🔍 \"Show today's appointments\""
 msgstr "🔍 \"Mostra gli appuntamenti di oggi\""
+
+#: admin/SettingsPage.php:302
+msgid "Mobile Web App Settings"
+msgstr ""
+
+#: admin/SettingsPage.php:310
+msgid "PWA Path"
+msgstr ""
+
+#: admin/SettingsPage.php:823
+msgid "Configure settings for the mobile Progressive Web App (PWA)."
+msgstr ""
+
+#: admin/SettingsPage.php:843
+msgid "The URL path where the mobile web app will be accessible. Do not include leading or trailing slashes."
+msgstr ""
+
+#: admin/SettingsPage.php:845
+msgid "Full URL:"
+msgstr ""
+
+#: admin/SettingsPage.php:851
+msgid "The PWA path is currently set by code using the `ai_commander_filter_pwa_path` filter. This is the actual value used:"
+msgstr ""
+
+#: includes/PwaPage.php:112
+msgid "Loading..."
+msgstr ""
+
+#: includes/Services/MobileTranslations.php:78
+msgid "john.doe"
+msgstr "mario.rossi"
+
+#: includes/Services/MobileTranslations.php:61
+msgid "AI"
+msgstr "IN"
+
+#: includes/Services/MobileTranslations.php:104
+msgid "Voice assistant for WordPress content management"
+msgstr "Assistente vocale per la gestione dei contenuti di WordPress"
+
+#: includes/Services/MobileTranslations.php:69
+msgid "Enter your WordPress credentials to continue"
+msgstr "Inserisci le tue credenziali per continuare"
+
+#: includes/Services/MobileTranslations.php:70
+msgid "Development mode - Enter your WordPress credentials"
+msgstr "Modalità di sviluppo - Inserisci le tue credenziali di WordPress"
+
+#: includes/Services/MobileTranslations.php:73
+msgid "For the password, use an \"Application Password\" generated from your WordPress profile, not the normal password."
+msgstr "Per la password, non usare la password normale, ma chiedi a Idearia di generarti una password specifica per l'assistente vocale."

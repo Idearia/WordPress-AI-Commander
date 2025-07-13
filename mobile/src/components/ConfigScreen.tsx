@@ -2,24 +2,26 @@ import React, { useState } from 'react';
 import { useAppContext } from '@/context/AppContext';
 import { ApiService } from '@/services/ApiService';
 import { UI_CONFIG, STORAGE_KEYS } from '@/utils/constants';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface ConfigScreenProps {
   onConfigSuccess: (apiService: ApiService) => void;
 }
 
 export function ConfigScreen({ onConfigSuccess }: ConfigScreenProps) {
+  const { t } = useTranslation();
   const { state, setSiteConfig } = useAppContext();
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState('');
-  
+
   // Check if we have embedded config from WordPress
   const embeddedConfig = window.AI_COMMANDER_CONFIG;
   const hasEmbeddedConfig = !!embeddedConfig;
-  
+
   // Check for Vite dev environment variable
   const viteBaseUrl = import.meta.env.VITE_WP_BASE_URL;
   const hasViteBaseUrl = !!viteBaseUrl;
-  
+
   // We hide the URL field if we have either embedded config or Vite base URL
   const shouldHideUrlField = hasEmbeddedConfig || hasViteBaseUrl;
 
@@ -29,11 +31,11 @@ export function ConfigScreen({ onConfigSuccess }: ConfigScreenProps) {
     const formData = new FormData(e.currentTarget);
     const username = formData.get('username') as string;
     const appPassword = formData.get('appPassword') as string;
-    
+
     // Get URL from embedded config, Vite env var, or form
-    const url = hasEmbeddedConfig 
-      ? embeddedConfig.baseUrl 
-      : hasViteBaseUrl 
+    const url = hasEmbeddedConfig
+      ? embeddedConfig.baseUrl
+      : hasViteBaseUrl
         ? viteBaseUrl
         : (formData.get('siteUrl') as string);
 
@@ -89,15 +91,23 @@ export function ConfigScreen({ onConfigSuccess }: ConfigScreenProps) {
   return (
     <div className="config-screen">
       <div className="config-card">
-        <div className="config-logo">IN</div>
-        <h1 className="config-title">INofficina Voice Assistant</h1>
+        <div className="config-logo">{t('mobile.ui.text_logo', 'AI')}</div>
+        <h1 className="config-title">{t('mobile.ui.assistant_name', 'AI Commander Assistant')}</h1>
         <p className="config-subtitle">
-          {hasEmbeddedConfig 
-            ? 'Enter your WordPress credentials to continue'
+          {hasEmbeddedConfig
+            ? t(
+                'mobile.ui.config.subtitle_embedded',
+                'Enter your WordPress credentials to continue'
+              )
             : hasViteBaseUrl
-              ? 'Development mode - Enter your WordPress credentials'
-              : 'Enter the URL of your WordPress site and credentials'
-          }
+              ? t(
+                  'mobile.ui.config.subtitle_vite',
+                  'Development mode - Enter your WordPress credentials'
+                )
+              : t(
+                  'mobile.ui.config.subtitle_default',
+                  'Enter the URL of your WordPress site and credentials'
+                )}
         </p>
 
         <div
@@ -111,8 +121,11 @@ export function ConfigScreen({ onConfigSuccess }: ConfigScreenProps) {
             color: '#4a5568',
           }}
         >
-          <strong>Note:</strong> For the password, use an "Application Password" generated from your
-          WordPress profile, not the normal password.
+          <strong>{t('mobile.ui.config.note_title', 'Note:')}</strong>{' '}
+          {t(
+            'mobile.ui.config.note_text',
+            'For the password, use an "Application Password" generated from your WordPress profile, not the normal password.'
+          )}
           <a
             href="https://wordpress.org/documentation/article/application-passwords/"
             target="_blank"
@@ -126,46 +139,52 @@ export function ConfigScreen({ onConfigSuccess }: ConfigScreenProps) {
           {!shouldHideUrlField && (
             <div className="form-group">
               <label className="form-label" htmlFor="siteUrl">
-                Site URL
+                {t('mobile.ui.config.site_url_label', 'Site URL')}
               </label>
               <input
                 type="url"
                 id="siteUrl"
                 name="siteUrl"
                 className="form-input"
-                placeholder="https://www.yoursite.com"
+                placeholder={t('mobile.ui.config.site_url_placeholder', 'https://www.yoursite.com')}
                 defaultValue={state.siteUrl}
                 required
               />
-              <p className="form-hint">The complete URL of your WordPress site</p>
+              <p className="form-hint">
+                {t('mobile.ui.config.site_url_hint', 'The complete URL of your WordPress site')}
+              </p>
             </div>
           )}
-          
+
           {hasEmbeddedConfig && (
             <div className="form-group" style={{ marginBottom: '1rem' }}>
-              <div style={{
-                background: '#e6f7ff',
-                border: '1px solid #91d5ff',
-                borderRadius: '6px',
-                padding: '0.75rem',
-                fontSize: '0.875rem',
-                color: '#003a8c'
-              }}>
+              <div
+                style={{
+                  background: '#e6f7ff',
+                  border: '1px solid #91d5ff',
+                  borderRadius: '6px',
+                  padding: '0.75rem',
+                  fontSize: '0.875rem',
+                  color: '#003a8c',
+                }}
+              >
                 <strong>Connected to:</strong> {embeddedConfig.baseUrl}
               </div>
             </div>
           )}
-          
+
           {hasViteBaseUrl && !hasEmbeddedConfig && (
             <div className="form-group" style={{ marginBottom: '1rem' }}>
-              <div style={{
-                background: '#fff2e6',
-                border: '1px solid #ffd591',
-                borderRadius: '6px',
-                padding: '0.75rem',
-                fontSize: '0.875rem',
-                color: '#ad6800'
-              }}>
+              <div
+                style={{
+                  background: '#fff2e6',
+                  border: '1px solid #ffd591',
+                  borderRadius: '6px',
+                  padding: '0.75rem',
+                  fontSize: '0.875rem',
+                  color: '#ad6800',
+                }}
+              >
                 <strong>Development mode:</strong> {viteBaseUrl}
               </div>
             </div>
@@ -173,36 +192,41 @@ export function ConfigScreen({ onConfigSuccess }: ConfigScreenProps) {
 
           <div className="form-group">
             <label className="form-label" htmlFor="username">
-              Username
+              {t('mobile.ui.config.username_label', 'Username')}
             </label>
             <input
               type="text"
               id="username"
               name="username"
               className="form-input"
-              placeholder="mario.rossi"
+              placeholder={t('mobile.ui.config.username_placeholder', 'john.doe')}
               defaultValue={state.username}
               autoComplete="username"
               required
             />
-            <p className="form-hint">Your WordPress username</p>
+            <p className="form-hint">
+              {t('mobile.ui.config.username_hint', 'Your WordPress username')}
+            </p>
           </div>
 
           <div className="form-group">
             <label className="form-label" htmlFor="appPassword">
-              App password
+              {t('mobile.ui.config.app_password_label', 'App password')}
             </label>
             <input
               type="password"
               id="appPassword"
               name="appPassword"
               className="form-input"
-              placeholder="xxxx xxxx xxxx xxxx"
+              placeholder={t('mobile.ui.config.app_password_placeholder', 'xxxx xxxx xxxx xxxx')}
               autoComplete="current-password"
               required
             />
             <p className="form-hint">
-              The application password generated in WordPress (not the normal password)
+              {t(
+                'mobile.ui.config.app_password_hint',
+                'The application password generated in WordPress (not the normal password)'
+              )}
             </p>
           </div>
 
@@ -213,7 +237,9 @@ export function ConfigScreen({ onConfigSuccess }: ConfigScreenProps) {
           )}
 
           <button type="submit" className="btn-primary" disabled={isConnecting}>
-            {isConnecting ? 'Connecting...' : 'Connect'}
+            {isConnecting
+              ? t('mobile.ui.config.connecting_btn', 'Connecting...')
+              : t('mobile.ui.config.connect_btn', 'Connect')}
           </button>
         </form>
       </div>

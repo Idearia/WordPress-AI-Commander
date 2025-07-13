@@ -47,14 +47,14 @@ class PwaPage
     {
         // Get the current request path
         $request_path = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
-        
+
         // Remove the WordPress subdirectory if it exists
         $home_path = trim(parse_url(home_url(), PHP_URL_PATH), '/');
         if (!empty($home_path) && strpos($request_path, $home_path) === 0) {
             $request_path = substr($request_path, strlen($home_path));
             $request_path = trim($request_path, '/');
         }
-        
+
         // Check if this is a request for our PWA
         if ($request_path === $this->get_pwa_path()) {
             $this->render_pwa_page();
@@ -69,15 +69,15 @@ class PwaPage
     {
         // Get configuration data
         $config = $this->generate_pwa_config();
-        
+
         // Get the base URL for assets
         $plugin_url = untrailingslashit(plugin_dir_url(dirname(__FILE__)));
         $assets_url = $plugin_url . '/mobile/app/assets';
-        
+
         // Set proper headers
         header('Content-Type: text/html; charset=utf-8');
         header('Cache-Control: no-cache, must-revalidate');
-        
+
         ?>
 <!DOCTYPE html>
 <html lang="<?php echo esc_attr(get_locale()); ?>">
@@ -126,17 +126,17 @@ class PwaPage
     {
         // Get the app directory to scan for built assets
         $app_dir = plugin_dir_path(dirname(__FILE__)) . 'mobile/app/assets';
-        
+
         if (is_dir($app_dir)) {
             $files = scandir($app_dir);
-            
+
             // Include CSS files
             foreach ($files as $file) {
                 if (preg_match('/^main-.*\.css$/', $file)) {
                     echo '<link rel="stylesheet" crossorigin href="' . esc_url($assets_url . '/' . $file) . '">' . "\n";
                 }
             }
-            
+
             // Include JS files
             foreach ($files as $file) {
                 if (preg_match('/^main-.*\.js$/', $file)) {
@@ -159,6 +159,11 @@ class PwaPage
 
         // Get translations
         $translations = MobileTranslations::get_translations();
+
+        // Debug
+        // error_log(print_r($translations,    true));
+        // error_log('Language: ' . $locale);
+        // error_log('WPLANG: ' . get_option('WPLANG'));
 
         // Generate manifest data
         $manifest = $this->generate_manifest_data($translations);
@@ -187,7 +192,7 @@ class PwaPage
         $pwa_description = apply_filters('ai_commander_filter_pwa_description', $translations['mobile.manifest.description']);
         $pwa_theme_color = apply_filters('ai_commander_filter_pwa_theme_color', '#1e3c72');
         $pwa_background_color = apply_filters('ai_commander_filter_pwa_background_color', '#1e3c72');
-        
+
         // Build manifest
         $manifest = array(
             'name' => $pwa_name,
@@ -201,7 +206,7 @@ class PwaPage
             'scope' => '/',
             'icons' => apply_filters('ai_commander_filter_pwa_icons', array())
         );
-        
+
         // Allow filtering the entire manifest
         return apply_filters('ai_commander_filter_pwa_manifest', $manifest);
     }
