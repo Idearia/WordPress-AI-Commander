@@ -152,6 +152,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Helper functions
   const updateStatus = (status: AppState['status']) => {
+    console.log('[AppContext] Updating status:', status.toUpperCase());
     dispatch({ type: 'UPDATE_STATUS', payload: status });
   };
 

@@ -66,7 +66,7 @@ export function MicButton({
 
     // Only start press-and-hold timer in recording state
     if (state.status === 'recording') {
-      console.log('[MicButton] Starting press-and-hold timer (300ms)');
+      console.log(`[MicButton] Starting press-and-hold timer (${PRESS_HOLD_DELAY}ms)`);
       // Start timer for press-and-hold detection
       pressTimer.current = window.setTimeout(() => {
         setIsPressAndHold(true);
@@ -78,7 +78,7 @@ export function MicButton({
         }
       }, PRESS_HOLD_DELAY);
     } else {
-      console.log('[MicButton] Not in recording state, skipping press-and-hold');
+      console.log('[MicButton] Not in recording state, skipping press-and-hold detection');
     }
   };
 
@@ -121,24 +121,6 @@ export function MicButton({
     }
 
     // Reset for next press
-    setIsPressAndHold(false);
-    pressStartTime.current = 0;
-  };
-
-  const handlePressCancel = () => {
-    console.log('[MicButton] Press cancelled');
-
-    // Clear timer and reset state if user moves away
-    if (pressTimer.current) {
-      clearTimeout(pressTimer.current);
-      pressTimer.current = null;
-    }
-
-    if (isPressAndHold && onPressAndHoldEnd) {
-      console.log('[MicButton] Press-and-hold cancelled, calling onPressAndHoldEnd');
-      onPressAndHoldEnd();
-    }
-
     setIsPressAndHold(false);
     pressStartTime.current = 0;
   };
@@ -212,10 +194,8 @@ export function MicButton({
         }}
         onMouseDown={handlePressStart}
         onMouseUp={handlePressEnd}
-        onMouseLeave={handlePressCancel}
         onTouchStart={handlePressStart}
         onTouchEnd={handlePressEnd}
-        onTouchCancel={handlePressCancel}
       >
         {getButtonContent()}
       </button>

@@ -68,8 +68,8 @@ export class SessionManager {
         sessionData.modalities || ['text', 'audio']
       );
 
-      console.log('Session modalities:', sessionData.modalities);
-      console.log('Custom TTS enabled:', !sessionData.modalities?.includes('audio'));
+      console.log('[SessionManager] Session modalities:', sessionData.modalities);
+      console.log('[SessionManager] Custom TTS enabled:', !sessionData.modalities?.includes('audio'));
 
       // Establish WebRTC connection to OpenAI
       await this.webrtcService.startSession(sessionData.client_secret.value, sessionData.model, {
@@ -146,7 +146,7 @@ export class SessionManager {
   private async handleServerEvent(event: MessageEvent): Promise<void> {
     try {
       const data: RealtimeEvent = JSON.parse(event.data);
-      console.log('Server event:', data.type);
+      console.log('[SessionManager] Server event:', data.type);
 
       const state = this.getState();
 
@@ -281,7 +281,6 @@ export class SessionManager {
    * This is used when OpenAI's audio modality is disabled.
    */
   private async playCustomTts(text: string): Promise<void> {
-    console.log('[SessionManager] Starting custom TTS for text:', text);
     try {
       await this.audioService.playCustomTtsAudio(
         text,
@@ -316,6 +315,7 @@ export class SessionManager {
    */
   private async processToolCall(toolCall: ToolCall): Promise<void> {
     // Status is already set to 'tool_wait' when receiving function_call_arguments.delta
+    console.log('[SessionManager] Processing tool call:', toolCall);
     try {
       const result = await this.apiService.executeTool({
         tool_name: toolCall.name,

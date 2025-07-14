@@ -69,8 +69,6 @@ export class AudioService {
       return;
     }
 
-    console.log('[AudioService] Playing custom TTS for:', text);
-
     try {
       this.isPlayingCustomTts = true;
       this.currentAudioElement = audioElement;
