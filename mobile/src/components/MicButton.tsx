@@ -41,7 +41,6 @@ export function MicButton({
       case 'recording':
       case 'processing':
       case 'tool_wait':
-      case 'idle':
         onStopRecording();
         break;
 
@@ -158,8 +157,6 @@ export function MicButton({
         return t('mobile.status.speaking_interruptible', 'Press to interrupt');
       case 'tool_wait':
         return t('mobile.status.tool_wait', 'Executing command...');
-      case 'idle':
-        return t('mobile.status.idle', 'Waiting...');
       case 'error':
         return t('mobile.status.error', 'Error');
       default:
@@ -186,7 +183,6 @@ export function MicButton({
         );
 
       case 'speaking':
-      case 'idle':
         return (
           <svg viewBox="0 0 24 24" fill="currentColor">
             <rect x="6" y="6" width="12" height="12" rx="2" />

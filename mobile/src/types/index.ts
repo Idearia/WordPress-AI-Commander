@@ -41,7 +41,6 @@ export type AppStatus =
   | 'processing'
   | 'speaking'
   | 'tool_wait'
-  | 'idle'
   | 'error';
 
 export interface Message {

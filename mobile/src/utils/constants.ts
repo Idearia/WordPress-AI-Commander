@@ -103,7 +103,6 @@ export class UiMessages {
       speaking: t('mobile.status.speaking', 'Response in progress...'),
       speaking_interruptible: t('mobile.status.speaking_interruptible', 'Press to interrupt'),
       tool_wait: t('mobile.status.tool_wait', 'Executing command...'),
-      idle: t('mobile.status.idle', 'Waiting...'),
       error: t('mobile.status.error', 'Error'),
     } as const;
   }

@@ -201,9 +201,9 @@ export class SessionManager {
           break;
 
         case 'output_audio_buffer.stopped':
-          // Audio playback finished - return to idle state if not using custom TTS
+          // Audio playback finished - return to recording state if not using custom TTS
           if (!state.isCustomTtsEnabled) {
-            this.dispatch.updateStatus('idle');
+            this.dispatch.updateStatus('recording');
           }
           break;
 
@@ -268,10 +268,10 @@ export class SessionManager {
     if (toolCall) {
       await this.processToolCall(toolCall);
     } else {
-      // If no tool calls and not using custom TTS, return to idle state
+      // If no tool calls and not using custom TTS, return to recording state
       const currentState = this.getState();
       if (!currentState.isCustomTtsEnabled) {
-        this.dispatch.updateStatus('idle');
+        this.dispatch.updateStatus('recording');
       }
     }
   }
