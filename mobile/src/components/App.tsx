@@ -1,29 +1,32 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAppContext } from '@/context/AppContext';
 import { TranslationProvider } from '@/hooks/useTranslation';
+import { useApiService } from '@/hooks/useApiService';
+import { useAudioService } from '@/hooks/useAudioService';
+import { useSessionManager } from '@/hooks/useSessionManager';
 import { ApiService } from '@/services/ApiService';
 import { TranslationService } from '@/services/TranslationService';
-import { SessionManager } from '@/services/SessionManager';
-import { AudioService } from '@/services/AudioService';
 import { ConfigScreen } from './ConfigScreen';
 import { MainApp } from './MainApp';
 import { STORAGE_KEYS } from '@/utils/constants';
 
 export function App() {
-  const {
-    state,
-    setSiteConfig,
-    clearSiteConfig,
-    updateStatus,
-    addMessage,
-    clearMessages,
-    updateTranscript,
-    appendTranscript,
-    queueToolCall,
-    dequeueToolCall,
-    setSessionData,
-    setPlayingCustomTts,
-  } = useAppContext();
+  const { state, setSiteConfig, clearSiteConfig } = useAppContext();
+
+  // Audio element reference for WebRTC
+  const audioElementRef = useRef<HTMLAudioElement | null>(null);
+
+  // React hooks for service management - automatically handle lifecycle
+  const apiService = useApiService(state.siteUrl, state.bearerToken);
+  const audioService = useAudioService(apiService);
+
+  // SessionManager needs to be created after audio element is available
+  // We'll use a state to track when it's ready
+  const [audioElementReady, setAudioElementReady] = useState(false);
+  const sessionManager = useSessionManager(
+    apiService,
+    audioElementReady ? audioElementRef.current : null
+  );
 
   // Check if we have embedded config from WordPress
   const embeddedConfig = window.AI_COMMANDER_CONFIG;
@@ -54,11 +57,6 @@ export function App() {
     return service;
   });
 
-  // Service references
-  const apiServiceRef = useRef<ApiService | null>(null);
-  const sessionManagerRef = useRef<SessionManager | null>(null);
-  const audioServiceRef = useRef<AudioService | null>(null);
-  const audioElementRef = useRef<HTMLAudioElement | null>(null);
   const isInitializedRef = useRef<boolean>(false);
 
   // Initialize app on mount
@@ -75,6 +73,7 @@ export function App() {
     const audioElement = document.querySelector('#remoteAudio') as HTMLAudioElement;
     if (audioElement) {
       audioElementRef.current = audioElement;
+      setAudioElementReady(true);
     }
   }, []);
 
@@ -116,17 +115,14 @@ export function App() {
           const storedPassword = localStorage.getItem(STORAGE_KEYS.APP_PASSWORD);
           const bearerToken = ApiService.generateBearerToken(state.username, storedPassword!);
 
-          // Create API service with embedded base URL
-          const apiService = new ApiService(embeddedConfig.baseUrl, bearerToken);
-
           // Update state with embedded base URL and bearer token
           setSiteConfig(embeddedConfig.baseUrl, state.username, bearerToken);
 
-          // Load translations (will use embedded ones first)
-          await ensureTranslationsLoaded(apiService);
+          // Create temporary API service for translation loading
+          const tempApiService = new ApiService(embeddedConfig.baseUrl, bearerToken);
 
-          // Store API service for later use
-          apiServiceRef.current = apiService;
+          // Load translations (will use embedded ones first)
+          await ensureTranslationsLoaded(tempApiService);
 
           // Show main app
           setCurrentScreen('main');
@@ -157,17 +153,14 @@ export function App() {
             const storedPassword = localStorage.getItem(STORAGE_KEYS.APP_PASSWORD);
             const bearerToken = ApiService.generateBearerToken(state.username, storedPassword!);
 
-            // Create API service with Vite base URL
-            const apiService = new ApiService(viteBaseUrl, bearerToken);
-
             // Update state with Vite base URL and bearer token
             setSiteConfig(viteBaseUrl, state.username, bearerToken);
 
-            // Load translations from API
-            await ensureTranslationsLoaded(apiService);
+            // Create temporary API service for translation loading
+            const tempApiService = new ApiService(viteBaseUrl, bearerToken);
 
-            // Store API service for later use
-            apiServiceRef.current = apiService;
+            // Load translations from API
+            await ensureTranslationsLoaded(tempApiService);
 
             // Show main app
             setCurrentScreen('main');
@@ -190,17 +183,14 @@ export function App() {
           const storedPassword = localStorage.getItem(STORAGE_KEYS.APP_PASSWORD);
           const bearerToken = ApiService.generateBearerToken(state.username, storedPassword!);
 
-          // Create API service with stored site URL
-          const apiService = new ApiService(state.siteUrl, bearerToken);
-
           // Update state with bearer token
           setSiteConfig(state.siteUrl, state.username, bearerToken);
 
-          // Load translations from API
-          await ensureTranslationsLoaded(apiService);
+          // Create temporary API service for translation loading
+          const tempApiService = new ApiService(state.siteUrl, bearerToken);
 
-          // Store API service for later use
-          apiServiceRef.current = apiService;
+          // Load translations from API
+          await ensureTranslationsLoaded(tempApiService);
 
           // Show main app
           setCurrentScreen('main');
@@ -226,125 +216,50 @@ export function App() {
     // Always ensure translations are loaded after successful config
     await ensureTranslationsLoaded(apiService);
 
-    // Store API service for later use
-    apiServiceRef.current = apiService;
-
-    // Switch to main app
+    // Switch to main app - hooks will automatically create services
     setCurrentScreen('main');
     console.log('[App] Config success, switched to main app');
   };
 
   const handleChangeConfig = () => {
-    // Clean up services
-    cleanupServices();
+    // Stop any active session before switching screens
+    if (sessionManager) {
+      sessionManager.stopSession();
+    }
     setCurrentScreen('config');
     console.log('[App] Switched to config screen');
   };
 
   const handleLogout = () => {
-    // Clean up services and clear config
-    cleanupServices();
+    // Stop any active session and clear config
+    if (sessionManager) {
+      sessionManager.stopSession();
+    }
     clearSiteConfig();
     setCurrentScreen('config');
     console.log('[App] User logged out');
   };
 
-  const cleanupServices = () => {
-    if (sessionManagerRef.current) {
-      sessionManagerRef.current.stopSession();
-      sessionManagerRef.current = null;
-    }
-
-    if (audioServiceRef.current && audioElementRef.current) {
-      audioServiceRef.current.cleanup(audioElementRef.current);
-      audioServiceRef.current = null;
-    }
-
-    apiServiceRef.current = null;
-  };
-
-  const initializeServices = async (): Promise<void> => {
-    // Ensure we have a valid API service
-    if (!apiServiceRef.current) {
-      if (!state.siteUrl || !state.bearerToken) {
-        throw new Error('No API service available. Please check your configuration.');
-      }
-
-      // Create API service (already tested in initializeApp)
-      apiServiceRef.current = new ApiService(state.siteUrl, state.bearerToken);
-
-      // Ensure translations are loaded with current API service
-      await ensureTranslationsLoaded(apiServiceRef.current);
-    }
-
-    // Initialize audio service if needed
-    if (!audioServiceRef.current) {
-      audioServiceRef.current = new AudioService(apiServiceRef.current);
-    }
-
-    // Initialize session manager if needed
-    if (!sessionManagerRef.current && audioElementRef.current) {
-      // Create proper adapter between React context and SessionManager
-      const stateManagerBridge = {
-        getState: () => state,
-        setState: (newState: any) => {
-          // Map partial state updates to individual React context actions
-          Object.keys(newState).forEach((key) => {
-            const value = newState[key];
-            switch (key) {
-              case 'status':
-                updateStatus(value);
-                break;
-              case 'currentTranscript':
-                updateTranscript(value);
-                break;
-              case 'isPlayingCustomTts':
-                setPlayingCustomTts(value);
-                break;
-              default:
-                console.log('[App] Unhandled setState key:', key, value);
-            }
-          });
-        },
-        subscribe: (_callback: any) => {
-          // React handles subscriptions through re-renders, so this is a no-op
-          console.log('[App] SessionManager subscribing to state changes (handled by React)');
-          return () => {}; // Return unsubscribe function
-        },
-        updateStatus: updateStatus,
-        setSiteConfig: setSiteConfig,
-        clearSiteConfig: clearSiteConfig,
-        addMessage: addMessage,
-        clearMessages: clearMessages,
-        updateTranscript: updateTranscript,
-        appendTranscript: appendTranscript,
-        queueToolCall: queueToolCall,
-        dequeueToolCall: dequeueToolCall,
-        setSessionData: setSessionData,
-        setPlayingCustomTts: setPlayingCustomTts,
-      };
-
-      sessionManagerRef.current = new SessionManager(
-        stateManagerBridge as any,
-        apiServiceRef.current,
-        audioElementRef.current
-      );
-    }
-  };
-
+  /**
+   * Handles starting a recording session.
+   * Uses React hooks to automatically manage service lifecycle.
+   */
   const handleStartRecording = async () => {
     try {
       setIsLoading(true);
-      await initializeServices();
+
+      // Check if services are available (hooks auto-create them)
+      if (!sessionManager) {
+        throw new Error('Session manager not available. Please check your configuration.');
+      }
 
       // Unlock mobile audio on first interaction
-      if (audioServiceRef.current && audioElementRef.current) {
-        audioServiceRef.current.unlockMobileAudio(audioElementRef.current);
+      if (audioService && audioElementRef.current) {
+        audioService.unlockMobileAudio(audioElementRef.current);
       }
 
-      if (sessionManagerRef.current) {
-        await sessionManagerRef.current.startSession();
-      }
+      // Start the session
+      await sessionManager.startSession();
     } catch (error) {
       console.error('Failed to start recording session:', error);
       // TODO: Show error to user via context
@@ -354,26 +269,26 @@ export function App() {
   };
 
   const handleStopRecording = () => {
-    if (sessionManagerRef.current) {
-      sessionManagerRef.current.stopSession();
+    if (sessionManager) {
+      sessionManager.stopSession();
     }
   };
 
   const handleInterruptTts = () => {
-    if (sessionManagerRef.current) {
-      sessionManagerRef.current.interruptTts();
+    if (sessionManager) {
+      sessionManager.interruptTts();
     }
   };
 
   const handlePressAndHoldStart = () => {
-    if (sessionManagerRef.current) {
-      sessionManagerRef.current.setVadEnabled(false);
+    if (sessionManager) {
+      sessionManager.setVadEnabled(false);
     }
   };
 
   const handlePressAndHoldEnd = () => {
-    if (sessionManagerRef.current) {
-      sessionManagerRef.current.setVadEnabled(true);
+    if (sessionManager) {
+      sessionManager.setVadEnabled(true);
     }
   };
 

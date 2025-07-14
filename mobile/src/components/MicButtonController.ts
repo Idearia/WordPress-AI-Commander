@@ -57,7 +57,7 @@ export class MicButtonController {
 
   private handlePressStart(e: Event): void {
     console.log('[MicButton] Press start event:', e.type, 'Current state:', this.currentState);
-    
+
     // Only prevent default for touch events to avoid scroll
     if (e.type === 'touchstart') {
       e.preventDefault();
@@ -73,10 +73,10 @@ export class MicButtonController {
       this.pressTimer = window.setTimeout(() => {
         this.isPressAndHold = true;
         console.log('[MicButton] Press-and-hold ACTIVATED');
-        
+
         // Add visual feedback
         this.buttonElement.classList.add('press-and-hold');
-        
+
         if (this.callbacks.onPressAndHoldStart) {
           console.log('[MicButton] Calling onPressAndHoldStart callback');
           this.callbacks.onPressAndHoldStart();
@@ -89,8 +89,16 @@ export class MicButtonController {
 
   private handlePressEnd(e: Event): void {
     const pressDuration = Date.now() - this.pressStartTime;
-    console.log('[MicButton] Press end event:', e.type, 'Duration:', pressDuration, 'ms', 'isPressAndHold:', this.isPressAndHold);
-    
+    console.log(
+      '[MicButton] Press end event:',
+      e.type,
+      'Duration:',
+      pressDuration,
+      'ms',
+      'isPressAndHold:',
+      this.isPressAndHold
+    );
+
     if (e.type === 'touchend') {
       e.preventDefault();
     }
@@ -104,10 +112,10 @@ export class MicButtonController {
     // If press-and-hold was active, end it
     if (this.isPressAndHold && this.callbacks.onPressAndHoldEnd) {
       console.log('[MicButton] Ending press-and-hold, calling onPressAndHoldEnd callback');
-      
+
       // Remove visual feedback
       this.buttonElement.classList.remove('press-and-hold');
-      
+
       this.callbacks.onPressAndHoldEnd();
       // Reset immediately
       this.isPressAndHold = false;
@@ -128,7 +136,7 @@ export class MicButtonController {
 
   private handlePressCancel(_e: Event): void {
     console.log('[MicButton] Press cancelled');
-    
+
     // Clear timer and reset state if user moves away
     if (this.pressTimer) {
       clearTimeout(this.pressTimer);
@@ -137,10 +145,10 @@ export class MicButtonController {
 
     if (this.isPressAndHold && this.callbacks.onPressAndHoldEnd) {
       console.log('[MicButton] Press-and-hold cancelled, calling onPressAndHoldEnd');
-      
+
       // Remove visual feedback
       this.buttonElement.classList.remove('press-and-hold');
-      
+
       this.callbacks.onPressAndHoldEnd();
     }
 

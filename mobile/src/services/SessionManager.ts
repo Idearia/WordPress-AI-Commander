@@ -1,4 +1,3 @@
-import { StateManager } from './StateManager';
 import { ApiService } from './ApiService';
 import { WebRTCService } from './WebRTCService';
 import { AudioService } from './AudioService';
@@ -9,15 +8,42 @@ import {
   TranscriptionEvent,
   DeltaEvent,
   ErrorEvent,
+  AppState,
+  AppStatus,
+  Message,
 } from '@/types';
 import { UiMessages } from '@/utils/constants';
+
+/**
+ * Interface for React dispatch functions that SessionManager uses to update app state.
+ * This eliminates the need for a bridge pattern by directly accepting React functions.
+ */
+export interface SessionManagerDispatch {
+  updateStatus: (status: AppStatus) => void;
+  addMessage: (message: Message) => void;
+  clearMessages: () => void;
+  updateTranscript: (transcript: string) => void;
+  appendTranscript: (delta: string) => void;
+  queueToolCall: (toolCall: ToolCall) => void;
+  dequeueToolCall: () => ToolCall | null;
+  setSessionData: (sessionToken: string, modalities: string[]) => void;
+  setPlayingCustomTts: (isPlaying: boolean) => void;
+}
 
 export class SessionManager {
   private webrtcService: WebRTCService;
   private audioService: AudioService;
 
+  /**
+   * Creates a new SessionManager instance.
+   * @param dispatch - React dispatch functions for updating app state
+   * @param getState - Function to get current app state
+   * @param apiService - Service for making API calls to WordPress backend
+   * @param audioElement - HTML audio element for playing audio
+   */
   constructor(
-    private stateManager: StateManager,
+    private dispatch: SessionManagerDispatch,
+    private getState: () => AppState,
     private apiService: ApiService,
     private audioElement: HTMLAudioElement
   ) {
@@ -25,19 +51,19 @@ export class SessionManager {
     this.audioService = new AudioService(apiService);
   }
 
+  /**
+   * Starts a new voice session with OpenAI's Realtime API.
+   * This establishes a WebRTC connection and configures the session.
+   */
   async startSession(): Promise<void> {
     try {
-      // Batch state updates to avoid multiple notifications
-      this.stateManager.setState({
-        status: 'connecting',
-        messages: [],
-        toolCallQueue: [],
-        currentToolCallId: null,
-      });
+      // Reset UI state for new session
+      this.dispatch.updateStatus('connecting');
+      this.dispatch.clearMessages();
 
-      // Get session token from WordPress
+      // Get session credentials from WordPress backend
       const sessionData = await this.apiService.createSession();
-      this.stateManager.setSessionData(
+      this.dispatch.setSessionData(
         sessionData.client_secret.value,
         sessionData.modalities || ['text', 'audio']
       );
@@ -45,10 +71,10 @@ export class SessionManager {
       console.log('Session modalities:', sessionData.modalities);
       console.log('Custom TTS enabled:', !sessionData.modalities?.includes('audio'));
 
-      // Start WebRTC session
+      // Establish WebRTC connection to OpenAI
       await this.webrtcService.startSession(sessionData.client_secret.value, sessionData.model, {
         onDataChannelOpen: () => {
-          this.stateManager.updateStatus('recording');
+          this.dispatch.updateStatus('recording');
         },
         onDataChannelMessage: (event) => this.handleServerEvent(event),
         onDataChannelError: (error) => {
@@ -69,35 +95,43 @@ export class SessionManager {
     }
   }
 
+  /**
+   * Stops the current voice session and cleans up resources.
+   */
   stopSession(): void {
     // Interrupt any ongoing custom TTS playback
-    if (this.stateManager.getState().isPlayingCustomTts) {
+    if (this.getState().isPlayingCustomTts) {
       this.audioService.interruptCustomTts();
     }
 
     this.webrtcService.closeSession();
     this.audioService.cleanup(this.audioElement);
-    this.stateManager.updateStatus('disconnected');
-    this.stateManager.updateTranscript('');
+    this.dispatch.updateStatus('disconnected');
+    this.dispatch.updateTranscript('');
   }
 
+  /**
+   * Enables or disables voice activity detection (VAD).
+   * When disabled, the session uses press-and-hold mode instead of automatic voice detection.
+   * @param enabled - Whether to enable VAD (true) or use press-and-hold (false)
+   */
   setVadEnabled(enabled: boolean): void {
     console.log(`[SessionManager] setVadEnabled called with:`, enabled);
     try {
       this.webrtcService.updateTurnDetection(enabled ? 'server_vad' : 'none');
       console.log(`[SessionManager] VAD ${enabled ? 'enabled' : 'disabled'} - session update sent`);
-      
-      // When re-enabling VAD after press-to-talk, commit the audio buffer and create response
+
+      // When switching back to VAD after press-to-talk, process the recorded audio
       if (enabled) {
         console.log('[SessionManager] Committing audio buffer after press-to-talk');
         this.webrtcService.sendEvent({
-          type: 'input_audio_buffer.commit'
+          type: 'input_audio_buffer.commit',
         });
-        
-        // Create a response after committing the buffer
+
+        // Request a response from OpenAI after committing the buffer
         console.log('[SessionManager] Creating response after press-to-talk');
         this.webrtcService.sendEvent({
-          type: 'response.create'
+          type: 'response.create',
         });
       }
     } catch (error) {
@@ -105,63 +139,76 @@ export class SessionManager {
     }
   }
 
+  /**
+   * Handles incoming events from OpenAI's Realtime API.
+   * This processes various types of events like transcription, responses, tool calls, etc.
+   */
   private async handleServerEvent(event: MessageEvent): Promise<void> {
     try {
       const data: RealtimeEvent = JSON.parse(event.data);
       console.log('Server event:', data.type, data);
 
-      const state = this.stateManager.getState();
+      const state = this.getState();
 
       switch (data.type) {
         case 'input_audio_buffer.speech_started':
+          // User started speaking - unmute microphone and show recording state
           this.webrtcService.unmuteMicrophone();
-          this.stateManager.updateStatus('recording');
+          this.dispatch.updateStatus('recording');
           break;
 
         case 'input_audio_buffer.speech_stopped':
-          this.stateManager.updateStatus('processing');
+          // User stopped speaking - show processing state
+          this.dispatch.updateStatus('processing');
           break;
 
         case 'conversation.item.input_audio_transcription.completed':
-          this.stateManager.addMessage({
+          // Add user's transcribed message to conversation
+          this.dispatch.addMessage({
             type: 'user',
             content: (data as TranscriptionEvent).transcript,
           });
           break;
 
         case 'response.created':
-          this.stateManager.updateTranscript('');
+          // OpenAI started generating a response - clear any typing indicators
+          this.dispatch.updateTranscript('');
           break;
 
         case 'response.audio_transcript.delta':
         case 'response.text.delta':
-          this.stateManager.appendTranscript((data as DeltaEvent).delta || '');
+          // OpenAI is streaming response text - show typing indicator
+          this.dispatch.appendTranscript((data as DeltaEvent).delta || '');
           break;
 
         case 'response.audio.delta':
+          // OpenAI is streaming audio response - show speaking state if not using custom TTS
           if (!state.isCustomTtsEnabled) {
-            this.stateManager.updateStatus('speaking');
+            this.dispatch.updateStatus('speaking');
           }
           break;
 
         case 'response.function_call_arguments.delta':
-          // Only update to tool_wait if not already in that state
+          // OpenAI is calling a tool - show tool waiting state
           if (state.status !== 'tool_wait') {
-            this.stateManager.updateStatus('tool_wait');
+            this.dispatch.updateStatus('tool_wait');
           }
           break;
 
         case 'response.done':
+          // OpenAI finished generating response - process the complete response
           await this.handleResponseDone(data as ResponseDoneEvent);
           break;
 
         case 'output_audio_buffer.stopped':
+          // Audio playback finished - return to idle state if not using custom TTS
           if (!state.isCustomTtsEnabled) {
-            this.stateManager.updateStatus('idle');
+            this.dispatch.updateStatus('idle');
           }
           break;
 
         case 'error':
+          // Handle API errors
           console.error('API Error:', data);
           this.handleError((data as ErrorEvent).message || UiMessages.ERROR_MESSAGES.UNKNOWN_ERROR);
           break;
@@ -171,29 +218,34 @@ export class SessionManager {
     }
   }
 
+  /**
+   * Handles the completion of OpenAI's response.
+   * This processes the final response text, handles tool calls, and manages custom TTS.
+   */
   private async handleResponseDone(data: ResponseDoneEvent): Promise<void> {
-    // Clear typing indicator
-    this.stateManager.updateTranscript('');
+    // Clear any typing indicators
+    this.dispatch.updateTranscript('');
 
     if (data.response.status === 'failed') {
-      this.stateManager.updateStatus('error');
+      this.dispatch.updateStatus('error');
       return;
     }
 
+    // Extract response text from the response data
     const responseOutput = data.response?.output?.[0]?.content?.[0];
     const responseText = responseOutput?.text || responseOutput?.transcript;
 
     if (responseText) {
-      this.stateManager.addMessage({ type: 'assistant', content: responseText });
+      this.dispatch.addMessage({ type: 'assistant', content: responseText });
     }
 
-    // If custom TTS is enabled, synthesize and play audio now
-    const state = this.stateManager.getState();
+    // Play custom TTS if enabled (when OpenAI audio is disabled)
+    const state = this.getState();
     if (state.isCustomTtsEnabled && responseText) {
       await this.playCustomTts(responseText);
     }
 
-    // Handle function calls
+    // Process any tool calls in the response
     if (data.response.output) {
       data.response.output.forEach((outputItem) => {
         if (
@@ -202,7 +254,7 @@ export class SessionManager {
           outputItem.name &&
           outputItem.arguments
         ) {
-          this.stateManager.queueToolCall({
+          this.dispatch.queueToolCall({
             name: outputItem.name,
             arguments: outputItem.arguments,
             call_id: outputItem.call_id,
@@ -211,13 +263,23 @@ export class SessionManager {
       });
     }
 
-    // Process tool calls if any
-    const toolCall = this.stateManager.dequeueToolCall();
+    // Execute the first tool call if any are queued
+    const toolCall = this.dispatch.dequeueToolCall();
     if (toolCall) {
       await this.processToolCall(toolCall);
+    } else {
+      // If no tool calls and not using custom TTS, return to idle state
+      const currentState = this.getState();
+      if (!currentState.isCustomTtsEnabled) {
+        this.dispatch.updateStatus('idle');
+      }
     }
   }
 
+  /**
+   * Plays custom text-to-speech audio using WordPress backend.
+   * This is used when OpenAI's audio modality is disabled.
+   */
   private async playCustomTts(text: string): Promise<void> {
     console.log('[SessionManager] Starting custom TTS for text:', text);
     try {
@@ -226,28 +288,32 @@ export class SessionManager {
         this.audioElement,
         () => {
           console.log('[SessionManager] Custom TTS started');
-          this.stateManager.setPlayingCustomTts(true);
-          this.stateManager.updateStatus('speaking');
+          this.dispatch.setPlayingCustomTts(true);
+          this.dispatch.updateStatus('speaking');
           this.webrtcService.muteMicrophone();
         },
         () => {
           console.log('[SessionManager] Custom TTS ended');
-          const state = this.stateManager.getState();
+          const state = this.getState();
           if (state.status !== 'disconnected') {
-            this.stateManager.setPlayingCustomTts(false);
+            this.dispatch.setPlayingCustomTts(false);
             this.webrtcService.unmuteMicrophone();
-            this.stateManager.updateStatus('recording');
+            this.dispatch.updateStatus('recording');
           }
         }
       );
     } catch (error) {
       console.error('Custom TTS error:', error);
-      if (this.stateManager.getState().status !== 'disconnected') {
+      if (this.getState().status !== 'disconnected') {
         this.handleError(UiMessages.ERROR_MESSAGES.TTS_FAILED);
       }
     }
   }
 
+  /**
+   * Executes a tool call by sending it to the WordPress backend.
+   * Tools are WordPress actions that can be triggered by OpenAI.
+   */
   private async processToolCall(toolCall: ToolCall): Promise<void> {
     // Status is already set to 'tool_wait' when receiving function_call_arguments.delta
     try {
@@ -271,16 +337,19 @@ export class SessionManager {
       });
     }
 
-    // Process next tool call if any
-    const nextToolCall = this.stateManager.dequeueToolCall();
+    // Process next tool call if any are queued
+    const nextToolCall = this.dispatch.dequeueToolCall();
     if (nextToolCall) {
       await this.processToolCall(nextToolCall);
     }
   }
 
+  /**
+   * Sends a tool execution result back to OpenAI and requests a new response.
+   */
   private sendFunctionResult(callId: string, result: unknown): void {
     try {
-      // Send function result
+      // Send the tool result to OpenAI
       this.webrtcService.sendEvent({
         type: 'conversation.item.create',
         item: {
@@ -290,7 +359,7 @@ export class SessionManager {
         },
       });
 
-      // Request response
+      // Request a new response from OpenAI
       this.webrtcService.sendEvent({
         type: 'response.create',
       });
@@ -299,16 +368,22 @@ export class SessionManager {
     }
   }
 
+  /**
+   * Interrupts any ongoing text-to-speech playback.
+   */
   interruptTts(): void {
-    if (this.stateManager.getState().isPlayingCustomTts) {
+    if (this.getState().isPlayingCustomTts) {
       this.audioService.interruptCustomTts();
     } else {
       this.stopSession();
     }
   }
 
+  /**
+   * Handles errors by updating the UI state and logging.
+   */
   private handleError(message: string): void {
     console.error('Error:', message);
-    this.stateManager.updateStatus('error');
+    this.dispatch.updateStatus('error');
   }
 }

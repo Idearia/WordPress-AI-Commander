@@ -78,11 +78,14 @@ export class AudioService {
       if (onStart) onStart();
 
       console.log('[AudioService] Fetching TTS audio from API...');
-      
+
       // Create a new AbortController for this request
       this.currentAbortController = new AbortController();
-      
-      const audioBlob = await this.apiService.getTextToSpeech(text, this.currentAbortController.signal);
+
+      const audioBlob = await this.apiService.getTextToSpeech(
+        text,
+        this.currentAbortController.signal
+      );
       console.log('[AudioService] Received audio blob, size:', audioBlob.size);
 
       // Check if playback was interrupted

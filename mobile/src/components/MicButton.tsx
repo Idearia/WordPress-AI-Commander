@@ -16,14 +16,14 @@ export function MicButton({
   onStopRecording,
   onInterruptTts,
   onPressAndHoldStart,
-  onPressAndHoldEnd
+  onPressAndHoldEnd,
 }: MicButtonProps) {
   const { t } = useTranslation();
   const { state } = useAppContext();
   const [isPressAndHold, setIsPressAndHold] = useState(false);
   const pressStartTime = useRef(0);
   const pressTimer = useRef<number | null>(null);
-  
+
   const PRESS_HOLD_DELAY = 300; // milliseconds to detect press-and-hold
   const MIN_CLICK_TIME = 50; // minimum time to consider it a click
 
@@ -56,7 +56,7 @@ export function MicButton({
 
   const handlePressStart = (e: React.MouseEvent | React.TouchEvent) => {
     console.log('[MicButton] Press start event:', e.type, 'Current state:', state.status);
-    
+
     // Only prevent default for touch events to avoid scroll
     if (e.type === 'touchstart') {
       e.preventDefault();
@@ -72,7 +72,7 @@ export function MicButton({
       pressTimer.current = window.setTimeout(() => {
         setIsPressAndHold(true);
         console.log('[MicButton] Press-and-hold ACTIVATED');
-        
+
         if (onPressAndHoldStart) {
           console.log('[MicButton] Calling onPressAndHoldStart callback');
           onPressAndHoldStart();
@@ -85,8 +85,16 @@ export function MicButton({
 
   const handlePressEnd = (e: React.MouseEvent | React.TouchEvent) => {
     const pressDuration = Date.now() - pressStartTime.current;
-    console.log('[MicButton] Press end event:', e.type, 'Duration:', pressDuration, 'ms', 'isPressAndHold:', isPressAndHold);
-    
+    console.log(
+      '[MicButton] Press end event:',
+      e.type,
+      'Duration:',
+      pressDuration,
+      'ms',
+      'isPressAndHold:',
+      isPressAndHold
+    );
+
     if (e.type === 'touchend') {
       e.preventDefault();
     }
@@ -120,7 +128,7 @@ export function MicButton({
 
   const handlePressCancel = () => {
     console.log('[MicButton] Press cancelled');
-    
+
     // Clear timer and reset state if user moves away
     if (pressTimer.current) {
       clearTimeout(pressTimer.current);
@@ -165,7 +173,7 @@ export function MicButton({
       case 'processing':
       case 'tool_wait':
         return <div className="spinner"></div>;
-      
+
       case 'recording':
         return (
           <div className="sound-wave">
@@ -176,20 +184,20 @@ export function MicButton({
             <span className="sound-bar"></span>
           </div>
         );
-      
+
       case 'speaking':
       case 'idle':
         return (
           <svg viewBox="0 0 24 24" fill="currentColor">
-            <rect x="6" y="6" width="12" height="12" rx="2"/>
+            <rect x="6" y="6" width="12" height="12" rx="2" />
           </svg>
         );
-      
+
       default:
         return (
           <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
           </svg>
         );
     }
@@ -197,7 +205,7 @@ export function MicButton({
 
   return (
     <div className="control-panel">
-      <button 
+      <button
         className={`mic-button ${state.status} ${isPressAndHold ? 'press-and-hold' : ''}`}
         disabled={state.status === 'connecting'}
         onClick={() => {

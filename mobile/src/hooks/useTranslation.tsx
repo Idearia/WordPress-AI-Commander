@@ -40,9 +40,5 @@ export function TranslationProvider({ children, translationService }: Translatio
     locale: translationService.getLocale(),
   };
 
-  return (
-    <TranslationContext.Provider value={contextValue}>
-      {children}
-    </TranslationContext.Provider>
-  );
+  return <TranslationContext.Provider value={contextValue}>{children}</TranslationContext.Provider>;
 }
