@@ -24,8 +24,6 @@ export interface SessionManagerDispatch {
   clearMessages: () => void;
   updateTranscript: (transcript: string) => void;
   appendTranscript: (delta: string) => void;
-  queueToolCall: (toolCall: ToolCall) => void;
-  dequeueToolCall: () => ToolCall | null;
   setSessionData: (sessionToken: string, modalities: string[]) => void;
   setPlayingCustomTts: (isPlaying: boolean) => void;
 }
@@ -246,6 +244,7 @@ export class SessionManager {
     }
 
     // Process any tool calls in the response
+    const toolCalls: ToolCall[] = [];
     if (data.response.output) {
       data.response.output.forEach((outputItem) => {
         if (
@@ -254,7 +253,7 @@ export class SessionManager {
           outputItem.name &&
           outputItem.arguments
         ) {
-          this.dispatch.queueToolCall({
+          toolCalls.push({
             name: outputItem.name,
             arguments: outputItem.arguments,
             call_id: outputItem.call_id,
@@ -263,12 +262,11 @@ export class SessionManager {
       });
     }
 
-    // Execute the first tool call if any are queued
-    const toolCall = this.dispatch.dequeueToolCall();
-    if (toolCall) {
-      await this.processToolCall(toolCall);
+    // Process tool calls sequentially
+    if (toolCalls.length > 0) {
+      await this.processToolCallsSequentially(toolCalls);
     } else {
-      // If no tool calls and not using custom TTS, return to recording state
+      // Return to recording state if no tool calls and not using custom TTS
       const currentState = this.getState();
       if (!currentState.isCustomTtsEnabled) {
         this.dispatch.updateStatus('recording');
@@ -310,6 +308,15 @@ export class SessionManager {
   }
 
   /**
+   * Processes multiple tool calls sequentially.
+   */
+  private async processToolCallsSequentially(toolCalls: ToolCall[]): Promise<void> {
+    for (const toolCall of toolCalls) {
+      await this.processToolCall(toolCall);
+    }
+  }
+
+  /**
    * Executes a tool call by sending it to the WordPress backend.
    * Tools are WordPress actions that can be triggered by OpenAI.
    */
@@ -335,12 +342,6 @@ export class SessionManager {
         error: true,
         message: UiMessages.ERROR_MESSAGES.NETWORK_ERROR,
       });
-    }
-
-    // Process next tool call if any are queued
-    const nextToolCall = this.dispatch.dequeueToolCall();
-    if (nextToolCall) {
-      await this.processToolCall(nextToolCall);
     }
   }
 

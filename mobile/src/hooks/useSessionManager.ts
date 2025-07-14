@@ -19,8 +19,6 @@ export const useSessionManager = (
     clearMessages,
     updateTranscript,
     appendTranscript,
-    queueToolCall,
-    dequeueToolCall,
     setSessionData,
     setPlayingCustomTts,
   } = useAppContext();
@@ -47,8 +45,6 @@ export const useSessionManager = (
       clearMessages,
       updateTranscript,
       appendTranscript,
-      queueToolCall,
-      dequeueToolCall,
       setSessionData,
       setPlayingCustomTts,
     };
@@ -68,8 +64,6 @@ export const useSessionManager = (
     clearMessages,
     updateTranscript,
     appendTranscript,
-    queueToolCall,
-    dequeueToolCall,
     setSessionData,
     setPlayingCustomTts,
   ]);

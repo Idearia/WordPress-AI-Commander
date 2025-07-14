@@ -26,8 +26,6 @@ export interface AppState {
   peerConnection: RTCPeerConnection | null;
   dataChannel: RTCDataChannel | null;
   localStream: MediaStream | null;
-  toolCallQueue: ToolCall[];
-  currentToolCallId: string | null;
   isCustomTtsEnabled: boolean;
   modalities: string[];
   sessionModalities: string[];

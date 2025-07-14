@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { AppState, Message, ToolCall } from '@/types';
+import { AppState, Message } from '@/types';
 import { STORAGE_KEYS } from '@/utils/constants';
 
 // Action types
@@ -12,8 +12,6 @@ type AppAction =
   | { type: 'CLEAR_MESSAGES' }
   | { type: 'UPDATE_TRANSCRIPT'; payload: string }
   | { type: 'APPEND_TRANSCRIPT'; payload: string }
-  | { type: 'QUEUE_TOOL_CALL'; payload: ToolCall }
-  | { type: 'DEQUEUE_TOOL_CALL' }
   | { type: 'SET_SESSION_DATA'; payload: { sessionToken: string; modalities: string[] } }
   | { type: 'SET_PLAYING_CUSTOM_TTS'; payload: boolean };
 
@@ -28,8 +26,6 @@ const initialState: AppState = {
   peerConnection: null,
   dataChannel: null,
   localStream: null,
-  toolCallQueue: [],
-  currentToolCallId: null,
   sessionToken: '',
   modalities: ['text', 'audio'],
   sessionModalities: [],
@@ -92,19 +88,6 @@ function appReducer(state: AppState, action: AppAction): AppState {
         currentTranscript: state.currentTranscript + action.payload,
       };
 
-    case 'QUEUE_TOOL_CALL':
-      return {
-        ...state,
-        toolCallQueue: [...state.toolCallQueue, action.payload],
-      };
-
-    case 'DEQUEUE_TOOL_CALL':
-      const [, ...remainingToolCalls] = state.toolCallQueue;
-      return {
-        ...state,
-        toolCallQueue: remainingToolCalls,
-        currentToolCallId: remainingToolCalls[0]?.call_id || null,
-      };
 
     case 'SET_SESSION_DATA':
       return {
@@ -137,8 +120,6 @@ interface AppContextType {
   clearMessages: () => void;
   updateTranscript: (transcript: string) => void;
   appendTranscript: (text: string) => void;
-  queueToolCall: (toolCall: ToolCall) => void;
-  dequeueToolCall: () => ToolCall | null;
   setSessionData: (sessionToken: string, modalities: string[]) => void;
   setPlayingCustomTts: (playing: boolean) => void;
 }
@@ -180,17 +161,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'APPEND_TRANSCRIPT', payload: text });
   };
 
-  const queueToolCall = (toolCall: ToolCall) => {
-    dispatch({ type: 'QUEUE_TOOL_CALL', payload: toolCall });
-  };
-
-  const dequeueToolCall = (): ToolCall | null => {
-    const toolCall = state.toolCallQueue[0] || null;
-    if (toolCall) {
-      dispatch({ type: 'DEQUEUE_TOOL_CALL' });
-    }
-    return toolCall;
-  };
 
   const setSessionData = (sessionToken: string, modalities: string[]) => {
     dispatch({ type: 'SET_SESSION_DATA', payload: { sessionToken, modalities } });
@@ -210,8 +180,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     clearMessages,
     updateTranscript,
     appendTranscript,
-    queueToolCall,
-    dequeueToolCall,
     setSessionData,
     setPlayingCustomTts,
   };
