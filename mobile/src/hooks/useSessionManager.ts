@@ -54,7 +54,6 @@ export const useSessionManager = (
     };
 
     // Create session manager with direct React integration - no bridge needed
-    console.log('[useSessionManager] Creating session manager');
     return new SessionManager(
       dispatch,
       () => stateRef.current, // Function to get current state from ref

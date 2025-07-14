@@ -146,7 +146,7 @@ export class SessionManager {
   private async handleServerEvent(event: MessageEvent): Promise<void> {
     try {
       const data: RealtimeEvent = JSON.parse(event.data);
-      console.log('Server event:', data.type, data);
+      console.log('Server event:', data.type);
 
       const state = this.getState();
 

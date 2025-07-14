@@ -97,8 +97,6 @@ export function MainApp({
         onPressAndHoldStart={onPressAndHoldStart}
         onPressAndHoldEnd={onPressAndHoldEnd}
       />
-
-      <audio style={{ display: 'none' }} autoPlay playsInline />
     </div>
   );
 }
