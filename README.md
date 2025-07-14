@@ -1,4 +1,12 @@
-# AI Commander
+---
+
+Versione privata del plugin Idearia AI Commander.  La versione pubblica è disponibile al seguente link:
+
+- https://github.com/Idearia/WordPress-AI-Commander
+
+---
+
+# Idearia AI Commander
 
 Control WordPress with natural language or voice, with API support.  Uses OpenAI to process commands and execute the appropriate WordPress actions.
 
