@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  ReactNode,
+  useCallback,
+  useMemo,
+} from 'react';
 import { AppState, Message } from '@/types';
 import { STORAGE_KEYS } from '@/utils/constants';
 
@@ -131,58 +138,104 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
 
-  // Helper functions
-  const updateStatus = (status: AppState['status']) => {
-    console.log('[AppContext] Updating status:', status.toUpperCase());
-    dispatch({ type: 'UPDATE_STATUS', payload: status });
-  };
+  // Helper functions – wrapped in useCallback so their reference
+  // stays stable across re-renders, thus allowing memoization of
+  // hooks using them.  This is both:
+  // - a performance optimization
+  // - a critical bug fix, because the useSessionManager hook depends
+  //   on these dispatch functions, and if they change at every render,
+  //   the SessionManager class will be re-created at every render,
+  //   losing its internal state, thus breaking the interrupt and
+  //   press-and-hold functionalities.
+  const updateStatus = useCallback(
+    (status: AppState['status']) => {
+      console.log('[AppContext] Updating status:', status.toUpperCase());
+      dispatch({ type: 'UPDATE_STATUS', payload: status });
+    },
+    [dispatch]
+  );
 
-  const setSiteConfig = (siteUrl: string, username: string, bearerToken: string) => {
-    dispatch({ type: 'SET_SITE_CONFIG', payload: { siteUrl, username, bearerToken } });
-  };
+  const setSiteConfig = useCallback(
+    (siteUrl: string, username: string, bearerToken: string) => {
+      dispatch({ type: 'SET_SITE_CONFIG', payload: { siteUrl, username, bearerToken } });
+    },
+    [dispatch]
+  );
 
-  const clearSiteConfig = () => {
+  const clearSiteConfig = useCallback(() => {
     dispatch({ type: 'CLEAR_SITE_CONFIG' });
-  };
+  }, [dispatch]);
 
-  const addMessage = (message: Message) => {
-    dispatch({ type: 'ADD_MESSAGE', payload: message });
-  };
+  const addMessage = useCallback(
+    (message: Message) => {
+      dispatch({ type: 'ADD_MESSAGE', payload: message });
+    },
+    [dispatch]
+  );
 
-  const clearMessages = () => {
+  const clearMessages = useCallback(() => {
     dispatch({ type: 'CLEAR_MESSAGES' });
-  };
+  }, [dispatch]);
 
-  const updateTranscript = (transcript: string) => {
-    dispatch({ type: 'UPDATE_TRANSCRIPT', payload: transcript });
-  };
+  const updateTranscript = useCallback(
+    (transcript: string) => {
+      dispatch({ type: 'UPDATE_TRANSCRIPT', payload: transcript });
+    },
+    [dispatch]
+  );
 
-  const appendTranscript = (text: string) => {
-    dispatch({ type: 'APPEND_TRANSCRIPT', payload: text });
-  };
+  const appendTranscript = useCallback(
+    (text: string) => {
+      dispatch({ type: 'APPEND_TRANSCRIPT', payload: text });
+    },
+    [dispatch]
+  );
 
+  const setSessionData = useCallback(
+    (sessionToken: string, modalities: string[]) => {
+      dispatch({ type: 'SET_SESSION_DATA', payload: { sessionToken, modalities } });
+    },
+    [dispatch]
+  );
 
-  const setSessionData = (sessionToken: string, modalities: string[]) => {
-    dispatch({ type: 'SET_SESSION_DATA', payload: { sessionToken, modalities } });
-  };
+  const setPlayingCustomTts = useCallback(
+    (playing: boolean) => {
+      dispatch({ type: 'SET_PLAYING_CUSTOM_TTS', payload: playing });
+    },
+    [dispatch]
+  );
 
-  const setPlayingCustomTts = (playing: boolean) => {
-    dispatch({ type: 'SET_PLAYING_CUSTOM_TTS', payload: playing });
-  };
-
-  const contextValue: AppContextType = {
-    state,
-    dispatch,
-    updateStatus,
-    setSiteConfig,
-    clearSiteConfig,
-    addMessage,
-    clearMessages,
-    updateTranscript,
-    appendTranscript,
-    setSessionData,
-    setPlayingCustomTts,
-  };
+  // Memoise the context so its reference only changes when necessary.
+  // Wrapping the context in a useMemo is a common React pattern to avoid
+  // unnecessary re-renders.
+  const contextValue: AppContextType = useMemo(
+    () => ({
+      state,
+      dispatch,
+      updateStatus,
+      setSiteConfig,
+      clearSiteConfig,
+      addMessage,
+      clearMessages,
+      updateTranscript,
+      appendTranscript,
+      setSessionData,
+      setPlayingCustomTts,
+    }),
+    [
+      state,
+      dispatch,
+      updateStatus,
+      setSiteConfig,
+      clearSiteConfig,
+      addMessage,
+      clearMessages,
+      updateTranscript,
+      appendTranscript,
+      setSessionData,
+      setPlayingCustomTts,
+    ]
+  );
 
   return <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>;
 }

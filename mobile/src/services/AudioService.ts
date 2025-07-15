@@ -162,6 +162,11 @@ export class AudioService {
       console.log('[AudioService] Aborted TTS request');
     }
 
+    if (!this.currentAudioElement) {
+      console.error('[AudioService] No audio element to interrupt');
+      return;
+    }
+
     if (this.isPlayingCustomTts && this.currentAudioElement) {
       this.isPlayingCustomTts = false;
       this.currentAudioElement.pause();
@@ -172,7 +177,7 @@ export class AudioService {
         delete this.currentAudioElement.dataset.objectUrl;
       }
 
-      console.log('Custom TTS interrupted by user');
+      console.log('[AudioService] Custom TTS interrupted by user');
     }
   }
 

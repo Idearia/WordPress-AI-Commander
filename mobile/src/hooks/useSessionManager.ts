@@ -49,6 +49,7 @@ export const useSessionManager = (
       setPlayingCustomTts,
     };
 
+    console.log('[useSessionManager] Creating session manager');
     // Create session manager with direct React integration - no bridge needed
     return new SessionManager(
       dispatch,
