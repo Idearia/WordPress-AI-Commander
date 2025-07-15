@@ -311,7 +311,18 @@ export function App() {
 
   const handlePressAndHoldStart = () => {
     if (sessionManager) {
-      sessionManager.setVadEnabled(false);
+      if (state.status === 'speaking' && state.isCustomTtsEnabled) {
+        // If the LLM is speaking, first interrupt the TTS
+        // then set the VAD to false to avoid interrupting the recording
+        sessionManager.interruptTts();
+        sessionManager.setVadEnabled(false);
+      } else if (state.status === 'recording') {
+        // Otherwise, if we are recording, we just need to disable the VAD
+        sessionManager.setVadEnabled(false);
+      } else {
+        // this should never happen
+        console.error('[App] handlePressAndHoldStart called in invalid state:', state.status);
+      }
     }
   };
 

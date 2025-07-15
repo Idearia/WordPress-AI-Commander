@@ -24,6 +24,7 @@ export function MicButton({
   const pressStartTime = useRef(0);
   const pressTimer = useRef<number | null>(null);
 
+  const PRESS_HOLD_STATUSES = ['recording', 'speaking']; // statuses where the mic can be pressed and held
   const PRESS_HOLD_DELAY = 300; // milliseconds to detect press-and-hold
   const MIN_CLICK_TIME = 50; // minimum time to consider it a click
 
@@ -65,8 +66,8 @@ export function MicButton({
     pressStartTime.current = Date.now();
     setIsPressAndHold(false);
 
-    // Only start press-and-hold timer in recording state
-    if (state.status === 'recording') {
+    // Only start press-and-hold timer in recording or speaking state
+    if (PRESS_HOLD_STATUSES.includes(state.status)) {
       console.log(`[MicButton] Starting press-and-hold timer (${PRESS_HOLD_DELAY}ms)`);
       // Start timer for press-and-hold detection
       pressTimer.current = window.setTimeout(() => {
@@ -79,7 +80,10 @@ export function MicButton({
         }
       }, PRESS_HOLD_DELAY);
     } else {
-      console.log('[MicButton] Not in recording state, skipping press-and-hold detection');
+      console.log(
+        '[MicButton] Skipping press-and-hold detection in state:',
+        state.status
+      );
     }
   };
 
