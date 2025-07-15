@@ -28,6 +28,7 @@ export function MicButton({
   const MIN_CLICK_TIME = 50; // minimum time to consider it a click
 
   const handleClick = () => {
+    console.log('[MicButton] handleClick called with status:', state.status);
     switch (state.status) {
       case 'disconnected':
       case 'error':

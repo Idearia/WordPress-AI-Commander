@@ -481,7 +481,7 @@ class OpenaiClient
      *
      * It is important to keep the tool calls unchanged, as they will be
      * needed to later reference the actual tool calls made.
-     * 
+     *
      * @param array $response The API response.
      * @return array The processed response.
      */
@@ -544,7 +544,11 @@ class OpenaiClient
         );
 
         if ($this->debug_mode) {
-            error_log('OpenAI Realtime Session Request Body: ' . wp_json_encode($request_body, JSON_PRETTY_PRINT));
+            $short_request_body = $request_body;
+            if (isset($short_request_body['tools'])) {
+                $short_request_body['tools'] = '[REDACTED BY AI COMMANDER FOR BREVITY]';
+            }
+            error_log('OpenAI Realtime Session Request Body: ' . wp_json_encode($short_request_body, JSON_PRETTY_PRINT));
         }
 
         // Prepare request arguments for wp_remote_post
@@ -572,7 +576,14 @@ class OpenaiClient
         $result = json_decode($response_body, true);
 
         if ($this->debug_mode) {
-            error_log('OpenAI Realtime Session Response (Code: ' . $response_code . '): ' . wp_json_encode($result, JSON_PRETTY_PRINT));
+            $short_result = $result;
+            if (isset($short_result['instructions'])) {
+                $short_result['instructions'] = '[REDACTED BY AI COMMANDER FOR BREVITY]';
+            }
+            if (isset($short_result['tools'])) {
+                $short_result['tools'] = '[REDACTED BY AI COMMANDER FOR BREVITY]';
+            }
+            error_log('OpenAI Realtime Session Response (Code: ' . $response_code . '): ' . wp_json_encode($short_result, JSON_PRETTY_PRINT));
         }
 
         if ($response_code !== 200) {
