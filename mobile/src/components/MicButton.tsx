@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAppContext } from '@/context/AppContext';
 import { AppStatus } from '@/types';
@@ -23,10 +23,63 @@ export function MicButton({
   const [isPressAndHold, setIsPressAndHold] = useState(false);
   const pressStartTime = useRef(0);
   const pressTimer = useRef<number | null>(null);
+  const isTrackingPress = useRef(false);
 
   const PRESS_HOLD_STATUSES = ['recording', 'speaking']; // statuses where the mic can be pressed and held
   const PRESS_HOLD_DELAY = 300; // milliseconds to detect press-and-hold
   const MIN_CLICK_TIME = 50; // minimum time to consider it a click
+
+  // Global event listener for touch/mouse events outside the button
+  // Needed to make press-and-hold work also when the user releases the button
+  // outside the button area.
+  useEffect(() => {
+    const handleGlobalEnd = (e: TouchEvent | MouseEvent) => {
+      if (!isTrackingPress.current) return;
+
+      const pressDuration = Date.now() - pressStartTime.current;
+      console.log('[MicButton] Global end event:',
+        e.type,
+        'Duration:',
+        pressDuration,
+        'ms',
+        'isPressAndHold:',
+        isPressAndHold
+      );
+
+      // Clear the timer
+      if (pressTimer.current) {
+        clearTimeout(pressTimer.current);
+        pressTimer.current = null;
+      }
+
+      // If press-and-hold was active, end it
+      if (isPressAndHold && onPressAndHoldEnd) {
+        console.log('[MicButton] Ending press-and-hold via global event, calling onPressAndHoldEnd callback');
+        onPressAndHoldEnd();
+      } else if (
+        pressStartTime.current > 0 &&
+        pressDuration >= MIN_CLICK_TIME &&
+        pressDuration < PRESS_HOLD_DELAY
+      ) {
+        // Normal click: between MIN_CLICK_TIME and PRESS_HOLD_DELAY
+        console.log('[MicButton] Normal click detected via global event, calling handleClick()');
+        handleClick();
+      }
+
+      // Reset for next press
+      setIsPressAndHold(false);
+      pressStartTime.current = 0;
+      isTrackingPress.current = false;
+    };
+
+    document.addEventListener('touchend', handleGlobalEnd);
+    document.addEventListener('mouseup', handleGlobalEnd);
+
+    return () => {
+      document.removeEventListener('touchend', handleGlobalEnd);
+      document.removeEventListener('mouseup', handleGlobalEnd);
+    };
+  }, [isPressAndHold, onPressAndHoldEnd]);
 
   const handleClick = () => {
     console.log('[MicButton] handleClick called with status:', state.status);
@@ -65,6 +118,7 @@ export function MicButton({
 
     pressStartTime.current = Date.now();
     setIsPressAndHold(false);
+    isTrackingPress.current = true;
 
     // Only start press-and-hold timer in recording or speaking state
     if (PRESS_HOLD_STATUSES.includes(state.status)) {
@@ -88,9 +142,12 @@ export function MicButton({
   };
 
   const handlePressEnd = (e: React.MouseEvent | React.TouchEvent) => {
+    // Only handle if we're still tracking this press
+    if (!isTrackingPress.current) return;
+
     const pressDuration = Date.now() - pressStartTime.current;
     console.log(
-      '[MicButton] Press end event:',
+      '[MicButton] Press end event (on button):',
       e.type,
       'Duration:',
       pressDuration,
@@ -128,6 +185,7 @@ export function MicButton({
     // Reset for next press
     setIsPressAndHold(false);
     pressStartTime.current = 0;
+    isTrackingPress.current = false;
   };
 
   const getStatusText = (status: AppStatus): string => {
