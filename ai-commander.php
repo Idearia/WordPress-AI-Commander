@@ -177,6 +177,7 @@ function ai_commander_init()
 
     // Initialize the PWA page handler
     $pwa_page = new PwaPage();
+    $pwa_page->register_hooks();
 
     // Initialize the AJAX handlers
     $ajax_handlers = new AICommander\Includes\AjaxHandlers();

@@ -22,9 +22,9 @@ if (! defined('WPINC')) {
 class PwaPage
 {
     /**
-     * Constructor.
+     * Register hooks.
      */
-    public function __construct()
+    public function register_hooks()
     {
         add_action('init', array($this, 'maybe_serve_pwa'), 1);
     }
@@ -151,7 +151,7 @@ class PwaPage
      *
      * @return array The configuration array.
      */
-    private function generate_pwa_config()
+    public function generate_pwa_config()
     {
         // Get site information
         $site_url = untrailingslashit(get_site_url());

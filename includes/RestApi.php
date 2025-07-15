@@ -163,6 +163,7 @@ class RestApi
         ));
 
         // Register route for getting translations for mobile app
+        // (used before the pwa-config was introduced)
         register_rest_route('ai-commander/v1', '/translations', array(
             'methods' => 'GET',
             'callback' => array($this, 'get_translations'),
@@ -173,6 +174,15 @@ class RestApi
         register_rest_route('ai-commander/v1', '/manifest', array(
             'methods' => 'GET',
             'callback' => array($this, 'get_manifest'),
+            'permission_callback' => '__return_true', // Public endpoint
+        ));
+
+        // Register route for getting the whole PWA configuration
+        // (used in test environment by the PWA app; in production this info
+        // is written directly on the PWA page itself)
+        register_rest_route('ai-commander/v1', '/pwa-config', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_pwa_config'),
             'permission_callback' => '__return_true', // Public endpoint
         ));
 
@@ -544,7 +554,7 @@ class RestApi
     }
 
     /**
-     * Get translations for mobile app.
+     * Get translations for mobile app
      *
      * @return \WP_REST_Response The translations response.
      */
@@ -615,5 +625,15 @@ class RestApi
         header('Content-Type: application/manifest+json');
 
         return rest_ensure_response($manifest);
+    }
+
+    /**
+     * Get the whole PWA configuration, including translations, manifest,
+     * assistant greeting, etc.
+     */
+    public function get_pwa_config()
+    {
+        $config = (new PwaPage())->generate_pwa_config();
+        return rest_ensure_response($config);
     }
 }
