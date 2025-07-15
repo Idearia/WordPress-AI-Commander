@@ -23,12 +23,8 @@ export interface AppState {
   status: AppStatus;
   messages: Message[];
   currentTranscript: string;
-  peerConnection: RTCPeerConnection | null;
-  dataChannel: RTCDataChannel | null;
-  localStream: MediaStream | null;
   isCustomTtsEnabled: boolean;
   modalities: string[];
-  sessionModalities: string[];
   isPlayingCustomTts: boolean;
 }
 

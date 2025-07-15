@@ -30,12 +30,8 @@ const initialState: AppState = {
   bearerToken: '',
   messages: [],
   currentTranscript: '',
-  peerConnection: null,
-  dataChannel: null,
-  localStream: null,
   sessionToken: '',
   modalities: ['text', 'audio'],
-  sessionModalities: [],
   isCustomTtsEnabled: false,
   isPlayingCustomTts: false,
 };
