@@ -96,6 +96,11 @@ export class ApiService {
     return await response.blob();
   }
 
+  async getAssistantGreeting(): Promise<string> {
+    const response = await this.get('/wp-json/ai-commander/v1/assistant-greeting');
+    return response.data;
+  }
+
   async get(endpoint: string): Promise<{ data: any }> {
     const response = await fetch(`${this.siteUrl}${endpoint}`, {
       method: 'GET',

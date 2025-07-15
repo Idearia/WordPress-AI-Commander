@@ -162,8 +162,18 @@ class RestApi
             ),
         ));
 
+        // Register route for getting the assistant greeting.  This is an
+        // authenticated endpoint because sometimes the greeting is
+        // customized via hooks to include the user's name.
+        register_rest_route('ai-commander/v1', '/assistant-greeting', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_assistant_greeting'),
+            'permission_callback' => array($this, 'check_permission'),
+        ));
+
         // Register route for getting translations for mobile app
-        // (used before the pwa-config was introduced)
+        // (used in test environment by the PWA app, in production
+        // translations are dumped directly on the PWA page itself)
         register_rest_route('ai-commander/v1', '/translations', array(
             'methods' => 'GET',
             'callback' => array($this, 'get_translations'),
@@ -178,8 +188,9 @@ class RestApi
         ));
 
         // Register route for getting the whole PWA configuration
-        // (used in test environment by the PWA app; in production this info
-        // is written directly on the PWA page itself)
+        // (currently not used, might use in the future if you need to pass
+        // more unauthenticated stuff to the PWA app, right now is just
+        // translations so we use the /translations endpoint instead)
         register_rest_route('ai-commander/v1', '/pwa-config', array(
             'methods' => 'GET',
             'callback' => array($this, 'get_pwa_config'),
@@ -554,6 +565,17 @@ class RestApi
     }
 
     /**
+     * Get the assistant greeting.
+     *
+     * @return \WP_REST_Response|\WP_Error The response object.
+     */
+    public function get_assistant_greeting()
+    {
+        $greeting = ConversationManager::get_assistant_greeting();
+        return rest_ensure_response($greeting);
+    }
+
+    /**
      * Get translations for mobile app
      *
      * @return \WP_REST_Response The translations response.
@@ -630,6 +652,12 @@ class RestApi
     /**
      * Get the whole PWA configuration, including translations, manifest,
      * assistant greeting, etc.
+     *
+     * If you personalized the assistant's greeting to include the user name,
+     * don't use this endpoint, use the authenticated /assistant-greeting
+     * endpoint instead.
+     *
+     * @return \WP_REST_Response The response object.
      */
     public function get_pwa_config()
     {

@@ -72,6 +72,26 @@ export class SessionManager {
       // Establish WebRTC connection to OpenAI
       await this.webrtcService.startSession(sessionData.client_secret.value, sessionData.model, {
         onDataChannelOpen: () => {
+          // Add the assistant's greeting message to the conversation
+          // The presence of a human-sounding greeting message cues the
+          // assistant to keep replying with human-readable messages, rather
+          // than technical messages, such as raw JSON (this happened quite often
+          // before adding the greeting message).
+          this.webrtcService.sendEvent({
+            type: 'conversation.item.create',
+            item: {
+              type: 'message',
+              role: 'assistant',
+              content: [
+                {
+                  type: 'text',
+                  text: this.getState().assistantGreeting,
+                },
+              ],
+            },
+          });
+          console.log('[SessionManager] Assistant greeting sent:', this.getState().assistantGreeting);
+          // Set the app state to recording
           this.dispatch.updateStatus('recording');
         },
         onDataChannelMessage: (event) => this.handleServerEvent(event),
@@ -85,6 +105,7 @@ export class SessionManager {
             this.audioElement.play().catch((e) => console.error('Audio play error:', e));
           }
         },
+
       });
     } catch (error) {
       console.error('Session start error:', error);

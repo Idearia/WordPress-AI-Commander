@@ -11,7 +11,7 @@ import { MainApp } from './MainApp';
 import { STORAGE_KEYS } from '@/utils/constants';
 
 export function App() {
-  const { state, setSiteConfig, clearSiteConfig } = useAppContext();
+  const { state, setSiteConfig, clearSiteConfig, setAssistantGreeting } = useAppContext();
 
   // Audio element reference for WebRTC
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
@@ -42,7 +42,11 @@ export function App() {
   );
   const [isLoading, setIsLoading] = useState<boolean>(hasStoredCredentials);
 
-  // Pre-load translations from embedded config (runs before first render)
+  // Pre-load variables that might be in the embedded config, that is, the app
+  // string translations and the assistant greeting.  We do it here, before the
+  // first render, to avoid flickering (aka FOUC).  If these variables are not
+  // found in the embedded config (because we are on a dev server), nothing is
+  // done here, but later we will load them from the API.
   const [translationService] = useState(() => {
     const service = new TranslationService();
     const cfg = window.AI_COMMANDER_CONFIG;
@@ -103,6 +107,28 @@ export function App() {
     }
   };
 
+  const ensureAssistantGreetingLoaded = async (apiService: ApiService): Promise<void> => {
+    // First try to use embedded assistant greeting
+    if (embeddedConfig?.assistantGreeting) {
+      try {
+        setAssistantGreeting(embeddedConfig.assistantGreeting);
+        console.log('[App] Using embedded assistant greeting');
+        return;
+      } catch (error) {
+        console.warn('[App] Failed to use embedded assistant greeting:', error);
+      }
+    }
+
+    // Fallback to loading from API
+      try {
+        const assistantGreeting = await apiService.getAssistantGreeting();
+        setAssistantGreeting(assistantGreeting);
+        console.log('[App] Assistant greeting loaded from API');
+      } catch (error) {
+      console.warn('[App] Failed to load assistant greeting, using fallbacks:', error);
+    }
+  };
+
   const initializeApp = async () => {
     try {
       // If we have embedded config, use that as the base URL
@@ -121,8 +147,9 @@ export function App() {
           // Create temporary API service for translation loading
           const tempApiService = new ApiService(embeddedConfig.baseUrl, bearerToken);
 
-          // Load translations (will use embedded ones first)
+          // Load translations and assistant greeting (will use embedded ones first)
           await ensureTranslationsLoaded(tempApiService);
+          await ensureAssistantGreetingLoaded(tempApiService);
 
           // Show main app
           setCurrentScreen('main');
@@ -159,8 +186,9 @@ export function App() {
             // Create temporary API service for translation loading
             const tempApiService = new ApiService(viteBaseUrl, bearerToken);
 
-            // Load translations from API
+            // Load translations and assistant greeting from API
             await ensureTranslationsLoaded(tempApiService);
+            await ensureAssistantGreetingLoaded(tempApiService);
 
             // Show main app
             setCurrentScreen('main');
@@ -189,8 +217,9 @@ export function App() {
           // Create temporary API service for translation loading
           const tempApiService = new ApiService(state.siteUrl, bearerToken);
 
-          // Load translations from API
+          // Load translations and assistant greeting from API
           await ensureTranslationsLoaded(tempApiService);
+          await ensureAssistantGreetingLoaded(tempApiService);
 
           // Show main app
           setCurrentScreen('main');

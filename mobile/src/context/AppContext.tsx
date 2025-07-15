@@ -15,6 +15,7 @@ type AppAction =
   | { type: 'UPDATE_STATUS'; payload: AppState['status'] }
   | { type: 'SET_SITE_CONFIG'; payload: { siteUrl: string; username: string; bearerToken: string } }
   | { type: 'CLEAR_SITE_CONFIG' }
+  | { type: 'SET_ASSISTANT_GREETING'; payload: string }
   | { type: 'ADD_MESSAGE'; payload: Message }
   | { type: 'CLEAR_MESSAGES' }
   | { type: 'UPDATE_TRANSCRIPT'; payload: string }
@@ -34,6 +35,7 @@ const initialState: AppState = {
   modalities: ['text', 'audio'],
   isCustomTtsEnabled: false,
   isPlayingCustomTts: false,
+  assistantGreeting: 'Hello, how can I help you today?',
 };
 
 // Reducer function
@@ -65,6 +67,12 @@ function appReducer(state: AppState, action: AppAction): AppState {
         siteUrl: '',
         username: '',
         bearerToken: '',
+      };
+
+    case 'SET_ASSISTANT_GREETING':
+      return {
+        ...state,
+        assistantGreeting: action.payload,
       };
 
     case 'ADD_MESSAGE':
@@ -119,6 +127,7 @@ interface AppContextType {
   updateStatus: (status: AppState['status']) => void;
   setSiteConfig: (siteUrl: string, username: string, bearerToken: string) => void;
   clearSiteConfig: () => void;
+  setAssistantGreeting: (greeting: string) => void;
   addMessage: (message: Message) => void;
   clearMessages: () => void;
   updateTranscript: (transcript: string) => void;
@@ -161,6 +170,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const clearSiteConfig = useCallback(() => {
     dispatch({ type: 'CLEAR_SITE_CONFIG' });
   }, [dispatch]);
+
+  const setAssistantGreeting = useCallback(
+    (greeting: string) => {
+      dispatch({ type: 'SET_ASSISTANT_GREETING', payload: greeting });
+    },
+    [dispatch]
+  );
 
   const addMessage = useCallback(
     (message: Message) => {
@@ -211,6 +227,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updateStatus,
       setSiteConfig,
       clearSiteConfig,
+      setAssistantGreeting,
       addMessage,
       clearMessages,
       updateTranscript,
@@ -224,6 +241,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updateStatus,
       setSiteConfig,
       clearSiteConfig,
+      setAssistantGreeting,
       addMessage,
       clearMessages,
       updateTranscript,

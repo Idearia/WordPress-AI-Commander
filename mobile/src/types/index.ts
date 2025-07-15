@@ -5,6 +5,7 @@ export interface PWAConfig {
   translations: Record<string, string>;
   manifest: any;
   pwaPath: string;
+  assistantGreeting: string;
   version: string;
 }
 
@@ -26,6 +27,7 @@ export interface AppState {
   isCustomTtsEnabled: boolean;
   modalities: string[];
   isPlayingCustomTts: boolean;
+  assistantGreeting: string;
 }
 
 export type AppStatus =

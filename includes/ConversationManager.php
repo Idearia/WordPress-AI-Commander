@@ -34,7 +34,7 @@ class ConversationManager
      *
      * @return string The assistant greeting.
      */
-    public function get_assistant_greeting()
+    public static function get_assistant_greeting()
     {
         // Default greeting if option is not set
         $default_greeting = self::get_default_assistant_greeting();
@@ -80,7 +80,7 @@ class ConversationManager
         $this->add_message(
             $uuid,
             'assistant',
-            $this->get_assistant_greeting()
+            static::get_assistant_greeting()
         );
 
         return $uuid;

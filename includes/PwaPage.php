@@ -160,13 +160,16 @@ class PwaPage
         // Get translations
         $translations = MobileTranslations::get_translations();
 
+        // Generate manifest data
+        $manifest = $this->generate_manifest_data($translations);
+
+        // Get the assistant greeting
+        $assistant_greeting = ConversationManager::get_assistant_greeting();
+
         // Debug
         // error_log(print_r($translations,    true));
         // error_log('Language: ' . $locale);
         // error_log('WPLANG: ' . get_option('WPLANG'));
-
-        // Generate manifest data
-        $manifest = $this->generate_manifest_data($translations);
 
         return array(
             'baseUrl' => $site_url,
@@ -174,6 +177,7 @@ class PwaPage
             'translations' => $translations,
             'manifest' => $manifest,
             'pwaPath' => $this->get_pwa_path(),
+            'assistantGreeting' => $assistant_greeting,
             'version' => defined('AI_COMMANDER_VERSION') ? AI_COMMANDER_VERSION : '1.0.0',
         );
     }
