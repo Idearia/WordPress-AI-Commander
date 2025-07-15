@@ -187,12 +187,6 @@ export function MicButton({
       <button
         className={`mic-button ${state.status} ${isPressAndHold ? 'press-and-hold' : ''}`}
         disabled={state.status === 'connecting'}
-        onClick={() => {
-          // Only handle click if it's not from a press-and-hold
-          if (!isPressAndHold && pressStartTime.current === 0) {
-            handleClick();
-          }
-        }}
         onMouseDown={handlePressStart}
         onMouseUp={handlePressEnd}
         onTouchStart={handlePressStart}
